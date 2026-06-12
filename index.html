@@ -553,7 +553,7 @@ const C={
   EST:'ESTADO_SERVICIO',
   MOTIVO:'MOTIVO',
   EMPRESA:'TIPO_EMPRESA',
-  FECHA_SOL:'FECHA_SOLICITUD',
+  FECHA_SOL:'FE_PREPLANIFICADA_DMA',
   ENLACE:'TIPO_ENLACE',
   ID_SERV:'ID_SERVICIO',
   PRODUCTO:'PRODUCTO',
@@ -1272,8 +1272,8 @@ function exportarAlertasExcel(tbl){
   if(!rows||!rows.length)return;
   const isGest=tbl==='gest';
   const headers=isGest
-    ?['GESTOR','LOGIN','CLIENTE','PRODUCTO','ESTADO_SERVICIO','FE_ULT_PLAN','DIAS_SIN_GESTION','FECHA_SOLICITUD','DIAS_DESDE_SOLICITUD']
-    :['GESTOR','LOGIN','CLIENTE','PRODUCTO','ESTADO_SERVICIO','FECHA_SOLICITUD','DIAS_DESDE_SOLICITUD','FE_ULT_PLAN','DIAS_SIN_GESTION'];
+    ?['GESTOR','LOGIN','CLIENTE','PRODUCTO','ESTADO_SERVICIO','FE_ULT_PLAN','DIAS_SIN_GESTION','FE_PREPLANIFICADA_DMA','DIAS_DESDE_SOLICITUD']
+    :['GESTOR','LOGIN','CLIENTE','PRODUCTO','ESTADO_SERVICIO','FE_PREPLANIFICADA_DMA','DIAS_DESDE_SOLICITUD','FE_ULT_PLAN','DIAS_SIN_GESTION'];
   const escape=v=>'"'+(String(v||'').replace(/"/g,'""'))+'"';
   const lines=[headers.map(escape).join(',')];
   rows.forEach(r=>{
@@ -1739,7 +1739,7 @@ function exportarExcelGestor(encoded){
   const d=_gestorMapCache[nombre];
   if(!d||!d.rows)return;
   const rows=d.rows.filter(r=>tieneCarga(r)||esPre(r));
-  const headers=['FECHA_SOLICITUD','NOMBRE_USR_ULT_PLAN','TIPO_EMPRESA','CLIENTE','LOGIN',
+  const headers=['FE_PREPLANIFICADA_DMA','NOMBRE_USR_ULT_PLAN','TIPO_EMPRESA','CLIENTE','LOGIN',
     'ESTADO_SERVICIO','PRODUCTO','TIPO_ORDEN','TECNICA_SUCURSAL','FE_ULT_PLANIFICADA',
     'OBS_ULT_PLAN','MOTIVO','ULT_OBS_REPLANIFICADA','ESTADO_CONTRATO','VENDEDOR','CORTE'];
   const colKeys=[C.FECHA_SOL,C.GESTOR,C.EMPRESA,C.CLIENTE,C.LOGIN,C.EST,
@@ -1765,7 +1765,7 @@ function exportarExcel(){
   let rows=d.rows.filter(tieneCarga);
   if(_detalleEstadoFil!=='all')rows=rows.filter(r=>getEst(r)===_detalleEstadoFil);
 
-  const headers=['FECHA_SOLICITUD','NOMBRE_USR_ULT_PLAN','TIPO_EMPRESA','CLIENTE','LOGIN','ESTADO_SERVICIO',
+  const headers=['FE_PREPLANIFICADA_DMA','NOMBRE_USR_ULT_PLAN','TIPO_EMPRESA','CLIENTE','LOGIN','ESTADO_SERVICIO',
     'PRODUCTO','TIPO_ORDEN','TECNICA_SUCURSAL','FE_ULT_PLANIFICADA','DIAS_SIN_GESTION',
     'OBS_ULT_PLAN','MOTIVO','ULT_OBS_REPLANIFICADA','ESTADO_CONTRATO','TIPO_EMPRESA','VENDEDOR','CORTE'];
   const colKeys=[C.FECHA_SOL,C.GESTOR,C.EMPRESA,C.CLIENTE,C.LOGIN,C.EST,

@@ -221,16 +221,63 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 .td-tooltip{position:fixed;z-index:9999;background:rgba(10,25,60,.97);border:1px solid rgba(0,176,240,.45);color:#e8f0ff;font-size:12px;font-family:var(--font);padding:7px 12px;border-radius:8px;max-width:380px;white-space:pre-wrap;word-break:break-word;box-shadow:0 6px 24px rgba(0,0,0,.6);pointer-events:none;opacity:0;transition:opacity .12s;line-height:1.5}
 .td-tooltip.visible{opacity:1}
 
-/* ── GESTOR CARD REDISEÑO ───────────────────────────── */
-.gc-tabs{display:flex;gap:0;border-bottom:2px solid rgba(0,176,240,.2);margin:10px 0 0}
-.gc-tab{padding:7px 16px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
-  color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;
-  transition:color .2s,border-color .2s;user-select:none}
-.gc-tab:hover{color:var(--azul-c)}
-.gc-tab.active{color:var(--azul-c);border-bottom-color:var(--azul-c)}
-.gc-tab-panel{display:none;padding:12px 0 0}
-.gc-tab-panel.active{display:block}
-/* ── PANEL ANÁLISIS ─────────────────────────────────── */
+/* ── GESTOR NAVIGATOR ───────────────────────────────── */
+.gestor-nav{display:flex;flex-wrap:wrap;gap:6px;padding:10px 0 0;margin-bottom:0}
+.gestor-nav-tab{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:20px;cursor:pointer;
+  border:1.5px solid rgba(0,176,240,.25);
+  background:rgba(0,176,240,.06);
+  font-family:var(--font-cond);font-size:13px;font-weight:700;
+  color:var(--muted);letter-spacing:.03em;
+  transition:all .18s;user-select:none;white-space:nowrap;
+}
+.gestor-nav-tab:hover{border-color:rgba(0,176,240,.6);color:var(--azul-c);background:rgba(0,176,240,.12)}
+.gestor-nav-tab.active{
+  border-color:var(--azul-c);color:#fff;
+  background:linear-gradient(135deg,rgba(0,176,240,.3),rgba(0,181,203,.15));
+  box-shadow:0 0 12px rgba(0,176,240,.3);
+}
+.gestor-nav-tab .nav-badge{
+  font-size:10px;font-weight:800;
+  padding:1px 6px;border-radius:8px;
+  background:rgba(255,255,255,.12);
+}
+.gestor-nav-tab.active .nav-badge{background:rgba(0,176,240,.4)}
+.gestor-nav-tab .nav-alert{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+}
+/* ── PANEL ÚNICO ────────────────────────────────────── */
+.gestor-panel{
+  background:var(--card-bg);border:1px solid var(--border);
+  border-radius:12px;padding:16px 20px;margin-top:10px;
+  box-shadow:0 2px 16px rgba(0,0,0,.2);
+}
+.gestor-panel-header{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:8px;margin-bottom:12px;
+}
+.gestor-panel-name{
+  font-family:var(--font-cond);font-weight:700;font-size:20px;
+  letter-spacing:.5px;color:var(--turquesa);display:flex;align-items:center;gap:8px;
+}
+.gestor-panel-badges{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+/* barra estados */
+.gc-bar{display:flex;height:6px;border-radius:3px;overflow:hidden;margin:8px 0 6px;gap:2px}
+.gc-seg{border-radius:2px;transition:width .3s}
+.gc-estados{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;margin-bottom:12px}
+.gc-est{display:flex;align-items:center;gap:5px}
+.gc-est-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.gc-est-n{font-weight:800;font-size:14px}
+/* sub-pestañas análisis/detalle */
+.gp-tabs{display:flex;gap:0;border-bottom:2px solid rgba(0,176,240,.2);margin:4px 0 0}
+.gp-tab{padding:7px 18px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+.gp-tab:hover{color:var(--azul-c)}
+.gp-tab.active{color:var(--azul-c);border-bottom-color:var(--azul-c)}
+.gp-panel{display:none;padding:14px 0 0}
+.gp-panel.active{display:block}
+/* análisis grid */
 .gc-analisis-grid{display:grid;grid-template-columns:180px 1fr 1fr;gap:14px;align-items:start}
 .gc-donut-wrap{display:flex;flex-direction:column;align-items:center;gap:6px}
 .gc-donut-title{font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--azul-c);text-transform:uppercase;text-align:center}
@@ -240,12 +287,10 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 .gc-donut-legend-pct{margin-left:auto;font-weight:700;font-size:11px}
 .gc-alert-panel{display:flex;flex-direction:column;gap:6px}
 .gc-alert-title{font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--azul-c);text-transform:uppercase;margin-bottom:2px}
-.gc-alert-row{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:7px;
-  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)}
+.gc-alert-row{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)}
 .gc-alert-semaforo{width:11px;height:11px;border-radius:50%;flex-shrink:0;margin-top:3px}
 .gc-alert-info{flex:1;min-width:0}
-.gc-alert-cliente{font-size:14px;color:#e8f0ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:.03em}
+.gc-alert-cliente{font-size:14px;color:#e8f0ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:.03em}
 .gc-alert-login{font-size:12px;color:var(--azul-c);font-weight:700;margin-top:2px}
 .gc-alert-motivo{font-size:11px;color:var(--amarillo);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gc-alert-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
@@ -257,9 +302,8 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 .gc-kpi-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:8px 10px;text-align:center}
 .gc-kpi-val{font-size:22px;font-weight:800;font-family:'Barlow Condensed',sans-serif;line-height:1}
 .gc-kpi-lbl{font-size:9px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.04em}
-/* ── TABLA DETALLE en pestaña ───────────────────────── */
-.gc-tab-panel .gc-detail{display:block;margin:0;padding:0;border:none;background:none}
-.gc-excel-bar{display:flex;justify-content:flex-end;margin-bottom:8px}
+/* tabla detalle dentro panel */
+.gp-panel .gc-detail{display:block;border:none;padding:0;background:none}
 
 </style>
 </head>
@@ -1078,8 +1122,6 @@ function toggleDetalle(id){
 
 function renderGestores(){
   _gcIdCounter=0;
-
-  // Agrupamos directamente filtered — sin ninguna deduplicación por login
   const map={};
   filtered.forEach(r=>{
     const g=r[C.GESTOR]||'Sin gestor';
@@ -1093,9 +1135,7 @@ function renderGestores(){
     if(d!==null&&d>map[g].maxDias)map[g].maxDias=d;
     map[g].rows.push(r);
   });
-
-  // Guardar en cache para exportación
-  Object.entries(map).forEach(([g,d])=>{ if(!_gestorMapCache[g])_gestorMapCache[g]={}; Object.assign(_gestorMapCache[g],d,{nombre:g}); });
+  Object.entries(map).forEach(([g,d])=>{if(!_gestorMapCache[g])_gestorMapCache[g]={};Object.assign(_gestorMapCache[g],d,{nombre:g});});
 
   const rows=Object.entries(map)
     .filter(([,d])=>d.plan+d.det+d.rep+d.asig>0)
@@ -1104,21 +1144,9 @@ function renderGestores(){
   const grid=document.getElementById('gestores-grid');
   if(!rows.length){grid.innerHTML='<div class="empty">Sin datos con carga activa</div>';return;}
 
-  grid.innerHTML=rows.map(([g,d])=>{
+  // Construir _gestorData con detRows pre-calculados
+  _gestorData=rows.map(([g,d])=>{
     const uid=++_gcIdCounter;
-    const tot=d.plan+d.det+d.rep+d.asig;
-    const pp=tot?Math.round(d.plan/tot*100):0;
-    const pd=tot?Math.round(d.det/tot*100):0;
-    const pr=tot?Math.round(d.rep/tot*100):0;
-    const pa=tot?Math.round(d.asig/tot*100):0;
-    const maxD=d.maxDias;
-    const alertCls=maxD>7?'gb-crit':maxD>3?'gb-warn':'gb-ok';
-    const alertTxt=maxD<0?`📅 ${Math.abs(maxD)}d futura`:
-                   maxD===0?`✓ Gestionado hoy`:
-                   maxD>7?`🔴 ${maxD}d sin gestión`:
-                   maxD>3?`⚡ ${maxD}d sin gestión`:
-                   `✓ ${maxD}d`;
-
     const estOrd={Planificada:0,Detenido:1,Replanificada:2,AsignadoTarea:3,PrePlanificada:4};
     const detRows=[...d.rows]
       .filter(r=>tieneCarga(r))
@@ -1127,90 +1155,26 @@ function renderGestores(){
         if(eo!==0)return eo;
         return(diasDesde(b[C.FE_PLAN])||0)-(diasDesde(a[C.FE_PLAN])||0);
       });
+    return {g,d,detRows,uid};
+  });
 
-    const detalleFilas=detRows.map((r,i)=>{
-      const dG=diasDesde(r[C.FE_PLAN]);
-      return`<tr>
-        <td class="td-num">${i+1}</td>
-        <td class="td-num">${fmtDate(r[C.FECHA_SOL])}</td>
-        <td class="td-muted" data-tip="${esc(r[C.EMPRESA])}">${r[C.EMPRESA]||'—'}</td>
-        <td class="td-login" style="font-weight:400;font-size:13px" data-tip="${esc(r[C.LOGIN])}">${r[C.LOGIN]||'—'}</td>
-        <td class="td-client" data-tip="${esc(r[C.CLIENTE])}">${r[C.CLIENTE]||'—'}</td>
-        <td>${pill(getEst(r))}</td>
-        <td class="td-muted" data-tip="${esc(r[C.PRODUCTO])}">${r[C.PRODUCTO]||'—'}</td>
-        <td class="td-muted" data-tip="${esc(r[C.TIPO_ORDEN])}">${r[C.TIPO_ORDEN]||'—'}</td>
-        <td class="td-muted" data-tip="${esc(r[C.SUCURSAL])}">${r[C.SUCURSAL]||'—'}</td>
-        <td class="td-num" style="color:#e8f0ff">${fmtDate(r[C.FE_PLAN])}</td>
-        <td>${abDias(dG)}</td>
-        <td style="font-size:13px;color:var(--amarillo)" data-tip="${esc(r[C.MOTIVO])}">${r[C.MOTIVO]||'—'}</td>
-        <td class="td-muted" data-tip="${esc(r[C.CONTRATO])}">${r[C.CONTRATO]||'—'}</td>
-        <td class="td-muted" data-tip="${esc(r[C.VENDEDOR])}">${r[C.VENDEDOR]||'—'}</td>
-      </tr>`;
-    }).join('');
-
-    // Guardar filas en cache para ordenamiento posterior
-    _gcDetailRowsCache[uid]=detRows;
-
-    // Cortes únicos presentes en este gestor (para info)
-    const cortesGestor=[...new Set(detRows.map(r=>r._fecha))].sort().join(', ');
-
-    return`<div class="gestor-card">
-      <div class="gc-header">
-        <div class="gc-name">👤 ${g}</div>
-        <div class="gc-badges">
-          <span class="gc-badge gb-total">${tot} órdenes · ${d.cli.size} clientes únicos</span>
-          <span class="gc-badge ${alertCls}">${alertTxt}</span>
-        </div>
-      </div>
-      <div class="gc-bar">
-        ${d.plan?`<div class="gc-seg" style="width:${pp}%;background:#00B0F0" title="Planificada: ${d.plan}"></div>`:''}
-        ${d.det? `<div class="gc-seg" style="width:${pd}%;background:#FF44B0" title="Detenido: ${d.det}"></div>`:''}
-        ${d.rep? `<div class="gc-seg" style="width:${pr}%;background:#FFA700" title="Replanificada: ${d.rep}"></div>`:''}
-        ${d.asig?`<div class="gc-seg" style="width:${pa}%;background:#6EBEEB" title="AsignadoTarea: ${d.asig}"></div>`:''}
-      </div>
-      <div class="gc-estados">
-        ${d.plan?`<div class="gc-est"><span class="gc-est-dot" style="background:#00B0F0"></span><span class="gc-est-n" style="color:#00B0F0">${d.plan}</span> Planificada</div>`:''}
-        ${d.det? `<div class="gc-est"><span class="gc-est-dot" style="background:#FF44B0"></span><span class="gc-est-n" style="color:#FF44B0">${d.det}</span> Detenido</div>`:''}
-        ${d.rep? `<div class="gc-est"><span class="gc-est-dot" style="background:#FFA700"></span><span class="gc-est-n" style="color:#FFA700">${d.rep}</span> Replanificada</div>`:''}
-        ${d.asig?`<div class="gc-est"><span class="gc-est-dot" style="background:#6EBEEB"></span><span class="gc-est-n" style="color:#6EBEEB">${d.asig}</span> AsignadoTarea</div>`:''}
-      </div>
-      <div class="gc-tabs">
-        <div class="gc-tab active" id="tab-analisis-${uid}" onclick="switchTab(${uid},'analisis')">📊 Análisis</div>
-        <div class="gc-tab" id="tab-detalle-${uid}" onclick="switchTab(${uid},'detalle')">📋 Detalle · ${detRows.length} órdenes</div>
-        <div style="flex:1"></div>
-        <button onclick="exportarExcelGestor('${encodeURIComponent(g)}')" style="display:flex;align-items:center;gap:5px;padding:4px 12px;border-radius:16px;border:1.5px solid rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#34D399;font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;margin-bottom:2px">
-          ⬇ Excel
-        </button>
-      </div>
-      <div class="gc-tab-panel active" id="panel-analisis-${uid}">
-        ${buildAnalisis(uid,d,detRows)}
-      </div>
-      <div class="gc-tab-panel" id="panel-detalle-${uid}">
-        <div class="gc-detail" id="det-${uid}">
-          <table>
-            <thead><tr>
-              <th>#</th>
-              <th class="sortable" onclick="sortGcDetail(this,${uid},'FECHA_SOL')">Fec. Solicitud</th>
-              <th class="sortable" onclick="sortGcDetail(this,${uid},'EMPRESA')">Tipo Empresa</th>
-              <th>User</th>
-              <th class="sortable" onclick="sortGcDetail(this,${uid},'LOGIN')">Login</th>
-              <th class="sortable" onclick="sortGcDetail(this,${uid},'CLIENTE')">Cliente</th>
-              <th class="sortable" onclick="sortGcDetail(this,${uid},'EST')">Estado Servicio</th>
-              <th class="sortable" onclick="sortGcDetail(this,${uid},'PRODUCTO')">Producto</th>
-              <th class="sortable" onclick="sortGcDetail(this,${uid},'TIPO_ORDEN')">Tipo Orden</th>
-              <th class="sortable" onclick="sortGcDetail(this,${uid},'SUCURSAL')">Téc. Sucursal</th>
-              <th class="sortable" onclick="sortGcDetail(this,${uid},'FE_PLAN')">FE Últ Plan</th>
-              <th class="sortable" onclick="sortGcDetail(this,${uid},'DIAS')">Días sin gestión</th>
-              <th class="sortable" onclick="sortGcDetail(this,${uid},'MOTIVO')">Motivo</th>
-              <th class="sortable" onclick="sortGcDetail(this,${uid},'CONTRATO')">Est. Contrato</th>
-              <th class="sortable" onclick="sortGcDetail(this,${uid},'VENDEDOR')">Vendedor</th>
-            </tr></thead>
-            <tbody id="gc-body-${uid}">${detalleFilas||'<tr><td colspan="16" class="empty">Sin órdenes activas</td></tr>'}</tbody>
-          </table>
-        </div>
-      </div>
+  // Nav tabs (pestañas de gestores)
+  const navHTML=_gestorData.map(({g,d},i)=>{
+    const tot=d.plan+d.det+d.rep+d.asig;
+    const alertColor=d.maxDias>7?'#FF44B0':d.maxDias>3?'#FFA700':'#34D399';
+    return`<div class="gestor-nav-tab${i===0?' active':''}" id="gnav-${i}" onclick="selectGestor(${i})">
+      <div class="nav-alert" style="background:${alertColor}"></div>
+      ${g}
+      <span class="nav-badge">${tot}</span>
     </div>`;
   }).join('');
+
+  grid.innerHTML=`
+    <div class="gestor-nav">${navHTML}</div>
+    <div class="gestor-panel" id="gestor-panel"></div>`;
+
+  // Mostrar el primero por defecto
+  if(_gestorData.length>0) selectGestor(0);
 }
 
 // ── ALERTAS ────────────────────────────────────────────────────────────
@@ -2022,13 +1986,8 @@ async function loadAll(){
 initFilters();
 loadAll();
 
-// ── GESTOR TABS ───────────────────────────────────────────────────────────
-function switchTab(uid, tab){
-  ['analisis','detalle'].forEach(t=>{
-    document.getElementById('tab-'+t+'-'+uid)?.classList.toggle('active', t===tab);
-    document.getElementById('panel-'+t+'-'+uid)?.classList.toggle('active', t===tab);
-  });
-}
+// ── GESTOR NAVIGATOR ──────────────────────────────────────────────────────
+let _gestorData = [];   // [{g, d, detRows, uid}]
 
 function donutSVG(plan,det,rep,asig,tot){
   if(!tot) return '<svg width="130" height="130"><text x="65" y="70" text-anchor="middle" fill="#888" font-size="12">Sin datos</text></svg>';
@@ -2050,7 +2009,7 @@ function donutSVG(plan,det,rep,asig,tot){
   </svg>`;
 }
 
-function buildAnalisis(uid,d,detRows){
+function buildAnalisisHTML(g, d, detRows){
   const tot=d.plan+d.det+d.rep+d.asig;
   const colors={Planificada:'#00B0F0',Detenido:'#FF44B0',Replanificada:'#FFA700',AsignadoTarea:'#6EBEEB',PrePlanificada:'#A78BFA'};
   const donut=donutSVG(d.plan,d.det,d.rep,d.asig,tot);
@@ -2119,6 +2078,121 @@ function buildAnalisis(uid,d,detRows){
       </div>
     </div>
   </div>`;
+}
+
+function selectGestor(idx){
+  _gestorData.forEach((_,i)=>{
+    document.getElementById('gnav-'+i)?.classList.toggle('active', i===idx);
+  });
+  const {g,d,detRows,uid}=_gestorData[idx];
+  const tot=d.plan+d.det+d.rep+d.asig;
+  const pp=tot?Math.round(d.plan/tot*100):0;
+  const pd=tot?Math.round(d.det/tot*100):0;
+  const pr=tot?Math.round(d.rep/tot*100):0;
+  const pa=tot?Math.round(d.asig/tot*100):0;
+  const maxD=d.maxDias;
+  const alertCls=maxD>7?'gb-crit':maxD>3?'gb-warn':'gb-ok';
+  const alertTxt=maxD<0?`📅 ${Math.abs(maxD)}d futura`:
+                 maxD===0?`✓ Gestionado hoy`:
+                 maxD>7?`🔴 ${maxD}d sin gestión`:
+                 maxD>3?`⚡ ${maxD}d sin gestión`:
+                 `✓ ${maxD}d`;
+
+  // Detallefilas
+  const estOrd={Planificada:0,Detenido:1,Replanificada:2,AsignadoTarea:3,PrePlanificada:4};
+  const sortedRows=[...detRows].sort((a,b)=>{
+    const eo=(estOrd[getEst(a)]??9)-(estOrd[getEst(b)]??9);
+    if(eo!==0)return eo;
+    return(diasDesde(b[C.FE_PLAN])||0)-(diasDesde(a[C.FE_PLAN])||0);
+  });
+  _gcDetailRowsCache[uid]=sortedRows;
+
+  const detalleFilas=sortedRows.map((r,i)=>{
+    const dG=diasDesde(r[C.FE_PLAN]);
+    return`<tr>
+      <td class="td-num">${i+1}</td>
+      <td class="td-num">${fmtDate(r[C.FECHA_SOL])}</td>
+      <td class="td-muted" data-tip="${esc(r[C.EMPRESA])}">${r[C.EMPRESA]||'—'}</td>
+      <td style="font-size:12px;color:var(--azul-c);font-weight:600">${r._user||'—'}</td>
+      <td class="td-login" data-tip="${esc(r[C.LOGIN])}">${r[C.LOGIN]||'—'}</td>
+      <td class="td-client" data-tip="${esc(r[C.CLIENTE])}">${r[C.CLIENTE]||'—'}</td>
+      <td>${pill(getEst(r))}</td>
+      <td class="td-muted" data-tip="${esc(r[C.PRODUCTO])}">${r[C.PRODUCTO]||'—'}</td>
+      <td class="td-muted" data-tip="${esc(r[C.TIPO_ORDEN])}">${r[C.TIPO_ORDEN]||'—'}</td>
+      <td class="td-muted" data-tip="${esc(r[C.SUCURSAL])}">${r[C.SUCURSAL]||'—'}</td>
+      <td class="td-num" style="color:#e8f0ff">${fmtDate(r[C.FE_PLAN])}</td>
+      <td>${abDias(dG)}</td>
+      <td style="font-size:13px;color:var(--amarillo)" data-tip="${esc(r[C.MOTIVO])}">${r[C.MOTIVO]||'—'}</td>
+      <td class="td-muted" data-tip="${esc(r[C.CONTRATO])}">${r[C.CONTRATO]||'—'}</td>
+      <td class="td-muted" data-tip="${esc(r[C.VENDEDOR])}">${r[C.VENDEDOR]||'—'}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('gestor-panel').innerHTML=`
+    <div class="gestor-panel-header">
+      <div class="gestor-panel-name">👤 ${g}</div>
+      <div class="gestor-panel-badges">
+        <span class="gc-badge gb-total">${tot} órdenes · ${d.cli.size} clientes únicos</span>
+        <span class="gc-badge ${alertCls}">${alertTxt}</span>
+      </div>
+    </div>
+    <div class="gc-bar">
+      ${d.plan?`<div class="gc-seg" style="width:${pp}%;background:#00B0F0" title="Planificada:${d.plan}"></div>`:''}
+      ${d.det? `<div class="gc-seg" style="width:${pd}%;background:#FF44B0" title="Detenido:${d.det}"></div>`:''}
+      ${d.rep? `<div class="gc-seg" style="width:${pr}%;background:#FFA700" title="Replanificada:${d.rep}"></div>`:''}
+      ${d.asig?`<div class="gc-seg" style="width:${pa}%;background:#6EBEEB" title="AsignadoTarea:${d.asig}"></div>`:''}
+    </div>
+    <div class="gc-estados">
+      ${d.plan?`<div class="gc-est"><span class="gc-est-dot" style="background:#00B0F0"></span><span class="gc-est-n" style="color:#00B0F0">${d.plan}</span> Planificada</div>`:''}
+      ${d.det? `<div class="gc-est"><span class="gc-est-dot" style="background:#FF44B0"></span><span class="gc-est-n" style="color:#FF44B0">${d.det}</span> Detenido</div>`:''}
+      ${d.rep? `<div class="gc-est"><span class="gc-est-dot" style="background:#FFA700"></span><span class="gc-est-n" style="color:#FFA700">${d.rep}</span> Replanificada</div>`:''}
+      ${d.asig?`<div class="gc-est"><span class="gc-est-dot" style="background:#6EBEEB"></span><span class="gc-est-n" style="color:#6EBEEB">${d.asig}</span> AsignadoTarea</div>`:''}
+    </div>
+    <div class="gp-tabs">
+      <div class="gp-tab active" id="gpt-analisis" onclick="switchGpTab('analisis')">📊 Análisis</div>
+      <div class="gp-tab" id="gpt-detalle" onclick="switchGpTab('detalle')">📋 Detalle · ${detRows.length} órdenes</div>
+      <div style="flex:1"></div>
+      <button onclick="exportarExcelGestor('${encodeURIComponent(g)}')"
+        style="display:flex;align-items:center;gap:5px;padding:4px 12px;border-radius:16px;
+               border:1.5px solid rgba(52,211,153,.4);background:rgba(52,211,153,.1);
+               color:#34D399;font-family:var(--font);font-size:11px;font-weight:600;
+               cursor:pointer;white-space:nowrap;margin-bottom:2px">
+        ⬇ Excel
+      </button>
+    </div>
+    <div class="gp-panel active" id="gpp-analisis">
+      ${buildAnalisisHTML(g,d,detRows)}
+    </div>
+    <div class="gp-panel" id="gpp-detalle">
+      <div class="gc-detail" id="det-${uid}">
+        <table><thead><tr>
+          <th>#</th>
+          <th>Fec. Solicitud</th>
+          <th>Tipo Empresa</th>
+          <th>User</th>
+          <th>Login</th>
+          <th>Cliente</th>
+          <th>Estado</th>
+          <th>Producto</th>
+          <th>Tipo Orden</th>
+          <th>Téc. Sucursal</th>
+          <th>FE Últ Plan</th>
+          <th>Días sin gestión</th>
+          <th>Motivo</th>
+          <th>Est. Contrato</th>
+          <th>Vendedor</th>
+        </tr></thead>
+        <tbody id="gc-body-${uid}">${detalleFilas||'<tr><td colspan="15" class="empty">Sin órdenes activas</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function switchGpTab(tab){
+  ['analisis','detalle'].forEach(t=>{
+    document.getElementById('gpt-'+t)?.classList.toggle('active',t===tab);
+    document.getElementById('gpp-'+t)?.classList.toggle('active',t===tab);
+  });
 }
 
 </script>

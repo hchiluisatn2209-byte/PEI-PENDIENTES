@@ -1906,6 +1906,12 @@ async function loadAll(){
         (row[C.GESTOR]||'').trim()!==''
       );
       // Enriquecer cada fila con GRUPO, EQUIPO y TIPO_GESTIÓN desde el mapa de personal
+      // Excluir registros con FE_PREPLANIFICADA_DMA = '-' o vacío
+      valid = valid.filter(row => {
+        const fe = (row[C.FECHA_SOL]||'').trim();
+        return fe !== '-' && fe !== '';
+      });
+
       valid.forEach(row=>{
         const pm=PERSONAL_MAP[(row[C.GESTOR]||'').trim()]||{};
         row._grupo        = pm.grupo  || 'OTROS';

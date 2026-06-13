@@ -220,6 +220,165 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 /* ── TOOLTIP PARA TEXTO TRUNCADO ── */
 .td-tooltip{position:fixed;z-index:9999;background:rgba(10,25,60,.97);border:1px solid rgba(0,176,240,.45);color:#e8f0ff;font-size:12px;font-family:var(--font);padding:7px 12px;border-radius:8px;max-width:380px;white-space:pre-wrap;word-break:break-word;box-shadow:0 6px 24px rgba(0,0,0,.6);pointer-events:none;opacity:0;transition:opacity .12s;line-height:1.5}
 .td-tooltip.visible{opacity:1}
+
+/* ── PANEL ANÁLISIS GESTOR ─────────────────────────── */
+.gc-analisis{
+  margin:10px 0 0;
+  padding:14px 16px;
+  background:rgba(0,176,240,.06);
+  border:1px solid rgba(0,176,240,.18);
+  border-radius:10px;
+  display:none;
+}
+.gc-analisis.open{ display:block; }
+.gc-analisis-grid{
+  display:grid;
+  grid-template-columns:180px 1fr 1fr;
+  gap:14px;
+  align-items:start;
+}
+.gc-donut-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+}
+.gc-donut-title{
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.06em;
+  color:var(--azul-c);
+  text-transform:uppercase;
+  text-align:center;
+}
+.gc-donut-legend{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  width:100%;
+  margin-top:4px;
+}
+.gc-donut-legend-item{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  color:var(--text);
+}
+.gc-donut-legend-dot{
+  width:9px;height:9px;
+  border-radius:50%;
+  flex-shrink:0;
+}
+.gc-donut-legend-pct{
+  margin-left:auto;
+  font-weight:700;
+  font-size:11px;
+}
+.gc-alert-panel{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.gc-alert-title{
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.06em;
+  color:var(--azul-c);
+  text-transform:uppercase;
+  margin-bottom:2px;
+}
+.gc-alert-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border-radius:7px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.07);
+  font-size:12px;
+}
+.gc-alert-semaforo{
+  width:10px;height:10px;
+  border-radius:50%;
+  flex-shrink:0;
+}
+.gc-alert-cliente{
+  flex:1;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  color:var(--text);
+  font-size:11px;
+}
+.gc-alert-dias{
+  font-weight:700;
+  font-size:12px;
+  white-space:nowrap;
+}
+.gc-alert-estado{
+  font-size:10px;
+  padding:2px 6px;
+  border-radius:4px;
+  font-weight:600;
+  background:rgba(255,255,255,.08);
+}
+.gc-kpi-panel{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.gc-kpi-title{
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.06em;
+  color:var(--azul-c);
+  text-transform:uppercase;
+  margin-bottom:2px;
+}
+.gc-kpi-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+}
+.gc-kpi-box{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:8px;
+  padding:8px 10px;
+  text-align:center;
+}
+.gc-kpi-val{
+  font-size:22px;
+  font-weight:800;
+  font-family:'Barlow Condensed',sans-serif;
+  line-height:1;
+}
+.gc-kpi-lbl{
+  font-size:9px;
+  color:var(--muted);
+  margin-top:3px;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+.gc-analisis-toggle{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  font-size:11px;
+  font-weight:600;
+  color:var(--azul-c);
+  cursor:pointer;
+  padding:4px 10px;
+  border-radius:12px;
+  border:1px solid rgba(0,176,240,.3);
+  background:rgba(0,176,240,.08);
+  margin-left:8px;
+  transition:background .2s;
+  flex-shrink:0;
+}
+.gc-analisis-toggle:hover{ background:rgba(0,176,240,.18); }
+
 </style>
 </head>
 <body>
@@ -1132,18 +1291,20 @@ function renderGestores(){
         ${d.rep? `<div class="gc-est"><span class="gc-est-dot" style="background:#FFA700"></span><span class="gc-est-n" style="color:#FFA700">${d.rep}</span> Replanificada</div>`:''}
         ${d.asig?`<div class="gc-est"><span class="gc-est-dot" style="background:#6EBEEB"></span><span class="gc-est-n" style="color:#6EBEEB">${d.asig}</span> AsignadoTarea</div>`:''}
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div class="gc-toggle" id="tog-${uid}" onclick="toggleDetalle(${uid})" style="flex:1">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div class="gc-toggle" id="tog-${uid}" onclick="toggleDetalle(${uid})" style="flex:1;min-width:180px">
           <span class="gc-toggle-arrow">▼</span>
           Ver detalle de ${detRows.length} órdenes
           <span style="font-size:10px;color:var(--muted);font-weight:400;margin-left:6px">
             · cortes: ${cortesGestor}
           </span>
         </div>
+        <span class="gc-analisis-toggle" id="abtn-${uid}" onclick="toggleAnalisis(${uid})">📊 Ver análisis</span>
         <button onclick="exportarExcelGestor('${encodeURIComponent(g)}')" style="display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:16px;border:1.5px solid rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#34D399;font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0">
           ⬇ Excel
         </button>
       </div>
+      <div class="gc-analisis" id="analisis-${uid}">${buildAnalisis(uid,d,detRows)}</div>
       <div class="gc-detail" id="det-${uid}">
         <table>
           <thead><tr>
@@ -1978,6 +2139,120 @@ async function loadAll(){
 // ── INICIO ─────────────────────────────────────────────────────────────
 initFilters();
 loadAll();
+
+// ── ANÁLISIS GESTOR: Donut + Alertas + KPIs ──────────────────────────────
+function donutSVG(plan, det, rep, asig, tot){
+  if(!tot) return '<svg width="130" height="130"><text x="65" y="70" text-anchor="middle" fill="#888" font-size="12">Sin datos</text></svg>';
+  const cx=65, cy=65, r=50, sw=18;
+  const colors=['#00B0F0','#FF44B0','#FFA700','#6EBEEB'];
+  const vals=[plan,det,rep,asig];
+  const circ=2*Math.PI*r;
+  let offset=0;
+  let arcs='';
+  vals.forEach((v,i)=>{
+    if(!v) return;
+    const dash=(v/tot)*circ;
+    arcs+=`<circle cx="${cx}" cy="${cy}" r="${r}"
+      fill="none" stroke="${colors[i]}" stroke-width="${sw}"
+      stroke-dasharray="${dash} ${circ}"
+      stroke-dashoffset="${-offset}"
+      transform="rotate(-90 ${cx} ${cy})"/>`;
+    offset+=dash;
+  });
+  return `<svg width="130" height="130" style="display:block">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${sw}"/>
+    ${arcs}
+    <text x="${cx}" y="${cy-6}" text-anchor="middle" fill="#e8f0ff" font-size="20" font-weight="800" font-family="Barlow Condensed,sans-serif">${tot}</text>
+    <text x="${cx}" y="${cy+12}" text-anchor="middle" fill="#8899aa" font-size="10">órdenes</text>
+  </svg>`;
+}
+
+function toggleAnalisis(uid){
+  const panel=document.getElementById('analisis-'+uid);
+  const btn=document.getElementById('abtn-'+uid);
+  if(!panel) return;
+  const open=panel.classList.toggle('open');
+  btn.textContent= open ? '▲ Ocultar análisis' : '📊 Ver análisis';
+}
+
+function buildAnalisis(uid, d, detRows){
+  const tot=d.plan+d.det+d.rep+d.asig;
+  const colors={Planificada:'#00B0F0',Detenido:'#FF44B0',Replanificada:'#FFA700',AsignadoTarea:'#6EBEEB',PrePlanificada:'#A78BFA'};
+
+  // Donut
+  const donut=donutSVG(d.plan,d.det,d.rep,d.asig,tot);
+  const legend=[
+    {lbl:'Planificada', val:d.plan, color:'#00B0F0'},
+    {lbl:'Detenido',    val:d.det,  color:'#FF44B0'},
+    {lbl:'Replanificada',val:d.rep, color:'#FFA700'},
+    {lbl:'AsignadoTarea',val:d.asig,color:'#6EBEEB'},
+  ].filter(x=>x.val>0).map(x=>`
+    <div class="gc-donut-legend-item">
+      <div class="gc-donut-legend-dot" style="background:${x.color}"></div>
+      <span>${x.lbl}</span>
+      <span class="gc-donut-legend-pct" style="color:${x.color}">${tot?Math.round(x.val/tot*100):0}%</span>
+    </div>`).join('');
+
+  // Top 5 alertas por días sin gestión
+  const topAlerts=[...detRows]
+    .map(r=>({cliente:r[C.CLIENTE]||'—', dias:diasDesde(r[C.FE_PLAN])||0, est:getEst(r)}))
+    .sort((a,b)=>b.dias-a.dias)
+    .slice(0,5);
+
+  const alertRows=topAlerts.map(a=>{
+    const sc=a.dias>7?'#FF44B0':a.dias>3?'#FFA700':'#34D399';
+    return`<div class="gc-alert-row">
+      <div class="gc-alert-semaforo" style="background:${sc}"></div>
+      <div class="gc-alert-cliente">${a.cliente}</div>
+      <div class="gc-alert-dias" style="color:${sc}">${a.dias}d</div>
+      <div class="gc-alert-estado" style="color:${colors[a.est]||'#aaa'}">${a.est}</div>
+    </div>`;
+  }).join('');
+
+  // KPIs
+  const diasArr=detRows.map(r=>diasDesde(r[C.FE_PLAN])||0).filter(d=>d>=0);
+  const promDias=diasArr.length?Math.round(diasArr.reduce((a,b)=>a+b,0)/diasArr.length):0;
+  const maxDias=diasArr.length?Math.max(...diasArr):0;
+  const criticos=detRows.filter(r=>(diasDesde(r[C.FE_PLAN])||0)>7).length;
+  const clientes=new Set(detRows.map(r=>r[C.CLIENTE])).size;
+
+  const kpiColor=(v,t1,t2)=>v>t2?'#FF44B0':v>t1?'#FFA700':'#34D399';
+
+  return`
+    <div class="gc-analisis-grid">
+      <div class="gc-donut-wrap">
+        <div class="gc-donut-title">Distribución Estados</div>
+        ${donut}
+        <div class="gc-donut-legend">${legend}</div>
+      </div>
+      <div class="gc-alert-panel">
+        <div class="gc-alert-title">🔴 Top 5 · Mayor Antigüedad</div>
+        ${alertRows||'<div style="color:#666;font-size:12px">Sin alertas críticas</div>'}
+      </div>
+      <div class="gc-kpi-panel">
+        <div class="gc-kpi-title">📊 Indicadores de Gestión</div>
+        <div class="gc-kpi-grid">
+          <div class="gc-kpi-box">
+            <div class="gc-kpi-val" style="color:${kpiColor(promDias,3,7)}">${promDias}</div>
+            <div class="gc-kpi-lbl">Días prom.</div>
+          </div>
+          <div class="gc-kpi-box">
+            <div class="gc-kpi-val" style="color:${kpiColor(maxDias,7,14)}">${maxDias}</div>
+            <div class="gc-kpi-lbl">Días máx.</div>
+          </div>
+          <div class="gc-kpi-box">
+            <div class="gc-kpi-val" style="color:${criticos>5?'#FF44B0':criticos>2?'#FFA700':'#34D399'}">${criticos}</div>
+            <div class="gc-kpi-lbl">Críticos +7d</div>
+          </div>
+          <div class="gc-kpi-box">
+            <div class="gc-kpi-val" style="color:#00B0F0">${clientes}</div>
+            <div class="gc-kpi-lbl">Clientes únicos</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
 </script>
 </body>
 </html>

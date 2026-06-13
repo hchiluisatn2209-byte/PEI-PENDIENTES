@@ -1901,7 +1901,7 @@ async function loadAll(){
     const s=KNOWN_SHEETS[i];
     if(r.status==='fulfilled'){
       const rows=r.value;
-      const valid=rows.filter(row=>
+      let valid=rows.filter(row=>
         (row[C.CLIENTE]||'').trim()!=='' ||
         (row[C.GESTOR]||'').trim()!==''
       );

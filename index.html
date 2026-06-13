@@ -222,162 +222,34 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 .td-tooltip.visible{opacity:1}
 
 /* ── PANEL ANÁLISIS GESTOR ─────────────────────────── */
-.gc-analisis{
-  margin:10px 0 0;
-  padding:14px 16px;
-  background:rgba(0,176,240,.06);
-  border:1px solid rgba(0,176,240,.18);
-  border-radius:10px;
-  display:none;
-}
-.gc-analisis.open{ display:block; }
-.gc-analisis-grid{
-  display:grid;
-  grid-template-columns:180px 1fr 1fr;
-  gap:14px;
-  align-items:start;
-}
-.gc-donut-wrap{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:6px;
-}
-.gc-donut-title{
-  font-size:10px;
-  font-weight:700;
-  letter-spacing:.06em;
-  color:var(--azul-c);
-  text-transform:uppercase;
-  text-align:center;
-}
-.gc-donut-legend{
-  display:flex;
-  flex-direction:column;
-  gap:3px;
-  width:100%;
-  margin-top:4px;
-}
-.gc-donut-legend-item{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  font-size:11px;
-  color:var(--text);
-}
-.gc-donut-legend-dot{
-  width:9px;height:9px;
-  border-radius:50%;
-  flex-shrink:0;
-}
-.gc-donut-legend-pct{
-  margin-left:auto;
-  font-weight:700;
-  font-size:11px;
-}
-.gc-alert-panel{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-.gc-alert-title{
-  font-size:10px;
-  font-weight:700;
-  letter-spacing:.06em;
-  color:var(--azul-c);
-  text-transform:uppercase;
-  margin-bottom:2px;
-}
-.gc-alert-row{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:6px 10px;
-  border-radius:7px;
-  background:rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.07);
-  font-size:12px;
-}
-.gc-alert-semaforo{
-  width:10px;height:10px;
-  border-radius:50%;
-  flex-shrink:0;
-}
-.gc-alert-cliente{
-  flex:1;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  color:var(--text);
-  font-size:11px;
-}
-.gc-alert-dias{
-  font-weight:700;
-  font-size:12px;
-  white-space:nowrap;
-}
-.gc-alert-estado{
-  font-size:10px;
-  padding:2px 6px;
-  border-radius:4px;
-  font-weight:600;
-  background:rgba(255,255,255,.08);
-}
-.gc-kpi-panel{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-.gc-kpi-title{
-  font-size:10px;
-  font-weight:700;
-  letter-spacing:.06em;
-  color:var(--azul-c);
-  text-transform:uppercase;
-  margin-bottom:2px;
-}
-.gc-kpi-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:7px;
-}
-.gc-kpi-box{
-  background:rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:8px;
-  padding:8px 10px;
-  text-align:center;
-}
-.gc-kpi-val{
-  font-size:22px;
-  font-weight:800;
-  font-family:'Barlow Condensed',sans-serif;
-  line-height:1;
-}
-.gc-kpi-lbl{
-  font-size:9px;
-  color:var(--muted);
-  margin-top:3px;
-  text-transform:uppercase;
-  letter-spacing:.04em;
-}
-.gc-analisis-toggle{
-  display:inline-flex;
-  align-items:center;
-  gap:5px;
-  font-size:11px;
-  font-weight:600;
-  color:var(--azul-c);
-  cursor:pointer;
-  padding:4px 10px;
-  border-radius:12px;
-  border:1px solid rgba(0,176,240,.3);
-  background:rgba(0,176,240,.08);
-  margin-left:8px;
-  transition:background .2s;
-  flex-shrink:0;
-}
-.gc-analisis-toggle:hover{ background:rgba(0,176,240,.18); }
+.gc-analisis{margin:10px 0 0;padding:14px 16px;background:rgba(0,176,240,.06);border:1px solid rgba(0,176,240,.18);border-radius:10px;display:none}
+.gc-analisis.open{display:block}
+.gc-analisis-grid{display:grid;grid-template-columns:180px 1fr 1fr;gap:14px;align-items:start}
+.gc-donut-wrap{display:flex;flex-direction:column;align-items:center;gap:6px}
+.gc-donut-title{font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--azul-c);text-transform:uppercase;text-align:center}
+.gc-donut-legend{display:flex;flex-direction:column;gap:3px;width:100%;margin-top:4px}
+.gc-donut-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text)}
+.gc-donut-legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.gc-donut-legend-pct{margin-left:auto;font-weight:700;font-size:11px}
+.gc-alert-panel{display:flex;flex-direction:column;gap:6px}
+.gc-alert-title{font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--azul-c);text-transform:uppercase;margin-bottom:2px}
+.gc-alert-row{display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)}
+.gc-alert-semaforo{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:2px}
+.gc-alert-info{flex:1;min-width:0}
+.gc-alert-cliente{font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.gc-alert-login{font-size:10px;color:var(--azul-c);font-weight:700;margin-top:1px}
+.gc-alert-motivo{font-size:10px;color:var(--amarillo);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gc-alert-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
+.gc-alert-dias{font-weight:700;font-size:13px;white-space:nowrap}
+.gc-alert-estado{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600;background:rgba(255,255,255,.08)}
+.gc-kpi-panel{display:flex;flex-direction:column;gap:8px}
+.gc-kpi-title{font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--azul-c);text-transform:uppercase;margin-bottom:2px}
+.gc-kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.gc-kpi-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:8px 10px;text-align:center}
+.gc-kpi-val{font-size:22px;font-weight:800;font-family:'Barlow Condensed',sans-serif;line-height:1}
+.gc-kpi-lbl{font-size:9px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.04em}
+.gc-analisis-toggle{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--azul-c);cursor:pointer;padding:4px 10px;border-radius:12px;border:1px solid rgba(0,176,240,.3);background:rgba(0,176,240,.08);margin-left:8px;transition:background .2s;flex-shrink:0}
+.gc-analisis-toggle:hover{background:rgba(0,176,240,.18)}
 
 </style>
 </head>
@@ -711,6 +583,7 @@ const C={
   LOGIN:'LOGIN',
   EST:'ESTADO_SERVICIO',
   MOTIVO:'MOTIVO',
+  MOTIVO_HIST:'MOTIVO_ULT_HIST',
   EMPRESA:'TIPO_EMPRESA',
   FECHA_SOL:'FE_PREPLANIFICADA_DMA',
   ENLACE:'TIPO_ENLACE',
@@ -2140,23 +2013,18 @@ async function loadAll(){
 initFilters();
 loadAll();
 
-// ── ANÁLISIS GESTOR: Donut + Alertas + KPIs ──────────────────────────────
-function donutSVG(plan, det, rep, asig, tot){
+// ── ANÁLISIS GESTOR ───────────────────────────────────────────────────────
+function donutSVG(plan,det,rep,asig,tot){
   if(!tot) return '<svg width="130" height="130"><text x="65" y="70" text-anchor="middle" fill="#888" font-size="12">Sin datos</text></svg>';
-  const cx=65, cy=65, r=50, sw=18;
+  const cx=65,cy=65,r=50,sw=18;
   const colors=['#00B0F0','#FF44B0','#FFA700','#6EBEEB'];
   const vals=[plan,det,rep,asig];
   const circ=2*Math.PI*r;
-  let offset=0;
-  let arcs='';
+  let offset=0,arcs='';
   vals.forEach((v,i)=>{
-    if(!v) return;
+    if(!v)return;
     const dash=(v/tot)*circ;
-    arcs+=`<circle cx="${cx}" cy="${cy}" r="${r}"
-      fill="none" stroke="${colors[i]}" stroke-width="${sw}"
-      stroke-dasharray="${dash} ${circ}"
-      stroke-dashoffset="${-offset}"
-      transform="rotate(-90 ${cx} ${cy})"/>`;
+    arcs+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${colors[i]}" stroke-width="${sw}" stroke-dasharray="${dash} ${circ}" stroke-dashoffset="${-offset}" transform="rotate(-90 ${cx} ${cy})"/>`;
     offset+=dash;
   });
   return `<svg width="130" height="130" style="display:block">
@@ -2170,21 +2038,21 @@ function donutSVG(plan, det, rep, asig, tot){
 function toggleAnalisis(uid){
   const panel=document.getElementById('analisis-'+uid);
   const btn=document.getElementById('abtn-'+uid);
-  if(!panel) return;
+  if(!panel)return;
   const open=panel.classList.toggle('open');
-  btn.textContent= open ? '▲ Ocultar análisis' : '📊 Ver análisis';
+  btn.textContent=open?'▲ Ocultar análisis':'📊 Ver análisis';
 }
 
-function buildAnalisis(uid, d, detRows){
+function buildAnalisis(uid,d,detRows){
   const tot=d.plan+d.det+d.rep+d.asig;
   const colors={Planificada:'#00B0F0',Detenido:'#FF44B0',Replanificada:'#FFA700',AsignadoTarea:'#6EBEEB',PrePlanificada:'#A78BFA'};
 
   // Donut
   const donut=donutSVG(d.plan,d.det,d.rep,d.asig,tot);
   const legend=[
-    {lbl:'Planificada', val:d.plan, color:'#00B0F0'},
-    {lbl:'Detenido',    val:d.det,  color:'#FF44B0'},
-    {lbl:'Replanificada',val:d.rep, color:'#FFA700'},
+    {lbl:'Planificada',val:d.plan,color:'#00B0F0'},
+    {lbl:'Detenido',val:d.det,color:'#FF44B0'},
+    {lbl:'Replanificada',val:d.rep,color:'#FFA700'},
     {lbl:'AsignadoTarea',val:d.asig,color:'#6EBEEB'},
   ].filter(x=>x.val>0).map(x=>`
     <div class="gc-donut-legend-item">
@@ -2193,19 +2061,32 @@ function buildAnalisis(uid, d, detRows){
       <span class="gc-donut-legend-pct" style="color:${x.color}">${tot?Math.round(x.val/tot*100):0}%</span>
     </div>`).join('');
 
-  // Top 5 alertas por días sin gestión
+  // Top 5 alertas con LOGIN + MOTIVO_ULT_HIST
   const topAlerts=[...detRows]
-    .map(r=>({cliente:r[C.CLIENTE]||'—', dias:diasDesde(r[C.FE_PLAN])||0, est:getEst(r)}))
+    .map(r=>({
+      cliente:r[C.CLIENTE]||'—',
+      login:r[C.LOGIN]||'—',
+      motivo:r[C.MOTIVO_HIST]||r[C.MOTIVO]||'—',
+      dias:diasDesde(r[C.FE_PLAN])||0,
+      est:getEst(r)
+    }))
     .sort((a,b)=>b.dias-a.dias)
     .slice(0,5);
 
   const alertRows=topAlerts.map(a=>{
     const sc=a.dias>7?'#FF44B0':a.dias>3?'#FFA700':'#34D399';
+    const ec=colors[a.est]||'#aaa';
     return`<div class="gc-alert-row">
       <div class="gc-alert-semaforo" style="background:${sc}"></div>
-      <div class="gc-alert-cliente">${a.cliente}</div>
-      <div class="gc-alert-dias" style="color:${sc}">${a.dias}d</div>
-      <div class="gc-alert-estado" style="color:${colors[a.est]||'#aaa'}">${a.est}</div>
+      <div class="gc-alert-info">
+        <div class="gc-alert-cliente">${a.cliente}</div>
+        <div class="gc-alert-login">🔑 ${a.login}</div>
+        <div class="gc-alert-motivo" title="${a.motivo}">📝 ${a.motivo}</div>
+      </div>
+      <div class="gc-alert-right">
+        <div class="gc-alert-dias" style="color:${sc}">${a.dias}d</div>
+        <div class="gc-alert-estado" style="color:${ec}">${a.est}</div>
+      </div>
     </div>`;
   }).join('');
 
@@ -2215,42 +2096,28 @@ function buildAnalisis(uid, d, detRows){
   const maxDias=diasArr.length?Math.max(...diasArr):0;
   const criticos=detRows.filter(r=>(diasDesde(r[C.FE_PLAN])||0)>7).length;
   const clientes=new Set(detRows.map(r=>r[C.CLIENTE])).size;
+  const kc=(v,t1,t2)=>v>t2?'#FF44B0':v>t1?'#FFA700':'#34D399';
 
-  const kpiColor=(v,t1,t2)=>v>t2?'#FF44B0':v>t1?'#FFA700':'#34D399';
-
-  return`
-    <div class="gc-analisis-grid">
-      <div class="gc-donut-wrap">
-        <div class="gc-donut-title">Distribución Estados</div>
-        ${donut}
-        <div class="gc-donut-legend">${legend}</div>
+  return`<div class="gc-analisis-grid">
+    <div class="gc-donut-wrap">
+      <div class="gc-donut-title">Distribución Estados</div>
+      ${donut}
+      <div class="gc-donut-legend">${legend}</div>
+    </div>
+    <div class="gc-alert-panel">
+      <div class="gc-alert-title">🔴 Top 5 · Mayor Antigüedad</div>
+      ${alertRows||'<div style="color:#666;font-size:12px">Sin alertas críticas</div>'}
+    </div>
+    <div class="gc-kpi-panel">
+      <div class="gc-kpi-title">📊 Indicadores de Gestión</div>
+      <div class="gc-kpi-grid">
+        <div class="gc-kpi-box"><div class="gc-kpi-val" style="color:${kc(promDias,3,7)}">${promDias}</div><div class="gc-kpi-lbl">Días prom.</div></div>
+        <div class="gc-kpi-box"><div class="gc-kpi-val" style="color:${kc(maxDias,7,14)}">${maxDias}</div><div class="gc-kpi-lbl">Días máx.</div></div>
+        <div class="gc-kpi-box"><div class="gc-kpi-val" style="color:${criticos>5?'#FF44B0':criticos>2?'#FFA700':'#34D399'}">${criticos}</div><div class="gc-kpi-lbl">Críticos +7d</div></div>
+        <div class="gc-kpi-box"><div class="gc-kpi-val" style="color:#00B0F0">${clientes}</div><div class="gc-kpi-lbl">Clientes únicos</div></div>
       </div>
-      <div class="gc-alert-panel">
-        <div class="gc-alert-title">🔴 Top 5 · Mayor Antigüedad</div>
-        ${alertRows||'<div style="color:#666;font-size:12px">Sin alertas críticas</div>'}
-      </div>
-      <div class="gc-kpi-panel">
-        <div class="gc-kpi-title">📊 Indicadores de Gestión</div>
-        <div class="gc-kpi-grid">
-          <div class="gc-kpi-box">
-            <div class="gc-kpi-val" style="color:${kpiColor(promDias,3,7)}">${promDias}</div>
-            <div class="gc-kpi-lbl">Días prom.</div>
-          </div>
-          <div class="gc-kpi-box">
-            <div class="gc-kpi-val" style="color:${kpiColor(maxDias,7,14)}">${maxDias}</div>
-            <div class="gc-kpi-lbl">Días máx.</div>
-          </div>
-          <div class="gc-kpi-box">
-            <div class="gc-kpi-val" style="color:${criticos>5?'#FF44B0':criticos>2?'#FFA700':'#34D399'}">${criticos}</div>
-            <div class="gc-kpi-lbl">Críticos +7d</div>
-          </div>
-          <div class="gc-kpi-box">
-            <div class="gc-kpi-val" style="color:#00B0F0">${clientes}</div>
-            <div class="gc-kpi-lbl">Clientes únicos</div>
-          </div>
-        </div>
-      </div>
-    </div>`;
+    </div>
+  </div>`;
 }
 
 </script>

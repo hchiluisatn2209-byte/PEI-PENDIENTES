@@ -582,7 +582,7 @@ const PERSONAL_MAP={
   "durbano":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Planificación","tipo":"OPERATIVO"},
   "morozco":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Planificación","tipo":"OPERATIVO"},
   "raacosta":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Planificación","tipo":"OPERATIVO"},
-  "ggavialnez":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Planificación","tipo":"OPERATIVO"},
+  "ggavilanez":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Planificación","tipo":"OPERATIVO"},
   "aonate":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Planificación","tipo":"OPERATIVO"},
   "ealopezt":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Planificación","tipo":"OPERATIVO"},
   "vcruz":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Planificación","tipo":"OPERATIVO"},
@@ -594,7 +594,7 @@ const PERSONAL_MAP={
   "kherrera":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Planificación","tipo":"OPERATIVO"},
   "cvalarezo":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Planificación","tipo":"OPERATIVO"},
   "dvera":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Ejecución","tipo":"PROYECTOS"},
-  "mamartinez":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Ejecución","tipo":"PROYECTOS"},
+  "mamartinezv":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Ejecución","tipo":"PROYECTOS"},
   "abguallpa":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Ejecución","tipo":"PROYECTOS"},
   "vtacuri":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Ejecución","tipo":"PROYECTOS"},
   "jcamalle":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Ejecución","tipo":"PROYECTOS"},
@@ -610,7 +610,8 @@ const PERSONAL_MAP={
   "jcorrea":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Ejecución","tipo":"PROYECTOS"},
   "pjsanchez":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Ejecución","tipo":"PROYECTOS"},
   "jfonseca":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Ejecución","tipo":"PROYECTOS"},
-  "gjara":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Ejecución","tipo":"PROYECTOS"}
+  "gjara":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Ejecución","tipo":"PROYECTOS"},
+  "jccorrea":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Ejecución","tipo":"PROYECTOS"}
 };
 
 const PALETTE=['#00B0F0','#FF44B0','#FF6F42','#FFA700','#8B6FE8','#6EBEEB','#34D399','#FF9A44','#AA7FD0','#64B4F5'];
@@ -1906,12 +1907,10 @@ async function loadAll(){
         (row[C.GESTOR]||'').trim()!==''
       );
       // Enriquecer cada fila con GRUPO, EQUIPO y TIPO_GESTIÓN desde el mapa de personal
-      // Excluir registros con FE_PREPLANIFICADA_DMA = '-' o vacío
       valid = valid.filter(row => {
         const fe = (row[C.FECHA_SOL]||'').trim();
         return fe !== '-' && fe !== '';
       });
-
       valid.forEach(row=>{
         const pm=PERSONAL_MAP[(row[C.GESTOR]||'').trim()]||{};
         row._grupo        = pm.grupo  || 'OTROS';

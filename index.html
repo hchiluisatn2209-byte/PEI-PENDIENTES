@@ -656,6 +656,31 @@ const C={
   TIPO_GESTION:'_tipo_gestion'
 };
 
+// Valores de LOGIN excluidos del análisis (cuentas técnicas / no asignables a un gestor real)
+const LOGIN_EXCLUIDOS = [
+  'bgr-datacenteruio',
+  '03b00039-mineduc-ninapakari-canar',
+  'bcopi-wifi-cnb',
+  'datafast-tenniscondado',
+  'datafast-pizzahutcci',
+  'datafast-texascci',
+  'datafast-buffalcci',
+  'datafast-cevirumi',
+  'datafast-ilcappo',
+  'datafast-baskincci',
+  'datafast-martinadesignercciuio'
+];
+
+// Valores de NOMBRE_USR_ULT_PLAN (GESTOR) excluidos del análisis
+const GESTOR_EXCLUIDOS = [
+  'abosquez',
+  'elema',
+  'sburgos',
+  'lescandon',
+  '-',
+  'rpuruncajas'
+];
+
 // Mapa GESTOR → GRUPO / EQUIPO / TIPO_GESTIÓN (fuente: LISTADO_PERSONAL_PEI_POR_GRUPOS)
 const PERSONAL_MAP={
   "wsalazar":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Planificación","tipo":"OPERATIVO"},
@@ -1917,6 +1942,16 @@ async function loadAll(){
       valid = valid.filter(row => {
         const fe = (row[C.FE_PREPLANIFICADA_DMA]||'').trim();
         return fe !== '-' && fe !== '';
+      });
+      // Excluir LOGIN no deseados (cuentas técnicas, DataCenter, etc.)
+      valid = valid.filter(row => {
+        const login = (row[C.LOGIN]||'').trim().toLowerCase();
+        return !LOGIN_EXCLUIDOS.includes(login);
+      });
+      // Excluir NOMBRE_USR_ULT_PLAN (gestores) no deseados
+      valid = valid.filter(row => {
+        const gestor = (row[C.GESTOR]||'').trim().toLowerCase();
+        return !GESTOR_EXCLUIDOS.includes(gestor);
       });
       // Enriquecer cada fila con GRUPO, EQUIPO y TIPO_GESTIÓN desde el mapa de personal
       valid.forEach(row=>{

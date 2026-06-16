@@ -460,7 +460,7 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
           <table id="tbl-detalle">
             <thead><tr>
               <th>#</th>
-              <th class="sortable" data-col="FECHA_SOL" onclick="sortDetalle(this)">Fec. Solicitud</th>
+              <th class="sortable" data-col="FE_PREPLANIFICADA_DMA" onclick="sortDetalle(this)">Fec. Solicitud</th>
               <th class="sortable" data-col="EMPRESA" onclick="sortDetalle(this)">Tipo Empresa</th>
               <th>User</th>
               <th class="sortable" data-col="LOGIN" onclick="sortDetalle(this)">Login</th>
@@ -504,7 +504,7 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
           <th class="sortable" onclick="sortAlerta('gest',this,'EST')">Estado Servicio</th>
           <th class="sortable" onclick="sortAlerta('gest',this,'FE_PLAN')">FE Últ Plan</th>
           <th class="sortable" onclick="sortAlerta('gest',this,'DIAS_G')">Días sin gestión</th>
-          <th class="sortable" onclick="sortAlerta('gest',this,'FECHA_SOL')">Fecha Solicitud</th>
+          <th class="sortable" onclick="sortAlerta('gest',this,'FE_PREPLANIFICADA_DMA')">Fecha Solicitud</th>
           <th class="sortable" onclick="sortAlerta('gest',this,'DIAS_S')">Días desde solicitud</th>
         </tr></thead>
         <tbody id="tbl-gest"></tbody>
@@ -526,7 +526,7 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
           <th class="sortable" onclick="sortAlerta('sol',this,'CLIENTE')">Cliente</th>
           <th class="sortable" onclick="sortAlerta('sol',this,'PRODUCTO')">Producto</th>
           <th class="sortable" onclick="sortAlerta('sol',this,'EST')">Estado Servicio</th>
-          <th class="sortable" onclick="sortAlerta('sol',this,'FECHA_SOL')">Fecha Solicitud</th>
+          <th class="sortable" onclick="sortAlerta('sol',this,'FE_PREPLANIFICADA_DMA')">Fecha Solicitud</th>
           <th class="sortable" onclick="sortAlerta('sol',this,'DIAS_S')">Días desde solicitud</th>
           <th class="sortable" onclick="sortAlerta('sol',this,'FE_PLAN')">FE Últ Plan</th>
           <th class="sortable" onclick="sortAlerta('sol',this,'DIAS_G')">Días sin gestión</th>
@@ -639,7 +639,7 @@ const C={
   MOTIVO:'MOTIVO',
   MOTIVO_HIST:'MOTIVO_ULT_HIST',
   EMPRESA:'TIPO_EMPRESA',
-  FECHA_SOL:'FE_PREPLANIFICADA_DMA',
+  FE_PREPLANIFICADA_DMA:'FE_PREPLANIFICADA_DMA',
   ENLACE:'TIPO_ENLACE',
   ID_SERV:'ID_SERVICIO',
   PRODUCTO:'PRODUCTO',
@@ -1183,13 +1183,13 @@ let _alertaSortState={gest:{col:null,dir:'asc'},sol:{col:null,dir:'asc'}};
 
 function renderAlertas(){
   _alertaRows.gest=filtered.filter(tieneCarga)
-    .map(r=>({...r,_dG:diasDesde(r[C.FE_PLAN]),_dS:diasDesde(r[C.FECHA_SOL])}))
+    .map(r=>({...r,_dG:diasDesde(r[C.FE_PLAN]),_dS:diasDesde(r[C.FE_PREPLANIFICADA_DMA])}))
     .filter(r=>r._dG!==null)
     .sort((a,b)=>b._dG-a._dG)
     .slice(0,200);
 
   _alertaRows.sol=filtered
-    .map(r=>({...r,_dS:diasDesde(r[C.FECHA_SOL]),_dG:diasDesde(r[C.FE_PLAN])}))
+    .map(r=>({...r,_dS:diasDesde(r[C.FE_PREPLANIFICADA_DMA]),_dG:diasDesde(r[C.FE_PLAN])}))
     .filter(r=>r._dS!==null)
     .sort((a,b)=>b._dS-a._dS)
     .slice(0,200);
@@ -1221,7 +1221,7 @@ function applyAlertaSort(rows,col,dir){
     if(col==='DIAS_G')return((a._dG??-Infinity)-(b._dG??-Infinity))*d;
     if(col==='DIAS_S')return((a._dS??-Infinity)-(b._dS??-Infinity))*d;
     if(col==='FE_PLAN')return((parseDate(a[C.FE_PLAN])?.getTime()??0)-(parseDate(b[C.FE_PLAN])?.getTime()??0))*d;
-    if(col==='FECHA_SOL')return((parseDate(a[C.FECHA_SOL])?.getTime()??0)-(parseDate(b[C.FECHA_SOL])?.getTime()??0))*d;
+    if(col==='FE_PREPLANIFICADA_DMA')return((parseDate(a[C.FE_PREPLANIFICADA_DMA])?.getTime()??0)-(parseDate(b[C.FE_PREPLANIFICADA_DMA])?.getTime()??0))*d;
     const keyMap={GESTOR:C.GESTOR,LOGIN:C.LOGIN,CLIENTE:C.CLIENTE,PRODUCTO:C.PRODUCTO,EST:C.EST};
     const va=(a[keyMap[col]]||'').toLowerCase();
     const vb=(b[keyMap[col]]||'').toLowerCase();
@@ -1255,7 +1255,7 @@ function renderAlertaTabla(tbl){
         <td>${pill(getEst(r))}</td>
         <td class="td-num">${fmtDate(r[C.FE_PLAN])}</td>
         <td>${abDias(r._dG)}</td>
-        <td class="td-num">${fmtDate(r[C.FECHA_SOL])}</td>
+        <td class="td-num">${fmtDate(r[C.FE_PREPLANIFICADA_DMA])}</td>
         <td>${abSol(r._dS)}</td>
       </tr>`;
     } else {
@@ -1266,7 +1266,7 @@ function renderAlertaTabla(tbl){
         <td class="td-client" data-tip="${esc(cli)}">${cli}</td>
         <td class="td-muted" data-tip="${esc(prod)}">${prod}</td>
         <td>${pill(getEst(r))}</td>
-        <td class="td-num">${fmtDate(r[C.FECHA_SOL])}</td>
+        <td class="td-num">${fmtDate(r[C.FE_PREPLANIFICADA_DMA])}</td>
         <td>${abSol(r._dS)}</td>
         <td class="td-num">${fmtDate(r[C.FE_PLAN])}</td>
         <td>${abDias(r._dG)}</td>
@@ -1286,8 +1286,8 @@ function exportarAlertasExcel(tbl){
   const lines=[headers.map(escape).join(',')];
   rows.forEach(r=>{
     const vals=isGest
-      ?[r[C.GESTOR],r[C.LOGIN]||r[C.ID_SERV],r[C.CLIENTE],r[C.PRODUCTO],getEst(r),fmtDate(r[C.FE_PLAN]),r._dG??'',fmtDate(r[C.FECHA_SOL]),r._dS??'']
-      :[r[C.GESTOR],r[C.LOGIN]||r[C.ID_SERV],r[C.CLIENTE],r[C.PRODUCTO],getEst(r),fmtDate(r[C.FECHA_SOL]),r._dS??'',fmtDate(r[C.FE_PLAN]),r._dG??''];
+      ?[r[C.GESTOR],r[C.LOGIN]||r[C.ID_SERV],r[C.CLIENTE],r[C.PRODUCTO],getEst(r),fmtDate(r[C.FE_PLAN]),r._dG??'',fmtDate(r[C.FE_PREPLANIFICADA_DMA]),r._dS??'']
+      :[r[C.GESTOR],r[C.LOGIN]||r[C.ID_SERV],r[C.CLIENTE],r[C.PRODUCTO],getEst(r),fmtDate(r[C.FE_PREPLANIFICADA_DMA]),r._dS??'',fmtDate(r[C.FE_PLAN]),r._dG??''];
     lines.push(vals.map(escape).join(','));
   });
   const bom='\uFEFF';
@@ -1471,8 +1471,8 @@ function applyDetalleSort(rows){
       vb=diasDesde(b[C.FE_PLAN])??-Infinity;
       return(va-vb)*dir;
     }
-    if(_detalleSortCol==='FECHA_SOL'||_detalleSortCol==='FE_PLAN'){
-      const key=_detalleSortCol==='FECHA_SOL'?C.FECHA_SOL:C.FE_PLAN;
+    if(_detalleSortCol==='FE_PREPLANIFICADA_DMA'||_detalleSortCol==='FE_PLAN'){
+      const key=_detalleSortCol==='FE_PREPLANIFICADA_DMA'?C.FE_PREPLANIFICADA_DMA:C.FE_PLAN;
       va=parseDate(a[key])?.getTime()??0;
       vb=parseDate(b[key])?.getTime()??0;
       return(va-vb)*dir;
@@ -1510,8 +1510,8 @@ function applyGcSort(rows,col,dir){
       const vb=diasDesde(b[C.FE_PLAN])??-Infinity;
       return(va-vb)*d;
     }
-    if(col==='FECHA_SOL'||col==='FE_PLAN'){
-      const k=col==='FECHA_SOL'?C.FECHA_SOL:C.FE_PLAN;
+    if(col==='FE_PREPLANIFICADA_DMA'||col==='FE_PLAN'){
+      const k=col==='FE_PREPLANIFICADA_DMA'?C.FE_PREPLANIFICADA_DMA:C.FE_PLAN;
       return((parseDate(a[k])?.getTime()??0)-(parseDate(b[k])?.getTime()??0))*d;
     }
     const keyMap={EST:C.EST,EMPRESA:C.EMPRESA,LOGIN:C.LOGIN,CLIENTE:C.CLIENTE,
@@ -1528,7 +1528,7 @@ function renderGcRows(rows){
     const dG=diasDesde(r[C.FE_PLAN]);
     return`<tr>
       <td class="td-num">${i+1}</td>
-      <td class="td-num">${fmtDate(r[C.FECHA_SOL])}</td>
+      <td class="td-num">${fmtDate(r[C.FE_PREPLANIFICADA_DMA])}</td>
       <td class="td-muted" data-tip="${esc(r[C.EMPRESA])}">${r[C.EMPRESA]||'—'}</td>
       <td style="font-size:12px;color:var(--azul-c);font-family:'Barlow Condensed',sans-serif;font-weight:600">${r._user||'—'}</td>
       <td class="td-login" style="font-weight:400;font-size:13px" data-tip="${esc(r[C.LOGIN])}">${r[C.LOGIN]||'—'}</td>
@@ -1710,7 +1710,7 @@ function renderDetalleTabla(){
       const obs2=(r[C.OBS_REPLAN]||'—').slice(0,80)+(r[C.OBS_REPLAN]&&r[C.OBS_REPLAN].length>80?'…':'');
       return`<tr>
         <td style="color:var(--muted);font-family:var(--font-cond)">${i+1}</td>
-        <td class="td-num">${fmtDate(r[C.FECHA_SOL])}</td>
+        <td class="td-num">${fmtDate(r[C.FE_PREPLANIFICADA_DMA])}</td>
         <td class="td-muted" data-tip="${esc(r[C.EMPRESA])}">${r[C.EMPRESA]||'—'}</td>
         <td style="font-size:12px;color:var(--azul-c);font-family:'Barlow Condensed',sans-serif;font-weight:600">${r._user||'—'}</td>
         <td class="td-login" data-tip="${esc(r[C.LOGIN])}">${r[C.LOGIN]||'—'}</td>
@@ -1750,7 +1750,7 @@ function exportarExcelGestor(encoded){
   const headers=['FE_PREPLANIFICADA_DMA','NOMBRE_USR_ULT_PLAN','TIPO_EMPRESA','CLIENTE','LOGIN',
     'ESTADO_SERVICIO','PRODUCTO','TIPO_ORDEN','TECNICA_SUCURSAL','FE_ULT_PLANIFICADA',
     'OBS_ULT_PLAN','MOTIVO','ULT_OBS_REPLANIFICADA','ESTADO_CONTRATO','VENDEDOR','CORTE'];
-  const colKeys=[C.FECHA_SOL,C.GESTOR,C.EMPRESA,C.CLIENTE,C.LOGIN,C.EST,
+  const colKeys=[C.FE_PREPLANIFICADA_DMA,C.GESTOR,C.EMPRESA,C.CLIENTE,C.LOGIN,C.EST,
     C.PRODUCTO,C.TIPO_ORDEN,C.SUCURSAL,C.FE_PLAN,
     C.OBS_PLAN,C.MOTIVO,C.OBS_REPLAN,C.CONTRATO,C.VENDEDOR,'_fecha'];
   const sep=';';
@@ -1776,7 +1776,7 @@ function exportarExcel(){
   const headers=['FE_PREPLANIFICADA_DMA','NOMBRE_USR_ULT_PLAN','TIPO_EMPRESA','CLIENTE','LOGIN','ESTADO_SERVICIO',
     'PRODUCTO','TIPO_ORDEN','TECNICA_SUCURSAL','FE_ULT_PLANIFICADA','DIAS_SIN_GESTION',
     'OBS_ULT_PLAN','MOTIVO','ULT_OBS_REPLANIFICADA','ESTADO_CONTRATO','TIPO_EMPRESA','VENDEDOR','CORTE'];
-  const colKeys=[C.FECHA_SOL,C.GESTOR,C.EMPRESA,C.CLIENTE,C.LOGIN,C.EST,
+  const colKeys=[C.FE_PREPLANIFICADA_DMA,C.GESTOR,C.EMPRESA,C.CLIENTE,C.LOGIN,C.EST,
     C.PRODUCTO,C.TIPO_ORDEN,C.SUCURSAL,C.FE_PLAN,'_dias',
     C.OBS_PLAN,C.MOTIVO,C.OBS_REPLAN,C.CONTRATO,C.EMPRESA,C.VENDEDOR,'_fecha'];
 
@@ -1913,11 +1913,12 @@ async function loadAll(){
         (row[C.CLIENTE]||'').trim()!=='' ||
         (row[C.GESTOR]||'').trim()!==''
       );
-      // Enriquecer cada fila con GRUPO, EQUIPO y TIPO_GESTIÓN desde el mapa de personal
+      // Excluir registros sin fecha de preplanificación (FE_PREPLANIFICADA_DMA = '-' o vacío)
       valid = valid.filter(row => {
-        const fe = (row[C.FECHA_SOL]||'').trim();
+        const fe = (row[C.FE_PREPLANIFICADA_DMA]||'').trim();
         return fe !== '-' && fe !== '';
       });
+      // Enriquecer cada fila con GRUPO, EQUIPO y TIPO_GESTIÓN desde el mapa de personal
       valid.forEach(row=>{
         const pm=PERSONAL_MAP[(row[C.GESTOR]||'').trim()]||{};
         row._grupo        = pm.grupo  || 'OTROS';
@@ -2111,7 +2112,7 @@ function selectGestor(idx){
     const dG=diasDesde(r[C.FE_PLAN]);
     return`<tr>
       <td class="td-num">${i+1}</td>
-      <td class="td-num">${fmtDate(r[C.FECHA_SOL])}</td>
+      <td class="td-num">${fmtDate(r[C.FE_PREPLANIFICADA_DMA])}</td>
       <td class="td-muted" data-tip="${esc(r[C.EMPRESA])}">${r[C.EMPRESA]||'—'}</td>
       <td style="font-size:12px;color:var(--azul-c);font-weight:600">${r._user||'—'}</td>
       <td class="td-login" data-tip="${esc(r[C.LOGIN])}">${r[C.LOGIN]||'—'}</td>

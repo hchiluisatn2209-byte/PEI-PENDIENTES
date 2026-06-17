@@ -386,6 +386,9 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
   <div class="filter-sep"></div>
   <span class="filter-label">Corte</span>
   <div class="sf-wrap" id="sf-fecha"></div>
+  <div class="filter-sep"></div>
+  <span class="filter-label">Mes Preplan.</span>
+  <div class="sf-wrap" id="sf-preplan-mes"></div>
   <button class="filter-reset" onclick="clearFilters()">✕ Limpiar filtros</button>
 </div>
 
@@ -1013,9 +1016,11 @@ function sfToggle(id){
   if(!isOpen){wrap.classList.add('open');document.getElementById(id+'-search')?.focus();}
 }
 
-function sfPopulate(id,vals,desc=false){
+function sfPopulate(id,vals,desc=false,sortFn=null){
   if(!SF[id])return;
-  const unique=[...new Set(vals)].filter(Boolean).sort();
+  const unique=[...new Set(vals)].filter(Boolean);
+  if(sortFn) unique.sort(sortFn);
+  else unique.sort();
   if(desc)unique.reverse();
   SF[id].all=unique;
   sfRenderList(id,'');
@@ -1121,10 +1126,11 @@ function initFilters(){
   sfCreate('sf-enlace','Todos');
   sfCreate('sf-login','Buscar login...');
   sfCreate('sf-fecha','Todas');
+  sfCreate('sf-preplan-mes','Todos');
 }
 
-function populateSel(sfId,vals,desc=false){
-  sfPopulate(sfId,vals,desc);
+function populateSel(sfId,vals,desc=false,sortFn=null){
+  sfPopulate(sfId,vals,desc,sortFn);
 }
 
 function applyFilters(){
@@ -1137,6 +1143,7 @@ function applyFilters(){
   const l  =sfGetVals('sf-enlace');
   const lg =sfGetVals('sf-login');
   const f  =sfGetVals('sf-fecha');
+  const pm =sfGetVals('sf-preplan-mes');
 
   filtered=allData.filter(r=>
     (!grp || grp.has(r[C.GRUPO]))&&
@@ -1147,7 +1154,8 @@ function applyFilters(){
     (!t   || t.has(r[C.EMPRESA]))&&
     (!l   || l.has(r[C.ENLACE]))&&
     (!lg  || lg.has(r[C.LOGIN]))&&
-    (!f   || f.has(r._fecha))
+    (!f   || f.has(r._fecha))&&
+    (!pm  || pm.has(r._preplanMes))
   );
 
   const notaCorte=document.getElementById('nota-corte');
@@ -2107,6 +2115,9 @@ async function loadAll(){
         row._equipo       = pm.equipo || 'OTROS';
         row._tipo_gestion = pm.tipo   || 'OTROS';
         row._user         = (row[C.GESTOR]||'').trim();
+        const dPre = parseDate(row[C.FE_PREPLANIFICADA_DMA]);
+        row._preplanMes    = dPre ? (MESES_ABR[dPre.getMonth()]+' '+String(dPre.getFullYear()).slice(2)) : '';
+        row._preplanMesKey = dPre ? dPre.getFullYear()*100+(dPre.getMonth()+1) : 0;
       });
       allData.push(...valid);
       sheetStats[s.fecha]={
@@ -2137,6 +2148,9 @@ async function loadAll(){
   populateSel('sf-enlace', allData.map(r=>r[C.ENLACE]));
   populateSel('sf-fecha',  allData.map(r=>r._fecha), true);
   populateSel('sf-login',  allData.map(r=>r[C.LOGIN]));
+  const _mesKeyMap={};
+  allData.forEach(r=>{if(r._preplanMes)_mesKeyMap[r._preplanMes]=r._preplanMesKey;});
+  populateSel('sf-preplan-mes', allData.map(r=>r._preplanMes), false, (a,b)=>_mesKeyMap[a]-_mesKeyMap[b]);
 
   filtered=[...allData];
   renderAll();

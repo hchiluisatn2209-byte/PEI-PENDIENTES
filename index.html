@@ -376,9 +376,9 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 
 <!-- TABS -->
 <div class="tabs-bar">
-  <div class="tab active" onclick="switchTab('carga')">Carga por Gestor</div>
+  <div class="tab active" onclick="switchTab('analisis')">Análisis General</div>
+  <div class="tab" onclick="switchTab('carga')">Carga por Gestor</div>
   <div class="tab" onclick="switchTab('alertas')">Alertas de Días</div>
-  <div class="tab" onclick="switchTab('analisis')">Análisis General</div>
 </div>
 
 <main>
@@ -428,7 +428,7 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
   </div>
 
   <!-- TAB CARGA -->
-  <div id="tab-carga">
+  <div id="tab-carga" style="display:none">
     <div class="section-title"><span class="dot-sec"></span>Carga por Gestor · Desglose de Estados</div>
     <div id="nota-corte" style="display:none;margin-bottom:10px;padding:8px 16px;background:rgba(0,176,240,.07);border:1px solid rgba(0,176,240,.2);border-radius:8px;font-size:13px;color:var(--azul-c)">
       📅 <strong>Corte activo</strong> — mostrando registros de la hoja seleccionada.
@@ -537,7 +537,7 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
   </div>
 
   <!-- TAB ANALISIS -->
-  <div id="tab-analisis" style="display:none">
+  <div id="tab-analisis">
     <div class="section-title"><span class="dot-sec"></span>Análisis General</div>
 
     <!-- ── RESUMEN POR TIPO GESTIÓN ── -->
@@ -562,6 +562,12 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
       <div class="chart-card">
         <div class="card-title"><span class="dot-sec"></span>Top Gestores por Carga</div>
         <div class="card-sub">Órdenes con carga activa (Plan+Det+Replan+Asig)</div>
+        <div class="leg-row">
+          <div class="leg-i"><span class="leg-sq" style="background:var(--turquesa)"></span>Planificada</div>
+          <div class="leg-i"><span class="leg-sq" style="background:var(--magenta)"></span>Detenido</div>
+          <div class="leg-i"><span class="leg-sq" style="background:var(--amarillo)"></span>Replanificada</div>
+          <div class="leg-i"><span class="leg-sq" style="background:var(--azul-c)"></span>AsignadoTarea</div>
+        </div>
         <div style="position:relative;height:260px"><canvas id="ch-gestores"></canvas></div>
       </div>
       <div class="chart-card">
@@ -938,8 +944,8 @@ function setProgress(done,total){
 
 // ── TABS ───────────────────────────────────────────────────────────────
 function switchTab(t){
-  ['carga','alertas','analisis'].forEach(id=>document.getElementById('tab-'+id).style.display=id===t?'':'none');
-  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['carga','alertas','analisis'][i]===t));
+  ['analisis','carga','alertas'].forEach(id=>document.getElementById('tab-'+id).style.display=id===t?'':'none');
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['analisis','carga','alertas'][i]===t));
 }
 
 // ── SEARCHABLE MULTI-SELECT FILTERS ────────────────────────────────────
@@ -1355,6 +1361,49 @@ function hBar(id,entries,color){
     data:{labels:entries.map(([k])=>k.length>22?k.slice(0,20)+'…':k),datasets:[{data:entries.map(([,v])=>v),backgroundColor:color+'bb',borderColor:color,borderWidth:1,borderRadius:4}]},
     options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},
       scales:{x:{grid:{color:GC},ticks:TST},y:{grid:{color:'transparent'},ticks:{...TST,color:'#9BBCD8'}}}}});
+}
+
+// Top Gestores por Carga, segmentado por estado (Plan/Det/Rep/Asig) — mismo criterio que ch-top-gestores
+function segmentedHBar(id,limit){
+  const map={};
+  filtered.filter(tieneCarga).forEach(r=>{
+    const g=r[C.GESTOR]||'Sin gestor';
+    if(!map[g])map[g]={plan:0,det:0,rep:0,asig:0};
+    if(esPlan(r))  map[g].plan++;
+    if(esDet(r))   map[g].det++;
+    if(esRep(r))   map[g].rep++;
+    if(esAsig(r))  map[g].asig++;
+  });
+  const sorted=Object.entries(map)
+    .map(([g,d])=>({g,tot:d.plan+d.det+d.rep+d.asig,...d}))
+    .sort((a,b)=>b.tot-a.tot)
+    .slice(0,limit);
+  const labels=sorted.map(d=>d.g.length>22?d.g.slice(0,20)+'…':d.g);
+  mkChart(id,{type:'bar',
+    data:{labels,datasets:[
+      {label:'Planificada',   data:sorted.map(d=>d.plan), backgroundColor:'rgba(0,176,240,.85)',  stack:'s',borderSkipped:false},
+      {label:'Detenido',      data:sorted.map(d=>d.det),  backgroundColor:'rgba(255,68,176,.85)', stack:'s',borderSkipped:false},
+      {label:'Replanificada', data:sorted.map(d=>d.rep),  backgroundColor:'rgba(255,167,0,.85)',  stack:'s',borderSkipped:false},
+      {label:'AsignadoTarea', data:sorted.map(d=>d.asig), backgroundColor:'rgba(110,190,235,.85)',stack:'s',borderSkipped:false},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          callbacks:{
+            title:ctx=>{const d=sorted[ctx[0].dataIndex];return`${d.g}  (Total: ${d.tot})`;},
+            label:ctx=>`  ${ctx.dataset.label}: ${ctx.parsed.x}`
+          },
+          backgroundColor:'rgba(10,30,70,.97)',borderColor:'rgba(0,176,240,.4)',borderWidth:1,
+          titleFont:{family:"'Barlow Condensed',sans-serif",size:13,weight:'bold'},
+          bodyFont:{family:"'Barlow Condensed',sans-serif",size:11},padding:12,boxPadding:4
+        }
+      },
+      scales:{
+        x:{stacked:true,grid:{color:GC},ticks:TST},
+        y:{stacked:true,grid:{color:'transparent'},ticks:{...TST,color:'#9BBCD8',callback:(v,i)=>labels[i]}}
+      }
+    }});
 }
 
 function doughnut(id,entries,legId){
@@ -1856,7 +1905,7 @@ function renderAll(){
   document.getElementById('detalle-gestor-wrap').style.display='none';
   _gestorSeleccionado=null;
   // Gráficos de análisis — sin deduplicación
-  hBar('ch-gestores',topN(count(filtered.filter(tieneCarga),C.GESTOR),10),'#00B0F0');
+  segmentedHBar('ch-gestores',10);
   doughnut('ch-estado',topN(count(filtered,C.EST),8),'leg-estado');
   hBar('ch-motivo',topN(count(filtered,C.MOTIVO),10),'#FF6F42');
   doughnut('ch-empresa',topN(count(filtered,C.EMPRESA),8),'leg-empresa');
@@ -2005,7 +2054,7 @@ async function loadAll(){
   // Poblar filtros con los valores únicos del dataset completo
   populateSel('sf-grupo',        allData.map(r=>r[C.GRUPO]));
   populateSel('sf-tipo-gestion', allData.map(r=>r[C.TIPO_GESTION]));
-  populateSel('sf-gestor', allData.map(r=>r[C.GESTOR]));
+  populateSel('sf-gestor', allData.map(r=>r[C.GESTOR]).filter(g=>!GESTOR_EXCLUIDOS.includes((g||'').trim().toLowerCase())));
   populateSel('sf-user',   allData.map(r=>r._user));
   const ESTADOS_OK=['Planificada','Detenido','Replanificada','AsignadoTarea','PrePlanificada'];
   populateSel('sf-estado', allData.map(r=>getEst(r)).filter(v=>ESTADOS_OK.includes(v)));

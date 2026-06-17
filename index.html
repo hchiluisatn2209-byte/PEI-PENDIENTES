@@ -168,6 +168,19 @@ tr:hover td{background:rgba(0,176,240,.06)}
 .leg-i{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)}
 .leg-sq{width:8px;height:8px;border-radius:2px;flex-shrink:0}
 
+/* ── MOTIVOS DETENCIÓN / REPLANIFICACIÓN ── */
+.motivos-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding-left:16px}
+.motivos-col-head{display:flex;align-items:center;gap:10px;font-family:var(--font-cond);font-weight:700;font-size:14px;letter-spacing:1.2px;text-transform:uppercase;color:#fff;margin-bottom:12px}
+.motivos-badge{font-family:var(--font-cond);font-weight:800;font-size:13px;padding:3px 11px;border-radius:14px;color:#fff;min-width:24px;text-align:center}
+.motivos-badge.det{background:var(--magenta)}
+.motivos-badge.rep{background:var(--amarillo);color:#1B3A70}
+.motivos-list{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.motivo-item{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;align-items:flex-start;gap:10px}
+.motivo-item .num{font-family:var(--font-cond);font-weight:800;font-size:18px;line-height:1.2;min-width:26px;flex-shrink:0}
+.motivo-item .txt{font-size:11.5px;color:#cfe0f5;line-height:1.35;padding-top:2px}
+.motivos-col.det .motivo-item .num{color:var(--magenta)}
+.motivos-col.rep .motivo-item .num{color:var(--amarillo)}
+
 .empty{text-align:center;padding:2rem;color:var(--muted);font-size:12px;font-family:var(--font-cond);letter-spacing:1px}
 
 /* ── DETALLE EXPANDIBLE ── */
@@ -192,6 +205,8 @@ footer{font-size:10px;color:var(--muted);text-align:center;padding:1rem 36px;let
   header,.filter-bar,.tabs-bar,main{padding-left:1rem;padding-right:1rem}
   .charts-grid{grid-template-columns:1fr}
   .kpi-strip{grid-template-columns:repeat(2,1fr)}
+  .motivos-grid{grid-template-columns:1fr}
+  .motivos-list{grid-template-columns:1fr}
 }
 
 /* ── FILTRO ESTADO PILLS ── */
@@ -584,15 +599,26 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
         <div style="position:relative;height:220px"><canvas id="ch-estado"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="card-title"><span class="dot-sec" style="background:var(--naranja)"></span>Top Motivos</div>
-        <div class="card-sub">Causas más frecuentes</div>
-        <div style="position:relative;height:260px"><canvas id="ch-motivo"></canvas></div>
-      </div>
-      <div class="chart-card">
         <div class="card-title"><span class="dot-sec" style="background:var(--amarillo)"></span>Tipo de Empresa</div>
         <div class="card-sub">Segmentación</div>
         <div class="leg-row" id="leg-empresa"></div>
         <div style="position:relative;height:220px"><canvas id="ch-empresa"></canvas></div>
+      </div>
+    </div>
+
+    <!-- ── MOTIVOS DETENCIÓN / REPLANIFICACIÓN ── -->
+    <div class="chart-card full" style="margin-bottom:20px">
+      <div class="card-title"><span class="dot-sec" style="background:var(--naranja)"></span>Motivos de Detención y Replanificación</div>
+      <div class="card-sub">Top causas más frecuentes · solo registros con motivo informado</div>
+      <div class="motivos-grid">
+        <div class="motivos-col det">
+          <div class="motivos-col-head"><span class="motivos-badge det" id="mot-det-total">0</span>Motivos Detención</div>
+          <div class="motivos-list" id="mot-det-list"></div>
+        </div>
+        <div class="motivos-col rep">
+          <div class="motivos-col-head"><span class="motivos-badge rep" id="mot-rep-total">0</span>Motivos Replanificación</div>
+          <div class="motivos-list" id="mot-rep-list"></div>
+        </div>
       </div>
     </div>
     <div class="chart-card full" style="margin-bottom:20px">
@@ -1465,6 +1491,25 @@ function renderTendPrePlan(){
     scales:{x:{grid:{color:GC},ticks:{...TST,maxRotation:45,autoSkip:false}},y:{grid:{color:GC},ticks:TST,beginAtZero:true}}}});
 }
 
+// Motivos de Detención y Replanificación — top causas, separadas por tipo de evento, solo con dato real
+function renderMotivos(){
+  const detMap={},repMap={};
+  let detTotal=0,repTotal=0;
+  filtered.forEach(r=>{
+    const motivo=(r[C.MOTIVO]||'').trim();
+    if(!motivo||motivo==='-')return;
+    if(esDet(r)){detMap[motivo]=(detMap[motivo]||0)+1;detTotal++;}
+    if(esRep(r)){repMap[motivo]=(repMap[motivo]||0)+1;repTotal++;}
+  });
+  const detSorted=Object.entries(detMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const repSorted=Object.entries(repMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  document.getElementById('mot-det-total').textContent=detTotal;
+  document.getElementById('mot-rep-total').textContent=repTotal;
+  const render=(arr)=>arr.map(([m,c])=>`<div class="motivo-item"><span class="num">${c}</span><span class="txt">${esc(m)}</span></div>`).join('')||'<div class="empty" style="padding:10px;grid-column:1/-1">Sin motivos registrados</div>';
+  document.getElementById('mot-det-list').innerHTML=render(detSorted);
+  document.getElementById('mot-rep-list').innerHTML=render(repSorted);
+}
+
 // Sin deduplicación: cada fila del Sheets cuenta en el resumen
 function renderResumen(){
   const map={};
@@ -1936,7 +1981,7 @@ function renderAll(){
   // Gráficos de análisis — sin deduplicación
   segmentedHBar('ch-gestores',10);
   doughnut('ch-estado',topN(count(filtered,C.EST),8),'leg-estado');
-  hBar('ch-motivo',topN(count(filtered,C.MOTIVO),10),'#FF6F42');
+  renderMotivos();
   doughnut('ch-empresa',topN(count(filtered,C.EMPRESA),8),'leg-empresa');
   renderTend();
   renderTendPrePlan();

@@ -558,6 +558,13 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
       </table>
     </div>
 
+    <!-- ── TENDENCIA FE_PREPLANIFICADA_DMA ── -->
+    <div class="chart-card full" style="margin-bottom:20px">
+      <div class="card-title"><span class="dot-sec" style="background:#34D399"></span>Tendencia de Preplanificación · Antigüedad de Registros</div>
+      <div class="card-sub">N° de registros por mes según FE_PREPLANIFICADA_DMA</div>
+      <div style="position:relative;height:240px"><canvas id="ch-preplan-tend"></canvas></div>
+    </div>
+
     <div class="charts-grid">
       <div class="chart-card">
         <div class="card-title"><span class="dot-sec"></span>Top Gestores por Carga</div>
@@ -891,6 +898,8 @@ function fmtDate(s){
   if(!d||isNaN(d.getTime()))return s;
   return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
 }
+
+const MESES_ABR=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 
 function diasDesde(f){
   if(!f||!f.trim())return null;
@@ -1436,6 +1445,26 @@ function renderTend(){
     scales:{x:{grid:{color:GC},ticks:{...TST,maxRotation:45,autoSkip:false}},y:{grid:{color:GC},ticks:TST}}}});
 }
 
+// Tendencia por FE_PREPLANIFICADA_DMA — antigüedad/ingresos agrupados por mes (ene 25, feb 25, ...)
+function renderTendPrePlan(){
+  const map={};
+  filtered.forEach(r=>{
+    const d=parseDate(r[C.FE_PREPLANIFICADA_DMA]);
+    if(!d)return;
+    const key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    map[key]=(map[key]||0)+1;
+  });
+  const keys=Object.keys(map).sort();
+  if(!keys.length){if(charts['ch-preplan-tend'])charts['ch-preplan-tend'].destroy();return;}
+  const labels=keys.map(k=>{const [y,m]=k.split('-');return MESES_ABR[+m-1]+' '+y.slice(2);});
+  const data=keys.map(k=>map[k]);
+  mkChart('ch-preplan-tend',{type:'bar',data:{labels,datasets:[
+    {label:'Registros',data,backgroundColor:'rgba(52,211,153,.75)',borderColor:'#34D399',borderWidth:1,borderRadius:4}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+    tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.y} registros`}}},
+    scales:{x:{grid:{color:GC},ticks:{...TST,maxRotation:45,autoSkip:false}},y:{grid:{color:GC},ticks:TST,beginAtZero:true}}}});
+}
+
 // Sin deduplicación: cada fila del Sheets cuenta en el resumen
 function renderResumen(){
   const map={};
@@ -1910,6 +1939,7 @@ function renderAll(){
   hBar('ch-motivo',topN(count(filtered,C.MOTIVO),10),'#FF6F42');
   doughnut('ch-empresa',topN(count(filtered,C.EMPRESA),8),'leg-empresa');
   renderTend();
+  renderTendPrePlan();
   renderResumen();
 }
 

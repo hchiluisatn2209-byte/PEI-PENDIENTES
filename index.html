@@ -676,8 +676,7 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwSHv2P5HapoBHN
 // 3. Agrega una línea al array con el formato: { fecha: 'DD-MM-YY', gid: NUMERO_GID },
 // ────────────────────────────────────────────────────────────────────────
 const KNOWN_SHEETS = [
-  //{fecha:'08-06-26',gid:1682673096},
-  {fecha:'22-06-26',gid:2091286464},
+  {fecha:'08-06-26',gid:1682673096},
 ];
 
 const C={
@@ -2027,8 +2026,8 @@ function _buildKpiXlsx(){
     {key:C.LOGIN,                 hdr:'LOGIN'},
     {key:C.EST,                   hdr:'ESTADO SERVICIO'},
     {key:C.PRODUCTO,              hdr:'PRODUCTO'},
-    {key:C.TIPO_ORDEN,            hdr:'TIPO ÓRDEN'},
-    {key:C.SUCURSAL,              hdr:'TÉCNICA SUCURSAL'},
+    {key:C.TIPO_ORDEN,            hdr:'TIPO ORDEN'},
+    {key:C.SUCURSAL,              hdr:'TECNICA SUCURSAL'},
     {key:C.FE_PLAN,               hdr:'FE ULT PLAN'},
     {key:C.OBS_PLAN,              hdr:'OBS_ULT_PLAN'},
     {key:C.MOTIVO,                hdr:'MOTIVO'},
@@ -2038,49 +2037,27 @@ function _buildKpiXlsx(){
     {key:'_fecha',                hdr:'CORTE'},
   ];
 
+  const v=x=>String(x==null?'':x);
+
   const headers=COLS.map(c=>c.hdr);
-  const rows=filtered.map(r=>COLS.map(c=>r[c.key]||''));
+  const rows=filtered.map(r=>COLS.map(c=>v(r[c.key])));
 
   const ws=XLSX.utils.aoa_to_sheet([headers,...rows]);
 
-  // Anchos de columna aproximados
+  // Anchos de columna
   ws['!cols']=[
-    {wch:14},{wch:30},{wch:12},{wch:40},{wch:30},{wch:15},{wch:20},{wch:12},
+    {wch:14},{wch:30},{wch:12},{wch:40},{wch:30},{wch:16},{wch:20},{wch:12},
     {wch:22},{wch:14},{wch:60},{wch:35},{wch:35},{wch:14},{wch:30},{wch:12}
   ];
 
-  // Estilo encabezado (fila 1)
-  const hdrFill={patternType:'solid',fgColor:{rgb:'1B3A6B'}};
-  const hdrFont={bold:true,color:{rgb:'FFFFFF'},name:'Arial',sz:10};
-  const range=XLSX.utils.decode_range(ws['!ref']);
-  for(let c=range.s.c;c<=range.e.c;c++){
-    const cell=XLSX.utils.encode_cell({r:0,c});
-    if(!ws[cell])ws[cell]={t:'s',v:headers[c]};
-    ws[cell].s={fill:hdrFill,font:hdrFont,alignment:{horizontal:'center',vertical:'center',wrapText:true},border:{bottom:{style:'thin',color:{rgb:'00B0F0'}}}};
-  }
-
-  // Bordes y fuente en filas de datos
-  for(let r=1;r<=rows.length;r++){
-    const fill={patternType:'solid',fgColor:{rgb:r%2===0?'F2F7FF':'FFFFFF'}};
-    for(let c=range.s.c;c<=range.e.c;c++){
-      const cell=XLSX.utils.encode_cell({r,c});
-      if(!ws[cell])ws[cell]={t:'s',v:''};
-      ws[cell].s={fill,font:{name:'Arial',sz:9},alignment:{vertical:'center',wrapText:false},border:{top:{style:'thin',color:{rgb:'DDE3EC'}},bottom:{style:'thin',color:{rgb:'DDE3EC'}}}};
-    }
-  }
-
-  // Fila de resumen al final
-  const sumRow=rows.length+2;
+  // Fila de resumen al final (2 filas vacías de separación)
+  const sumRow=rows.length+3;
   const estados=['Planificada','Detenido','Replanificada','AsignadoTarea','PrePlanificada'];
-  const counts=estados.map(e=>filtered.filter(r=>(r[C.EST]||'').trim()===e).length);
-  const resumen=[`Total: ${filtered.length} órdenes`,...estados.map((e,i)=>`${e}: ${counts[i]}`),'','','','','','','','','','','','',''];
-  XLSX.utils.sheet_add_aoa(ws,[resumen],{origin:{r:sumRow-1,c:0}});
-  const sumFill={patternType:'solid',fgColor:{rgb:'1B3A6B'}};
-  for(let c=0;c<COLS.length;c++){
-    const cell=XLSX.utils.encode_cell({r:sumRow-1,c});
-    if(!ws[cell])ws[cell]={t:'s',v:''};
-    ws[cell].s={fill:sumFill,font:{bold:true,color:{rgb:'00B0F0'},name:'Arial',sz:9}};
-  }
+  const summary=[
+    [`TOTAL ÓRDENES: ${filtered.length}`],
+    ...estados.map(e=>[`${e}: ${filtered.filter(r=>(r[C.EST]||'').trim()===e).length}`])
+  ];
+  XLSX.utils.sheet_add_aoa(ws,summary,{origin:{r:sumRow,c:0}});
 
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,'PEI_Pendientes',ws);

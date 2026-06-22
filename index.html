@@ -606,9 +606,16 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
       </div>
       <div class="chart-card">
         <div class="card-title"><span class="dot-sec" style="background:var(--amarillo)"></span>Tipo de Empresa</div>
-        <div class="card-sub">Segmentación</div>
+        <div class="card-sub">Segmentación · haz clic en un segmento para ver clientes</div>
         <div class="leg-row" id="leg-empresa"></div>
         <div style="position:relative;height:220px"><canvas id="ch-empresa"></canvas></div>
+        <div id="empresa-clientes-panel" style="display:none;margin-top:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span id="empresa-clientes-title" style="font-family:var(--font-cond);font-weight:700;font-size:12px;letter-spacing:1px;color:#fff;text-transform:uppercase"></span>
+            <span onclick="document.getElementById('empresa-clientes-panel').style.display='none'" style="cursor:pointer;color:var(--muted);font-size:12px">✕ cerrar</span>
+          </div>
+          <div id="empresa-clientes-list" style="max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:4px"></div>
+        </div>
       </div>
     </div>
 
@@ -671,8 +678,7 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwSHv2P5HapoBHN
 // 3. Agrega una línea al array con el formato: { fecha: 'DD-MM-YY', gid: NUMERO_GID },
 // ────────────────────────────────────────────────────────────────────────
 const KNOWN_SHEETS = [
- // {fecha:'08-06-26',gid:1682673096},
-  {fecha:'22-06-26',gid:2091286464},
+  {fecha:'08-06-26',gid:1682673096},
 ];
 
 const C={
@@ -1468,10 +1474,15 @@ function segmentedHBar(id,limit){
     }});
 }
 
-function doughnut(id,entries,legId){
+function doughnut(id,entries,legId,onClick){
   const labels=entries.map(([k])=>k),vals=entries.map(([,v])=>v),cols=PALETTE.slice(0,entries.length),tot=vals.reduce((a,b)=>a+b,0);
   if(legId)document.getElementById(legId).innerHTML=labels.map((l,i)=>`<div class="leg-i"><span class="leg-sq" style="background:${cols[i]}"></span>${l.length>16?l.slice(0,14)+'…':l} · ${Math.round(vals[i]/tot*100)}%</div>`).join('');
-  mkChart(id,{type:'doughnut',data:{labels,datasets:[{data:vals,backgroundColor:cols.map(c=>c+'bb'),borderColor:cols,borderWidth:1}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:false}}}});
+  const opts={responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:false}}};
+  if(onClick){
+    opts.onClick=(_e,els)=>{if(els.length)onClick(labels[els[0].index]);};
+    opts.onHover=(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';};
+  }
+  mkChart(id,{type:'doughnut',data:{labels,datasets:[{data:vals,backgroundColor:cols.map(c=>c+'bb'),borderColor:cols,borderWidth:1}]},options:opts});
 }
 
 function renderTend(){
@@ -1535,6 +1546,26 @@ function renderMotivos(){
   const render=(arr)=>arr.map(([m,c])=>`<div class="motivo-item"><span class="num">${c}</span><span class="txt">${esc(m)}</span></div>`).join('')||'<div class="empty" style="padding:10px;grid-column:1/-1">Sin motivos registrados</div>';
   document.getElementById('mot-det-list').innerHTML=render(detSorted);
   document.getElementById('mot-rep-list').innerHTML=render(repSorted);
+}
+
+function mostrarClientesEmpresa(tipoEmpresa){
+  const clientes=[...new Set(
+    filtered
+      .filter(r=>(r[C.EMPRESA]||'').trim()===tipoEmpresa)
+      .map(r=>(r[C.CLIENTE]||'').trim())
+      .filter(Boolean)
+  )].sort();
+  const panel=document.getElementById('empresa-clientes-panel');
+  const title=document.getElementById('empresa-clientes-title');
+  const list=document.getElementById('empresa-clientes-list');
+  title.textContent=`${tipoEmpresa} · ${clientes.length} clientes`;
+  list.innerHTML=clientes.map((c,i)=>
+    `<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;background:rgba(255,255,255,.04);font-size:11px;color:#cfe0f5">
+      <span style="font-family:var(--font-cond);color:var(--muted);min-width:20px;text-align:right">${i+1}</span>
+      <span>${esc(c)}</span>
+    </div>`
+  ).join('');
+  panel.style.display='block';
 }
 
 // Sin deduplicación: cada fila del Sheets cuenta en el resumen
@@ -2036,7 +2067,7 @@ function renderAll(){
   segmentedHBar('ch-gestores',10);
   doughnut('ch-estado',topN(count(filtered,C.EST),8),'leg-estado');
   renderMotivos();
-  doughnut('ch-empresa',topN(count(filtered,C.EMPRESA),8),'leg-empresa');
+  doughnut('ch-empresa',topN(count(filtered,C.EMPRESA),8),'leg-empresa',(label)=>mostrarClientesEmpresa(label));
   renderTend();
   renderTendPrePlan();
   renderResumen();

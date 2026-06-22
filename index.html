@@ -431,11 +431,6 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
       <div class="kpi-val" id="k-rep">—</div>
       <div class="kpi-sub" id="k-rep-s">no avanzó</div>
     </div>
-    <div class="kpi-card" style="--ak:var(--azul-c)">
-      <div class="kpi-lbl">AsignadoTarea</div>
-      <div class="kpi-val" id="k-asig">—</div>
-      <div class="kpi-sub" id="k-asig-s">listo a ejecutar</div>
-    </div>
     <div class="kpi-card" style="--ak:var(--morado)">
       <div class="kpi-lbl">PrePlanificada</div>
       <div class="kpi-val" id="k-pre">—</div>
@@ -676,8 +671,7 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwSHv2P5HapoBHN
 // 3. Agrega una línea al array con el formato: { fecha: 'DD-MM-YY', gid: NUMERO_GID },
 // ────────────────────────────────────────────────────────────────────────
 const KNOWN_SHEETS = [
-  //{fecha:'08-06-26',gid:1682673096},
-  {fecha:'22-06-26',gid:2091286464},
+  {fecha:'08-06-26',gid:1682673096},
 ];
 
 const C={
@@ -1201,13 +1195,13 @@ function clearFilters(){
 // ── KPIs ───────────────────────────────────────────────────────────────
 // Sin deduplicación: los KPIs reflejan exactamente los registros en filtered
 function renderKPIs(){
-  const n    =filtered.length;
-  const gest =new Set(filtered.filter(tieneCarga).map(r=>r[C.GESTOR]).filter(Boolean)).size;
   const plan =filtered.filter(esPlan).length;
   const det  =filtered.filter(esDet).length;
   const rep  =filtered.filter(esRep).length;
   const asig =filtered.filter(esAsig).length;
   const pre  =filtered.filter(esPre).length;
+  const n    =plan+det+rep+pre;  // Total = solo estos 4 estados
+  const gest =new Set(filtered.filter(tieneCarga).map(r=>r[C.GESTOR]).filter(Boolean)).size;
   const cli  =new Set(filtered.map(r=>r[C.CLIENTE]).filter(Boolean)).size;
   const hoj  =new Set(filtered.map(r=>r._fecha)).size;
   const pct  =v=>n?Math.round(v/n*100)+'%':'—';
@@ -1217,14 +1211,12 @@ function renderKPIs(){
   document.getElementById('k-plan').textContent=plan.toLocaleString('es-EC');
   document.getElementById('k-det').textContent=det.toLocaleString('es-EC');
   document.getElementById('k-rep').textContent=rep.toLocaleString('es-EC');
-  document.getElementById('k-asig').textContent=asig.toLocaleString('es-EC');
   document.getElementById('k-pre').textContent=pre.toLocaleString('es-EC');
   document.getElementById('k-misc').textContent=hoj;
   document.getElementById('k-total-s').textContent=hoj+' hojas cargadas';
   document.getElementById('k-plan-s').textContent=pct(plan)+' del total';
   document.getElementById('k-det-s').textContent=pct(det)+' del total';
   document.getElementById('k-rep-s').textContent=pct(rep)+' del total';
-  document.getElementById('k-asig-s').textContent=pct(asig)+' · listos a ejecutar';
   document.getElementById('k-misc-s').textContent='fechas · '+cli.toLocaleString('es-EC')+' clientes';
 
   const dates=filtered.map(r=>r._fecha).filter(Boolean).sort();
@@ -2013,10 +2005,11 @@ function exportKpiExcel(){
     C.PRODUCTO,C.TIPO_ORDEN,C.SUCURSAL,C.FE_PLAN,
     C.OBS_PLAN,C.MOTIVO,C.MOTIVO_HIST,C.CONTRATO,C.VENDEDOR,'_fecha'];
 
+  const ESTADOS_EXPORT=new Set(['Planificada','Detenido','Replanificada','PrePlanificada']);
   const escape=v=>'"'+(String(v==null?'':v).replace(/"/g,'""'))+'"';
   const SEP=';';
   const lines=['sep=;',headers.map(escape).join(SEP)];
-  filtered.forEach(r=>{
+  filtered.filter(r=>ESTADOS_EXPORT.has((r[C.EST]||'').trim())).forEach(r=>{
     lines.push(colKeys.map(k=>escape(r[k]||'')).join(SEP));
   });
 

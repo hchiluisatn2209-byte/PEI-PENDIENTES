@@ -408,11 +408,6 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
       <div class="kpi-val" id="k-total">—</div>
       <div class="kpi-sub" id="k-total-s">registros cargados</div>
     </div>
-    <div class="kpi-card" style="--ak:var(--azul-c)">
-      <div class="kpi-lbl">Gestores con Carga</div>
-      <div class="kpi-val" id="k-gest">—</div>
-      <div class="kpi-sub">Plan · Det · Replan · Asig</div>
-    </div>
     <div class="kpi-card" style="--ak:var(--turquesa)">
       <div class="kpi-lbl">Planificada</div>
       <div class="kpi-val" id="k-plan">—</div>
@@ -437,6 +432,11 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
       <div class="kpi-lbl">PrePlanificada</div>
       <div class="kpi-val" id="k-pre">—</div>
       <div class="kpi-sub">sin gestor aún</div>
+    </div>
+    <div class="kpi-card" style="--ak:var(--azul-c)">
+      <div class="kpi-lbl">Gestores con Carga</div>
+      <div class="kpi-val" id="k-gest">—</div>
+      <div class="kpi-sub">Plan · Det · Replan · Asig</div>
     </div>
     <div class="kpi-card" style="--ak:var(--naranja)">
       <div class="kpi-lbl">Hojas · Clientes</div>
@@ -668,8 +668,7 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwSHv2P5HapoBHN
 // 3. Agrega una línea al array con el formato: { fecha: 'DD-MM-YY', gid: NUMERO_GID },
 // ────────────────────────────────────────────────────────────────────────
 const KNOWN_SHEETS = [
- // {fecha:'08-06-26',gid:1682673096},
-  {fecha:'22-06-26',gid:2091286464},
+  {fecha:'08-06-26',gid:1682673096},
 ];
 
 const C={

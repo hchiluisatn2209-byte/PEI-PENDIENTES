@@ -2132,6 +2132,11 @@ async function loadAll(){
         row._equipo       = pm.equipo || 'OTROS';
         row._tipo_gestion = pm.tipo   || 'OTROS';
         row._user         = (row[C.GESTOR]||'').trim();
+        // Regla especial: Banco del Austro + raacosta → PROYECTOS
+        if((row[C.CLIENTE]||'').trim()==='Banco del Austro S.A.' &&
+           (row[C.GESTOR]||'').trim().toLowerCase()==='raacosta'){
+          row._tipo_gestion='PROYECTOS';
+        }
         const dPre = parseDate(row[C.FE_PREPLANIFICADA_DMA]);
         row._preplanMes    = dPre ? (MESES_ABR[dPre.getMonth()]+' '+String(dPre.getFullYear()).slice(2)) : '';
         row._preplanMesKey = dPre ? dPre.getFullYear()*100+(dPre.getMonth()+1) : 0;

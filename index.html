@@ -2005,59 +2005,24 @@ function exportarExcel(){
 
 // ── EXPORTAR EXCEL DESDE INDICADORES CLAVE ─────────────────────────────
 function exportKpiExcel(){
-  const COLS=[
-    {key:C.FE_PREPLANIFICADA_DMA, hdr:'FECHA_SOLICITUD'},
-    {key:C.GESTOR,                hdr:'NOMBRE_USR_ULT_PLAN'},
-    {key:C.EMPRESA,               hdr:'TIPO_EMPRESA'},
-    {key:C.CLIENTE,               hdr:'RAZON_SOCIAL_CLIENTE'},
-    {key:C.LOGIN,                 hdr:'LOGIN'},
-    {key:C.EST,                   hdr:'ESTADO_SERVICIO'},
-    {key:C.PRODUCTO,              hdr:'PRODUCTO'},
-    {key:C.TIPO_ORDEN,            hdr:'TIPO_ORDEN'},
-    {key:C.SUCURSAL,              hdr:'TECNICA_SUCURSAL'},
-    {key:C.FE_PLAN,               hdr:'FE_ULT_PLAN'},
-    {key:C.OBS_PLAN,              hdr:'OBS_ULT_PLAN'},
-    {key:C.MOTIVO,                hdr:'MOTIVO'},
-    {key:C.MOTIVO_HIST,           hdr:'ULT_OBS_REPLANIFICADA'},
-    {key:C.CONTRATO,              hdr:'ESTADO_CONTRATO'},
-    {key:C.VENDEDOR,              hdr:'VENDEDOR'},
-    {key:'_fecha',                hdr:'CORTE'},
-  ];
+  const headers=['FE_PREPLANIFICADA_DMA','NOMBRE_USR_ULT_PLAN','TIPO_EMPRESA','RAZON_SOCIAL_CLIENTE','LOGIN',
+    'ESTADO_SERVICIO','PRODUCTO','TIPO_ORDEN','TECNICA_SUCURSAL','FE_ULT_PLANIFICADA',
+    'OBS_ULT_PLAN','MOTIVO','ULT_OBS_REPLANIFICADA','ESTADO_CONTRATO','VENDEDOR','CORTE'];
+  const colKeys=[C.FE_PREPLANIFICADA_DMA,C.GESTOR,C.EMPRESA,C.CLIENTE,C.LOGIN,C.EST,
+    C.PRODUCTO,C.TIPO_ORDEN,C.SUCURSAL,C.FE_PLAN,
+    C.OBS_PLAN,C.MOTIVO,C.MOTIVO_HIST,C.CONTRATO,C.VENDEDOR,'_fecha'];
 
-  const v=x=>{const s=String(x==null?'':x);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');};
-
-  // Encabezado
-  const hdrStyle='background:#1B3A6B;color:#00B0F0;font-weight:bold;font-family:Arial;font-size:10pt;text-align:center;border:1px solid #00B0F0;padding:4px 8px;';
-  const cellStyle='font-family:Arial;font-size:9pt;border:1px solid #DDE3EC;padding:3px 6px;';
-  const cellStyleAlt='font-family:Arial;font-size:9pt;border:1px solid #DDE3EC;padding:3px 6px;background:#F2F7FF;';
-  const sumStyle='background:#1B3A6B;color:#00B0F0;font-weight:bold;font-family:Arial;font-size:9pt;padding:4px 8px;';
-
-  let html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
-  html+='<head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>PEI_Pendientes</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body>';
-  html+='<table border="1" cellspacing="0">';
-
-  // Fila de encabezado
-  html+='<tr>'+COLS.map(c=>`<th style="${hdrStyle}">${c.hdr}</th>`).join('')+'</tr>';
-
-  // Filas de datos
-  filtered.forEach((r,i)=>{
-    const st=i%2===0?cellStyle:cellStyleAlt;
-    html+='<tr>'+COLS.map(c=>`<td style="${st}">${v(r[c.key])}</td>`).join('')+'</tr>';
+  const escape=v=>'"'+(String(v==null?'':v).replace(/"/g,'""'))+'"';
+  const lines=[headers.map(escape).join(',')];
+  filtered.forEach(r=>{
+    lines.push(colKeys.map(k=>escape(r[k]||'')).join(','));
   });
 
-  // Fila vacía + resumen
-  html+=`<tr><td colspan="${COLS.length}" style="${sumStyle}"></td></tr>`;
-  const estados=['Planificada','Detenido','Replanificada','AsignadoTarea','PrePlanificada'];
-  const resumen=`TOTAL: ${filtered.length} | `+estados.map(e=>`${e}: ${filtered.filter(r=>(r[C.EST]||'').trim()===e).length}`).join(' | ');
-  html+=`<tr><td colspan="${COLS.length}" style="${sumStyle}">${resumen}</td></tr>`;
-
-  html+='</table></body></html>';
-
-  const blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel;charset=utf-8'});
+  const blob=new Blob(['\ufeff'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
   a.href=url;
-  a.download=`PEI_Pendientes_${new Date().toISOString().slice(0,10)}.xls`;
+  a.download=`PEI_Pendientes_${new Date().toISOString().slice(0,10)}.csv`;
   document.body.appendChild(a);
   a.click();
   setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},200);

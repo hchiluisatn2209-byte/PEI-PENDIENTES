@@ -181,6 +181,8 @@ tr:hover td{background:rgba(0,176,240,.06)}
 .motivos-col.det .motivo-item .num{color:var(--magenta)}
 .motivos-col.rep .motivo-item .num{color:var(--amarillo)}
 
+.btn-export-kpi{display:inline-flex;align-items:center;font-family:var(--font-cond);font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;padding:7px 16px;border-radius:8px;border:1px solid rgba(0,176,240,.5);background:rgba(0,176,240,.12);color:var(--turquesa);cursor:pointer;transition:background .2s,border-color .2s}
+.btn-export-kpi:hover{background:rgba(0,176,240,.25);border-color:var(--turquesa)}
 .empty{text-align:center;padding:2rem;color:var(--muted);font-size:12px;font-family:var(--font-cond);letter-spacing:1px}
 
 /* ── DETALLE EXPANDIBLE ── */
@@ -401,7 +403,13 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 
 <main>
   <!-- KPIs -->
-  <div class="section-title"><span class="dot-sec"></span>Indicadores Clave · Estado Servicio</div>
+  <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+    <span><span class="dot-sec"></span>Indicadores Clave · Estado Servicio</span>
+    <button class="btn-export-kpi" onclick="exportKpiExcel()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Exportar Excel
+    </button>
+  </div>
   <div class="kpi-strip">
     <div class="kpi-card" style="--ak:var(--turquesa)">
       <div class="kpi-lbl">Total Órdenes</div>
@@ -1993,6 +2001,91 @@ function exportarExcel(){
   a.download=`PEI_Pendientes_${nombre}_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+// ── EXPORTAR EXCEL DESDE INDICADORES CLAVE ─────────────────────────────
+function exportKpiExcel(){
+  // Importar SheetJS dinámicamente (CDN)
+  if(typeof XLSX !== 'undefined'){
+    _buildKpiXlsx();
+    return;
+  }
+  const s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+  s.onload=()=>_buildKpiXlsx();
+  s.onerror=()=>alert('No se pudo cargar la librería de Excel. Verifica tu conexión.');
+  document.head.appendChild(s);
+}
+
+function _buildKpiXlsx(){
+  const COLS=[
+    {key:C.FE_PREPLANIFICADA_DMA, hdr:'FECHA_SOLICITUD'},
+    {key:C.GESTOR,                hdr:'NOMBRE_USR_ULT_PLAN'},
+    {key:C.EMPRESA,               hdr:'TIPO_EMPRESA'},
+    {key:C.CLIENTE,               hdr:'RAZON_SOCIAL_CLIENTE'},
+    {key:C.LOGIN,                 hdr:'LOGIN'},
+    {key:C.EST,                   hdr:'ESTADO SERVICIO'},
+    {key:C.PRODUCTO,              hdr:'PRODUCTO'},
+    {key:C.TIPO_ORDEN,            hdr:'TIPO ÓRDEN'},
+    {key:C.SUCURSAL,              hdr:'TÉCNICA SUCURSAL'},
+    {key:C.FE_PLAN,               hdr:'FE ULT PLAN'},
+    {key:C.OBS_PLAN,              hdr:'OBS_ULT_PLAN'},
+    {key:C.MOTIVO,                hdr:'MOTIVO'},
+    {key:C.MOTIVO_HIST,           hdr:'ULT_OBS_REPLANIFICADA'},
+    {key:C.CONTRATO,              hdr:'ESTADO_CONTRATO'},
+    {key:C.VENDEDOR,              hdr:'VENDEDOR'},
+    {key:'_fecha',                hdr:'CORTE'},
+  ];
+
+  const headers=COLS.map(c=>c.hdr);
+  const rows=filtered.map(r=>COLS.map(c=>r[c.key]||''));
+
+  const ws=XLSX.utils.aoa_to_sheet([headers,...rows]);
+
+  // Anchos de columna aproximados
+  ws['!cols']=[
+    {wch:14},{wch:30},{wch:12},{wch:40},{wch:30},{wch:15},{wch:20},{wch:12},
+    {wch:22},{wch:14},{wch:60},{wch:35},{wch:35},{wch:14},{wch:30},{wch:12}
+  ];
+
+  // Estilo encabezado (fila 1)
+  const hdrFill={patternType:'solid',fgColor:{rgb:'1B3A6B'}};
+  const hdrFont={bold:true,color:{rgb:'FFFFFF'},name:'Arial',sz:10};
+  const range=XLSX.utils.decode_range(ws['!ref']);
+  for(let c=range.s.c;c<=range.e.c;c++){
+    const cell=XLSX.utils.encode_cell({r:0,c});
+    if(!ws[cell])ws[cell]={t:'s',v:headers[c]};
+    ws[cell].s={fill:hdrFill,font:hdrFont,alignment:{horizontal:'center',vertical:'center',wrapText:true},border:{bottom:{style:'thin',color:{rgb:'00B0F0'}}}};
+  }
+
+  // Bordes y fuente en filas de datos
+  for(let r=1;r<=rows.length;r++){
+    const fill={patternType:'solid',fgColor:{rgb:r%2===0?'F2F7FF':'FFFFFF'}};
+    for(let c=range.s.c;c<=range.e.c;c++){
+      const cell=XLSX.utils.encode_cell({r,c});
+      if(!ws[cell])ws[cell]={t:'s',v:''};
+      ws[cell].s={fill,font:{name:'Arial',sz:9},alignment:{vertical:'center',wrapText:false},border:{top:{style:'thin',color:{rgb:'DDE3EC'}},bottom:{style:'thin',color:{rgb:'DDE3EC'}}}};
+    }
+  }
+
+  // Fila de resumen al final
+  const sumRow=rows.length+2;
+  const estados=['Planificada','Detenido','Replanificada','AsignadoTarea','PrePlanificada'];
+  const counts=estados.map(e=>filtered.filter(r=>(r[C.EST]||'').trim()===e).length);
+  const resumen=[`Total: ${filtered.length} órdenes`,...estados.map((e,i)=>`${e}: ${counts[i]}`),'','','','','','','','','','','','',''];
+  XLSX.utils.sheet_add_aoa(ws,[resumen],{origin:{r:sumRow-1,c:0}});
+  const sumFill={patternType:'solid',fgColor:{rgb:'1B3A6B'}};
+  for(let c=0;c<COLS.length;c++){
+    const cell=XLSX.utils.encode_cell({r:sumRow-1,c});
+    if(!ws[cell])ws[cell]={t:'s',v:''};
+    ws[cell].s={fill:sumFill,font:{bold:true,color:{rgb:'00B0F0'},name:'Arial',sz:9}};
+  }
+
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,'PEI_Pendientes',ws);
+
+  const fecha=new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb,`PEI_Pendientes_${fecha}.xlsx`);
 }
 
 // ── RENDER ALL ──────────────────────────────────────────────────────────

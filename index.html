@@ -2005,30 +2005,17 @@ function exportarExcel(){
 
 // ── EXPORTAR EXCEL DESDE INDICADORES CLAVE ─────────────────────────────
 function exportKpiExcel(){
-  // Importar SheetJS dinámicamente (CDN)
-  if(typeof XLSX !== 'undefined'){
-    _buildKpiXlsx();
-    return;
-  }
-  const s=document.createElement('script');
-  s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
-  s.onload=()=>_buildKpiXlsx();
-  s.onerror=()=>alert('No se pudo cargar la librería de Excel. Verifica tu conexión.');
-  document.head.appendChild(s);
-}
-
-function _buildKpiXlsx(){
   const COLS=[
     {key:C.FE_PREPLANIFICADA_DMA, hdr:'FECHA_SOLICITUD'},
     {key:C.GESTOR,                hdr:'NOMBRE_USR_ULT_PLAN'},
     {key:C.EMPRESA,               hdr:'TIPO_EMPRESA'},
     {key:C.CLIENTE,               hdr:'RAZON_SOCIAL_CLIENTE'},
     {key:C.LOGIN,                 hdr:'LOGIN'},
-    {key:C.EST,                   hdr:'ESTADO SERVICIO'},
+    {key:C.EST,                   hdr:'ESTADO_SERVICIO'},
     {key:C.PRODUCTO,              hdr:'PRODUCTO'},
-    {key:C.TIPO_ORDEN,            hdr:'TIPO ORDEN'},
-    {key:C.SUCURSAL,              hdr:'TECNICA SUCURSAL'},
-    {key:C.FE_PLAN,               hdr:'FE ULT PLAN'},
+    {key:C.TIPO_ORDEN,            hdr:'TIPO_ORDEN'},
+    {key:C.SUCURSAL,              hdr:'TECNICA_SUCURSAL'},
+    {key:C.FE_PLAN,               hdr:'FE_ULT_PLAN'},
     {key:C.OBS_PLAN,              hdr:'OBS_ULT_PLAN'},
     {key:C.MOTIVO,                hdr:'MOTIVO'},
     {key:C.MOTIVO_HIST,           hdr:'ULT_OBS_REPLANIFICADA'},
@@ -2037,33 +2024,43 @@ function _buildKpiXlsx(){
     {key:'_fecha',                hdr:'CORTE'},
   ];
 
-  const v=x=>String(x==null?'':x);
+  const v=x=>{const s=String(x==null?'':x);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');};
 
-  const headers=COLS.map(c=>c.hdr);
-  const rows=filtered.map(r=>COLS.map(c=>v(r[c.key])));
+  // Encabezado
+  const hdrStyle='background:#1B3A6B;color:#00B0F0;font-weight:bold;font-family:Arial;font-size:10pt;text-align:center;border:1px solid #00B0F0;padding:4px 8px;';
+  const cellStyle='font-family:Arial;font-size:9pt;border:1px solid #DDE3EC;padding:3px 6px;';
+  const cellStyleAlt='font-family:Arial;font-size:9pt;border:1px solid #DDE3EC;padding:3px 6px;background:#F2F7FF;';
+  const sumStyle='background:#1B3A6B;color:#00B0F0;font-weight:bold;font-family:Arial;font-size:9pt;padding:4px 8px;';
 
-  const ws=XLSX.utils.aoa_to_sheet([headers,...rows]);
+  let html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+  html+='<head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>PEI_Pendientes</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body>';
+  html+='<table border="1" cellspacing="0">';
 
-  // Anchos de columna
-  ws['!cols']=[
-    {wch:14},{wch:30},{wch:12},{wch:40},{wch:30},{wch:16},{wch:20},{wch:12},
-    {wch:22},{wch:14},{wch:60},{wch:35},{wch:35},{wch:14},{wch:30},{wch:12}
-  ];
+  // Fila de encabezado
+  html+='<tr>'+COLS.map(c=>`<th style="${hdrStyle}">${c.hdr}</th>`).join('')+'</tr>';
 
-  // Fila de resumen al final (2 filas vacías de separación)
-  const sumRow=rows.length+3;
+  // Filas de datos
+  filtered.forEach((r,i)=>{
+    const st=i%2===0?cellStyle:cellStyleAlt;
+    html+='<tr>'+COLS.map(c=>`<td style="${st}">${v(r[c.key])}</td>`).join('')+'</tr>';
+  });
+
+  // Fila vacía + resumen
+  html+=`<tr><td colspan="${COLS.length}" style="${sumStyle}"></td></tr>`;
   const estados=['Planificada','Detenido','Replanificada','AsignadoTarea','PrePlanificada'];
-  const summary=[
-    [`TOTAL ÓRDENES: ${filtered.length}`],
-    ...estados.map(e=>[`${e}: ${filtered.filter(r=>(r[C.EST]||'').trim()===e).length}`])
-  ];
-  XLSX.utils.sheet_add_aoa(ws,summary,{origin:{r:sumRow,c:0}});
+  const resumen=`TOTAL: ${filtered.length} | `+estados.map(e=>`${e}: ${filtered.filter(r=>(r[C.EST]||'').trim()===e).length}`).join(' | ');
+  html+=`<tr><td colspan="${COLS.length}" style="${sumStyle}">${resumen}</td></tr>`;
 
-  const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,'PEI_Pendientes',ws);
+  html+='</table></body></html>';
 
-  const fecha=new Date().toISOString().slice(0,10);
-  XLSX.writeFile(wb,`PEI_Pendientes_${fecha}.xlsx`);
+  const blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`PEI_Pendientes_${new Date().toISOString().slice(0,10)}.xls`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},200);
 }
 
 // ── RENDER ALL ──────────────────────────────────────────────────────────

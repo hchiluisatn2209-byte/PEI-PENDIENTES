@@ -2005,17 +2005,18 @@ function exportarExcel(){
 
 // ── EXPORTAR EXCEL DESDE INDICADORES CLAVE ─────────────────────────────
 function exportKpiExcel(){
-  const headers=['FE_PREPLANIFICADA_DMA','NOMBRE_USR_ULT_PLAN','TIPO_EMPRESA','RAZON_SOCIAL_CLIENTE','LOGIN',
+  const headers=['FE_PREPLANIFICADA_DMA','NOMBRE_USR_ULT_PLAN','TIPO_GESTION','TIPO_EMPRESA','RAZON_SOCIAL_CLIENTE','LOGIN',
     'ESTADO_SERVICIO','PRODUCTO','TIPO_ORDEN','TECNICA_SUCURSAL','FE_ULT_PLANIFICADA',
     'OBS_ULT_PLAN','MOTIVO','ULT_OBS_REPLANIFICADA','ESTADO_CONTRATO','VENDEDOR','CORTE'];
-  const colKeys=[C.FE_PREPLANIFICADA_DMA,C.GESTOR,C.EMPRESA,C.CLIENTE,C.LOGIN,C.EST,
+  const colKeys=[C.FE_PREPLANIFICADA_DMA,C.GESTOR,C.TIPO_GESTION,C.EMPRESA,C.CLIENTE,C.LOGIN,C.EST,
     C.PRODUCTO,C.TIPO_ORDEN,C.SUCURSAL,C.FE_PLAN,
     C.OBS_PLAN,C.MOTIVO,C.MOTIVO_HIST,C.CONTRATO,C.VENDEDOR,'_fecha'];
 
   const escape=v=>'"'+(String(v==null?'':v).replace(/"/g,'""'))+'"';
-  const lines=[headers.map(escape).join(',')];
+  const SEP=';';
+  const lines=['sep=;',headers.map(escape).join(SEP)];
   filtered.forEach(r=>{
-    lines.push(colKeys.map(k=>escape(r[k]||'')).join(','));
+    lines.push(colKeys.map(k=>escape(r[k]||'')).join(SEP));
   });
 
   const blob=new Blob(['\ufeff'+lines.join('\n')],{type:'text/csv;charset=utf-8'});

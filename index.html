@@ -678,9 +678,7 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwSHv2P5HapoBHN
 // 3. Agrega una línea al array con el formato: { fecha: 'DD-MM-YY', gid: NUMERO_GID },
 // ────────────────────────────────────────────────────────────────────────
 const KNOWN_SHEETS = [
- // {fecha:'08-06-26',gid:1682673096},
-  {fecha:'22-06-26',gid:2091286464},
-  {fecha:'26-06-26',gid:1963583253},
+  {fecha:'08-06-26',gid:1682673096},
 ];
 
 const C={
@@ -1590,10 +1588,25 @@ function renderMotivos(){
   const detMap={},repMap={};
   let detTotal=0,repTotal=0;
   filtered.forEach(r=>{
-    const motivo=(r[C.MOTIVO]||'').trim();
-    if(!motivo||motivo==='-')return;
-    if(esDet(r)){detMap[motivo]=(detMap[motivo]||0)+1;detTotal++;}
-    if(esRep(r)){repMap[motivo]=(repMap[motivo]||0)+1;repTotal++;}
+    // Para Detenido: buscar en MOTIVO → MOTIVO_ULT_HIST
+    if(esDet(r)){
+      const motivo=((r[C.MOTIVO]||'').trim()||
+                    (r[C.MOTIVO_HIST]||'').trim());
+      if(motivo&&motivo!=='-'){
+        detMap[motivo]=(detMap[motivo]||0)+1;
+        detTotal++;
+      }
+    }
+    // Para Replanificada: buscar en MOTIVO → ULT_OBS_REPLANIFICADA → MOTIVO_ULT_HIST
+    if(esRep(r)){
+      const motivo=((r[C.MOTIVO]||'').trim()||
+                    (r[C.OBS_REPLAN]||'').trim()||
+                    (r[C.MOTIVO_HIST]||'').trim());
+      if(motivo&&motivo!=='-'){
+        repMap[motivo]=(repMap[motivo]||0)+1;
+        repTotal++;
+      }
+    }
   });
   const detSorted=Object.entries(detMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
   const repSorted=Object.entries(repMap).sort((a,b)=>b[1]-a[1]).slice(0,10);

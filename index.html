@@ -619,6 +619,13 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
       </div>
     </div>
 
+    <!-- ── TOP CLIENTES POR RAZON SOCIAL ── -->
+    <div class="chart-card full" style="margin-bottom:20px">
+      <div class="card-title"><span class="dot-sec" style="background:#8B6FE8"></span>Top Clientes · Razón Social</div>
+      <div class="card-sub">Top 15 clientes con más órdenes activas</div>
+      <div style="position:relative;height:340px"><canvas id="ch-clientes"></canvas></div>
+    </div>
+
     <!-- ── MOTIVOS DETENCIÓN / REPLANIFICACIÓN ── -->
     <div class="chart-card full" style="margin-bottom:20px">
       <div class="card-title"><span class="dot-sec" style="background:var(--naranja)"></span>Motivos de Detención y Replanificación</div>
@@ -1619,6 +1626,35 @@ function renderMotivos(){
   document.getElementById('mot-rep-list').innerHTML=render(repSorted);
 }
 
+// Top Clientes por RAZON_SOCIAL_CLIENTE
+function renderTopClientes(){
+  const map={};
+  filtered.forEach(r=>{
+    const cl=(r[C.CLIENTE]||'').trim();
+    if(cl)map[cl]=(map[cl]||0)+1;
+  });
+  const sorted=Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,15);
+  if(!sorted.length){if(charts['ch-clientes'])charts['ch-clientes'].destroy();return;}
+  const labels=sorted.map(([k])=>k.length>35?k.slice(0,33)+'…':k);
+  const vals=sorted.map(([,v])=>v);
+  const color='#8B6FE8';
+  mkChart('ch-clientes',{type:'bar',
+    data:{labels,datasets:[{data:vals,backgroundColor:color+'bb',borderColor:color,borderWidth:1,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.x} órdenes`}}},
+      scales:{
+        x:{grid:{color:GC},ticks:TST},
+        y:{grid:{color:'transparent'},ticks:{...TST,color:'#C4AAFF'}}
+      },
+      animation:{onComplete(ctx){
+        const ch=ctx.chart,ds=ch.data.datasets[0],meta=ch.getDatasetMeta(0),c2=ch.ctx;
+        c2.save();c2.font='bold 11px "Barlow Condensed",sans-serif';c2.fillStyle='#fff';c2.textBaseline='middle';
+        meta.data.forEach((bar,i)=>{const v=ds.data[i];if(!v)return;c2.fillText(v,bar.x+5,bar.y);});
+        c2.restore();
+      }}
+    }});
+}
+
 function mostrarClientesEmpresa(tipoEmpresa){
   const clientes=[...new Set(
     filtered
@@ -2144,6 +2180,7 @@ function renderAll(){
   segmentedHBar('ch-gestores',10);
   doughnut('ch-estado',topN(count(filtered,C.EST),8),'leg-estado');
   renderMotivos();
+  renderTopClientes();
   doughnut('ch-empresa',topN(count(filtered,C.EMPRESA),8),'leg-empresa',(label)=>mostrarClientesEmpresa(label));
   renderTend();
   renderTendPrePlan();

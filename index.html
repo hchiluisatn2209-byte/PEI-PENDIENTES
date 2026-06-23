@@ -634,35 +634,6 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
         </div>
       </div>
     </div>
-    <!-- ── TOP CLIENTES (RAZON_SOCIAL_CLIENTE) ── -->
-    <div class="chart-card full" style="margin-bottom:20px">
-      <div class="card-title"><span class="dot-sec" style="background:var(--azul-c2)"></span>Top Clientes · Razón Social</div>
-      <div class="card-sub">Distribución de órdenes activas por cliente (RAZON_SOCIAL_CLIENTE) · Top 20</div>
-      <div class="leg-row">
-        <div class="leg-i"><span class="leg-sq" style="background:var(--turquesa)"></span>Planificada</div>
-        <div class="leg-i"><span class="leg-sq" style="background:var(--magenta)"></span>Detenido</div>
-        <div class="leg-i"><span class="leg-sq" style="background:var(--amarillo)"></span>Replanificada</div>
-        <div class="leg-i"><span class="leg-sq" style="background:var(--azul-c)"></span>AsignadoTarea</div>
-      </div>
-      <div id="ch-clientes-wrap" style="position:relative;height:520px"><canvas id="ch-clientes"></canvas></div>
-    </div>
-
-    <!-- ── MOTIVO_ULT_HIST POR ESTADO ── -->
-    <div class="chart-card full" style="margin-bottom:20px">
-      <div class="card-title"><span class="dot-sec" style="background:var(--morado)"></span>Último Historial de Motivo · por Estado</div>
-      <div class="card-sub">Top causas según MOTIVO_ULT_HIST · solo registros con estado Detenido o Replanificada</div>
-      <div class="motivos-grid">
-        <div class="motivos-col det">
-          <div class="motivos-col-head"><span class="motivos-badge det" id="mot-hist-det-total">0</span>Hist. Detenido</div>
-          <div class="motivos-list" id="mot-hist-det-list"></div>
-        </div>
-        <div class="motivos-col rep">
-          <div class="motivos-col-head"><span class="motivos-badge rep" id="mot-hist-rep-total">0</span>Hist. Replanificada</div>
-          <div class="motivos-list" id="mot-hist-rep-list"></div>
-        </div>
-      </div>
-    </div>
-
     <div class="chart-card full" style="margin-bottom:20px">
       <div class="card-title"><span class="dot-sec"></span>Evolución Diaria por Estado</div>
       <div class="card-sub">N° registros por fecha de corte · todas las hojas</div>
@@ -707,9 +678,7 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwSHv2P5HapoBHN
 // 3. Agrega una línea al array con el formato: { fecha: 'DD-MM-YY', gid: NUMERO_GID },
 // ────────────────────────────────────────────────────────────────────────
 const KNOWN_SHEETS = [
-  //{fecha:'08-06-26',gid:1682673096},
-  {fecha:'22-06-26',gid:2091286464},
-  {fecha:'23-06-26',gid:1963583253},
+  {fecha:'08-06-26',gid:1682673096},
 ];
 
 const C={
@@ -1458,8 +1427,16 @@ function mkChart(id,cfg){if(charts[id])charts[id].destroy();const c=document.get
 function hBar(id,entries,color){
   mkChart(id,{type:'bar',
     data:{labels:entries.map(([k])=>k.length>22?k.slice(0,20)+'…':k),datasets:[{data:entries.map(([,v])=>v),backgroundColor:color+'bb',borderColor:color,borderWidth:1,borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},
-      scales:{x:{grid:{color:GC},ticks:TST},y:{grid:{color:'transparent'},ticks:{...TST,color:'#9BBCD8'}}}}});
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.x}`}}},
+      scales:{x:{grid:{color:GC},ticks:TST},y:{grid:{color:'transparent'},ticks:{...TST,color:'#9BBCD8'}}},
+      animation:{onComplete(ctx){
+        const ch=ctx.chart,ds=ch.data.datasets[0],meta=ch.getDatasetMeta(0),c2=ch.ctx;
+        c2.save();c2.font='bold 11px "Barlow Condensed",sans-serif';c2.fillStyle='#fff';c2.textBaseline='middle';
+        meta.data.forEach((bar,i)=>{const v=ds.data[i];if(!v)return;c2.fillText(v,bar.x+5,bar.y);});
+        c2.restore();
+      }}
+    }});
 }
 
 // Top Gestores por Carga, segmentado por estado (Plan/Det/Rep/Asig) — mismo criterio que ch-top-gestores
@@ -1501,7 +1478,16 @@ function segmentedHBar(id,limit){
       scales:{
         x:{stacked:true,grid:{color:GC},ticks:TST},
         y:{stacked:true,grid:{color:'transparent'},ticks:{...TST,color:'#9BBCD8',callback:(v,i)=>labels[i]}}
-      }
+      },
+      animation:{onComplete(ctx){
+        const ch=ctx.chart,meta=ch.getDatasetMeta(ch.data.datasets.length-1),c2=ch.ctx;
+        c2.save();c2.font='bold 11px "Barlow Condensed",sans-serif';c2.fillStyle='#fff';c2.textBaseline='middle';
+        sorted.forEach((d,i)=>{
+          const bar=meta.data[i];if(!bar)return;
+          c2.fillText(d.tot,bar.x+5,bar.y);
+        });
+        c2.restore();
+      }}
     }});
 }
 
@@ -1513,75 +1499,22 @@ function doughnut(id,entries,legId,onClick){
     opts.onClick=(_e,els)=>{if(els.length)onClick(labels[els[0].index]);};
     opts.onHover=(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';};
   }
+  opts.animation={onComplete(ctx){
+    const ch=ctx.chart,c2=ch.ctx,tot2=vals.reduce((a,b)=>a+b,0);
+    const meta=ch.getDatasetMeta(0);
+    c2.save();c2.textAlign='center';c2.textBaseline='middle';
+    meta.data.forEach((arc,i)=>{
+      const v=vals[i];if(!v||v/tot2<0.03)return;
+      const angle=(arc.startAngle+arc.endAngle)/2,r=(arc.innerRadius+arc.outerRadius)/2;
+      const x=ch.width/2+Math.cos(angle)*r, y=ch.height/2+Math.sin(angle)*r;
+      c2.font='bold 11px "Barlow Condensed",sans-serif';c2.fillStyle='#fff';
+      c2.fillText(v,x,y-7);
+      c2.font='10px "Barlow Condensed",sans-serif';c2.fillStyle='rgba(255,255,255,.75)';
+      c2.fillText(Math.round(v/tot2*100)+'%',x,y+7);
+    });
+    c2.restore();
+  }};
   mkChart(id,{type:'doughnut',data:{labels,datasets:[{data:vals,backgroundColor:cols.map(c=>c+'bb'),borderColor:cols,borderWidth:1}]},options:opts});
-}
-
-// Top Clientes por RAZON_SOCIAL_CLIENTE — stacked bar horizontal
-function renderTopClientes(){
-  const map={};
-  filtered.filter(tieneCarga).forEach(r=>{
-    const c=(r[C.CLIENTE]||'Sin cliente').trim();
-    if(!map[c])map[c]={plan:0,det:0,rep:0,asig:0};
-    if(esPlan(r))  map[c].plan++;
-    if(esDet(r))   map[c].det++;
-    if(esRep(r))   map[c].rep++;
-    if(esAsig(r))  map[c].asig++;
-  });
-  const sorted=Object.entries(map)
-    .map(([c,d])=>({c,tot:d.plan+d.det+d.rep+d.asig,...d}))
-    .sort((a,b)=>b.tot-a.tot)
-    .slice(0,20);
-  if(!sorted.length){if(charts['ch-clientes'])charts['ch-clientes'].destroy();return;}
-  const labels=sorted.map(d=>d.c.length>35?d.c.slice(0,33)+'…':d.c);
-  const barH=Math.max(420,sorted.length*26);
-  const wrap=document.getElementById('ch-clientes-wrap');
-  if(wrap)wrap.style.height=barH+'px';
-  mkChart('ch-clientes',{type:'bar',
-    data:{labels,datasets:[
-      {label:'Planificada',   data:sorted.map(d=>d.plan), backgroundColor:'rgba(0,176,240,.85)',  stack:'s',borderSkipped:false},
-      {label:'Detenido',      data:sorted.map(d=>d.det),  backgroundColor:'rgba(255,68,176,.85)', stack:'s',borderSkipped:false},
-      {label:'Replanificada', data:sorted.map(d=>d.rep),  backgroundColor:'rgba(255,167,0,.85)',  stack:'s',borderSkipped:false},
-      {label:'AsignadoTarea', data:sorted.map(d=>d.asig), backgroundColor:'rgba(110,190,235,.85)',stack:'s',borderSkipped:false},
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
-      layout:{padding:{right:46}},
-      plugins:{
-        legend:{display:false},
-        tooltip:{
-          callbacks:{
-            title:ctx=>{const d=sorted[ctx[0].dataIndex];return`${d.c}  (Total: ${d.tot})`;},
-            label:ctx=>`  ${ctx.dataset.label}: ${ctx.parsed.x}`
-          },
-          backgroundColor:'rgba(10,30,70,.97)',borderColor:'rgba(0,176,240,.4)',borderWidth:1,
-          titleFont:{family:"'Barlow Condensed',sans-serif",size:13,weight:'bold'},
-          bodyFont:{family:"'Barlow Condensed',sans-serif",size:11},padding:12,boxPadding:4
-        }
-      },
-      scales:{
-        x:{stacked:true,grid:{color:GC},ticks:TST},
-        y:{stacked:true,grid:{color:'transparent'},ticks:{...TST,color:'#9BBCD8',callback:(v,i)=>labels[i]}}
-      }
-    }
-  });
-}
-
-// MOTIVO_ULT_HIST separado por Detenido y Replanificada
-function renderMotivoUltHist(){
-  const detMap={},repMap={};
-  let detTotal=0,repTotal=0;
-  filtered.forEach(r=>{
-    const mh=(r[C.MOTIVO_HIST]||'').trim();
-    if(!mh||mh==='-')return;
-    if(esDet(r)){detMap[mh]=(detMap[mh]||0)+1;detTotal++;}
-    if(esRep(r)){repMap[mh]=(repMap[mh]||0)+1;repTotal++;}
-  });
-  const detSorted=Object.entries(detMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  const repSorted=Object.entries(repMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  document.getElementById('mot-hist-det-total').textContent=detTotal;
-  document.getElementById('mot-hist-rep-total').textContent=repTotal;
-  const render=(arr)=>arr.map(([m,c])=>`<div class="motivo-item"><span class="num">${c}</span><span class="txt">${esc(m)}</span></div>`).join('')||'<div class="empty" style="padding:10px;grid-column:1/-1">Sin motivos registrados</div>';
-  document.getElementById('mot-hist-det-list').innerHTML=render(detSorted);
-  document.getElementById('mot-hist-rep-list').innerHTML=render(repSorted);
 }
 
 function renderTend(){
@@ -1604,8 +1537,23 @@ function renderTend(){
     {label:'Detenido', data:dates.map(d=>fStats[d].det),  borderColor:'#FF44B0',backgroundColor:'transparent',tension:.3,pointRadius:3,borderWidth:1.5,borderDash:[4,3]},
     {label:'Replan',   data:dates.map(d=>fStats[d].rep),  borderColor:'#FFA700',backgroundColor:'transparent',tension:.3,pointRadius:3,borderWidth:1.5,borderDash:[2,3]},
     {label:'AsigTarea',data:dates.map(d=>fStats[d].asig), borderColor:'#6EBEEB',backgroundColor:'transparent',tension:.3,pointRadius:3,borderWidth:1.5},
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-    scales:{x:{grid:{color:GC},ticks:{...TST,maxRotation:45,autoSkip:false}},y:{grid:{color:GC},ticks:TST}}}});
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+    tooltip:{mode:'index',intersect:false}},
+    scales:{x:{grid:{color:GC},ticks:{...TST,maxRotation:45,autoSkip:false}},y:{grid:{color:GC},ticks:TST}},
+    animation:{onComplete(ctx){
+      const ch=ctx.chart,c2=ch.ctx;
+      c2.save();c2.font='bold 10px "Barlow Condensed",sans-serif';c2.textAlign='center';c2.textBaseline='bottom';
+      ch.data.datasets.forEach((ds,di)=>{
+        const meta=ch.getDatasetMeta(di);
+        meta.data.forEach((pt,i)=>{
+          const v=ds.data[i];if(!v)return;
+          c2.fillStyle=ds.borderColor;
+          c2.fillText(v,pt.x,pt.y-6);
+        });
+      });
+      c2.restore();
+    }}
+  }});
 }
 
 // Tendencia por FE_PREPLANIFICADA_DMA — antigüedad/ingresos agrupados por mes (ene 25, feb 25, ...)
@@ -1623,9 +1571,16 @@ function renderTendPrePlan(){
   const data=keys.map(k=>map[k]);
   mkChart('ch-preplan-tend',{type:'bar',data:{labels,datasets:[
     {label:'Registros',data,backgroundColor:'rgba(52,211,153,.75)',borderColor:'#34D399',borderWidth:1,borderRadius:4}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
-    tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.y} registros`}}},
-    scales:{x:{grid:{color:GC},ticks:{...TST,maxRotation:45,autoSkip:false}},y:{grid:{color:GC},ticks:TST,beginAtZero:true}}}});
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.y} registros`}}},
+    scales:{x:{grid:{color:GC},ticks:{...TST,maxRotation:45,autoSkip:false}},y:{grid:{color:GC},ticks:TST,beginAtZero:true}},
+    animation:{onComplete(ctx){
+      const ch=ctx.chart,ds=ch.data.datasets[0],meta=ch.getDatasetMeta(0),c2=ch.ctx;
+      c2.save();c2.font='bold 10px "Barlow Condensed",sans-serif';c2.fillStyle='#34D399';c2.textAlign='center';c2.textBaseline='bottom';
+      meta.data.forEach((bar,i)=>{const v=ds.data[i];if(!v)return;c2.fillText(v,bar.x,bar.y-3);});
+      c2.restore();
+    }}
+  }});
 }
 
 // Motivos de Detención y Replanificación — top causas, separadas por tipo de evento, solo con dato real
@@ -2166,8 +2121,6 @@ function renderAll(){
   segmentedHBar('ch-gestores',10);
   doughnut('ch-estado',topN(count(filtered,C.EST),8),'leg-estado');
   renderMotivos();
-  renderMotivoUltHist();
-  renderTopClientes();
   doughnut('ch-empresa',topN(count(filtered,C.EMPRESA),8),'leg-empresa',(label)=>mostrarClientesEmpresa(label));
   renderTend();
   renderTendPrePlan();

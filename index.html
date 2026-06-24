@@ -71,7 +71,7 @@ header{background:linear-gradient(90deg,#162d5e,#1B3A70 70%,#245090);border-bott
 .sf-input::placeholder{color:var(--muted)}
 .sf-arrow{color:var(--muted);font-size:9px;flex-shrink:0;transition:transform .18s;pointer-events:none}
 .sf-wrap.open .sf-arrow{transform:rotate(180deg)}
-.sf-chips{display:flex;flex-wrap:wrap;gap:3px;max-width:320px}
+.sf-chips{display:flex;flex-wrap:nowrap;gap:3px;overflow:hidden;max-width:220px;align-items:center}
 .sf-chip{display:inline-flex;align-items:center;gap:3px;background:rgba(0,176,240,.2);border:1px solid rgba(0,176,240,.4);color:var(--turquesa);border-radius:99px;padding:2px 8px;font-size:12px;font-weight:600;white-space:nowrap}
 .sf-chip-x{cursor:pointer;font-size:11px;line-height:1;opacity:.7}
 .sf-chip-x:hover{opacity:1}
@@ -1165,11 +1165,13 @@ function sfRenderChips(id){
   if(inp)inp.placeholder='';
   if(sel===total){chips.innerHTML='<span class="sf-chip" style="background:rgba(0,176,240,.28)">Todos ✓</span>';return;}
   const arr=[...inst.selected];
-  chips.innerHTML=arr.map(v=>{
-    const idx=inst.all.indexOf(v);
-    return '<span class="sf-chip">'+(v.length>20?v.slice(0,18)+'…':v)+
-      '<span class="sf-chip-x" onclick="event.stopPropagation();sfToggleByIdx(\''+id+'\','+idx+')">×</span></span>';
-  }).join('');
+  // Mostrar solo 1 chip + badge "+N" para no expandir la barra
+  const first=arr[0];
+  const extra=arr.length-1;
+  const idx=inst.all.indexOf(first);
+  chips.innerHTML='<span class="sf-chip">'+(first.length>14?first.slice(0,12)+'…':first)+
+    '<span class="sf-chip-x" onclick="event.stopPropagation();sfToggleByIdx(\''+id+'\','+idx+')">×</span></span>'+
+    (extra>0?'<span class="sf-chip" style="background:rgba(0,176,240,.15);cursor:default">+'+extra+'</span>':'');
 }
 
 function sfGetVals(id){

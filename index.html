@@ -613,7 +613,7 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
       <table>
         <thead><tr>
           <th>Tipo Gestión</th><th>Carga total</th>
-          <th>Planificada</th><th>Detenido</th><th>Replanificada</th><th>PrePlanificada</th>
+          <th>Planificada</th><th>Detenido</th><th>Replanificada</th><th>PrePlanificada</th><th>AsignadoTarea</th>
           <th>Gestores</th><th>Clientes</th>
         </tr></thead>
         <tbody id="tbl-tipo-gestion"></tbody>
@@ -1624,7 +1624,7 @@ function renderTendPrePlan(){
 
   // Solo los mismos estados que el KPI Total: Plan+Det+Replan+PrePlan
   const mapFiltered={};
-  const filteredBase=filtered.filter(r=>esPlan(r)||esDet(r)||esRep(r)||esPre(r));
+  const filteredBase=filtered.filter(r=>esPlan(r)||esDet(r)||esRep(r)||esPre(r)||esAsig(r));
   filteredBase.forEach(r=>{
     const d=parseDate(r[C.FE_PREPLANIFICADA_DMA]);
     if(!d)return;
@@ -1911,25 +1911,26 @@ function renderResumen(){
 
 function renderResumenPorTipo(){
   const tipoMap={};
-  filtered.filter(r=>esPlan(r)||esDet(r)||esRep(r)||esPre(r)).forEach(r=>{
+  filtered.filter(r=>esPlan(r)||esDet(r)||esRep(r)||esPre(r)||esAsig(r)).forEach(r=>{
     const t=r[C.TIPO_GESTION]||'OTROS';
-    if(!tipoMap[t])tipoMap[t]={plan:0,det:0,rep:0,pre:0,gestores:new Set(),cli:new Set()};
+    if(!tipoMap[t])tipoMap[t]={plan:0,det:0,rep:0,pre:0,asig:0,gestores:new Set(),cli:new Set()};
     if(esPlan(r))tipoMap[t].plan++;
     if(esDet(r)) tipoMap[t].det++;
     if(esRep(r)) tipoMap[t].rep++;
     if(esPre(r)) tipoMap[t].pre++;
+    if(esAsig(r))tipoMap[t].asig++;
     tipoMap[t].gestores.add(r[C.GESTOR]||'');
     if(r[C.CLIENTE])tipoMap[t].cli.add(r[C.CLIENTE]);
   });
   const tipoRows=Object.entries(tipoMap).sort((a,b)=>{
-    return(b[1].plan+b[1].det+b[1].rep+b[1].pre)-(a[1].plan+a[1].det+a[1].rep+a[1].pre);
+    return(b[1].plan+b[1].det+b[1].rep+b[1].pre+b[1].asig)-(a[1].plan+a[1].det+a[1].rep+a[1].pre+a[1].asig);
   });
-  const grandTotal=tipoRows.reduce((s,[,d])=>s+d.plan+d.det+d.rep+d.pre,0);
-  const maxT=tipoRows[0]?(tipoRows[0][1].plan+tipoRows[0][1].det+tipoRows[0][1].rep+tipoRows[0][1].pre):1;
+  const grandTotal=tipoRows.reduce((s,[,d])=>s+d.plan+d.det+d.rep+d.pre+d.asig,0);
+  const maxT=tipoRows[0]?(tipoRows[0][1].plan+tipoRows[0][1].det+tipoRows[0][1].rep+tipoRows[0][1].pre+tipoRows[0][1].asig):1;
   const el=document.getElementById('tbl-tipo-gestion');
   if(!el)return;
   el.innerHTML=tipoRows.length?tipoRows.map(([t,d])=>{
-    const tot=d.plan+d.det+d.rep+d.pre;
+    const tot=d.plan+d.det+d.rep+d.pre+d.asig;
     const pct=grandTotal?Math.round(tot/grandTotal*100):0;
     const bw=Math.round(tot/maxT*80);
     const col=t==='PROYECTOS'?'#6EBEEB':t==='OPERATIVO'?'#34D399':t==='OTROS'?'#FF9A44':'var(--muted)';
@@ -1944,10 +1945,11 @@ function renderResumenPorTipo(){
       <td><span class="pill p-det">${d.det}</span></td>
       <td><span class="pill p-replan">${d.rep}</span></td>
       <td><span class="pill p-pre">${d.pre}</span></td>
+      <td><span class="pill p-asig">${d.asig}</span></td>
       <td style="font-family:var(--font-cond);color:var(--muted)">${d.gestores.size}</td>
       <td style="font-family:var(--font-cond);color:var(--muted)">${d.cli.size}</td>
     </tr>`;
-  }).join(''):`<tr><td colspan="8" class="empty">Sin datos</td></tr>`;
+  }).join(''):`<tr><td colspan="9" class="empty">Sin datos</td></tr>`;
 }
 
 // ── GRÁFICO TOP GESTORES + DETALLE ────────────────────────────────────

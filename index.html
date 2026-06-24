@@ -1619,11 +1619,10 @@ function doughnut(id,entries,legId,onClick){
 
 // Tendencia por FE_PREPLANIFICADA_DMA — antigüedad/ingresos agrupados por mes (ene 25, feb 25, ...)
 function renderTendPrePlan(){
-  // Meses activos en el filtro sf-preplan-mes (puede ser 0, 1 o varios)
   const selectedMeses=SF['sf-preplan-mes']&&SF['sf-preplan-mes'].selected.size>0
     ?new Set([...SF['sf-preplan-mes'].selected]):null;
 
-  // Siempre usar filtered para los conteos (refleja todos los demás filtros activos)
+  // Siempre usar filtered para los conteos
   const mapFiltered={};
   filtered.forEach(r=>{
     const d=parseDate(r[C.FE_PREPLANIFICADA_DMA]);
@@ -1632,51 +1631,31 @@ function renderTendPrePlan(){
     mapFiltered[key]=(mapFiltered[key]||0)+1;
   });
 
-  // Mapa total desde allData para contexto completo — pero solo años relevantes (desde 2023)
-  const mapAll={};
-  allData.forEach(r=>{
-    const d=parseDate(r[C.FE_PREPLANIFICADA_DMA]);
-    if(!d||d.getFullYear()<2023)return;
-    const key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
-    mapAll[key]=(mapAll[key]||0)+1;
-  });
-
-  // Si hay filtro de mes activo, mostrar contexto de allData; si no, mostrar solo filtered
-  const mapBase=selectedMeses?mapAll:mapFiltered;
-  const keys=Object.keys(mapBase).sort();
+  const keys=Object.keys(mapFiltered).sort();
   if(!keys.length){if(charts['ch-preplan-tend'])charts['ch-preplan-tend'].destroy();return;}
 
   const labels=keys.map(k=>{const [y,m]=k.split('-');return MESES_ABR[+m-1]+' '+y.slice(2);});
-  const data=keys.map(k=>mapBase[k]);
+  const data=keys.map(k=>mapFiltered[k]);
 
-  // Colores: meses seleccionados = verde intenso, resto = atenuado
-  const bgColors=labels.map(l=>{
-    if(!selectedMeses) return 'rgba(52,211,153,.75)';
-    return selectedMeses.has(l)?'rgba(52,211,153,.95)':'rgba(52,211,153,.15)';
-  });
-  const borderColors=labels.map(l=>{
-    if(!selectedMeses) return '#34D399';
-    return selectedMeses.has(l)?'#34D399':'rgba(52,211,153,.2)';
-  });
+  // Si hay filtro activo: barras seleccionadas intensas, el resto atenuado
+  // Si no hay filtro: todas iguales
+  const bgColors=labels.map(l=>
+    !selectedMeses?'rgba(52,211,153,.75)':
+    selectedMeses.has(l)?'rgba(52,211,153,.95)':'rgba(52,211,153,.15)'
+  );
+  const borderColors=labels.map(l=>
+    !selectedMeses?'#34D399':
+    selectedMeses.has(l)?'#34D399':'rgba(52,211,153,.2)'
+  );
 
   mkChart('ch-preplan-tend',{type:'bar',data:{labels,datasets:[
     {label:'Registros',data,backgroundColor:bgColors,borderColor:borderColors,borderWidth:1,borderRadius:4}
   ]},options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:false},tooltip:{callbacks:{
-      label:ctx=>{
-        const key2=keys[ctx.dataIndex];
-        const fil=mapFiltered[key2]||0;
-        const tot=mapAll[key2]||0;
-        return selectedMeses?` ${fil} filtrados / ${tot} total`:(` ${fil} registros`);
-      }
-    }}},
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.y} registros`}}},
     scales:{x:{grid:{color:GC},ticks:{...TST,maxRotation:45,autoSkip:false}},y:{grid:{color:GC},ticks:TST,beginAtZero:true}},
     onClick:(_e,els)=>{
-      if(els.length){
-        filterByClick('sf-preplan-mes',labels[els[0].index]);
-      } else {
-        filterByClick('sf-preplan-mes',null);
-      }
+      if(els.length) filterByClick('sf-preplan-mes',labels[els[0].index]);
+      else filterByClick('sf-preplan-mes',null);
     },
     onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},
     animation:{onComplete(ctx){
@@ -1684,8 +1663,8 @@ function renderTendPrePlan(){
       c2.save();c2.font='bold 10px "Barlow Condensed",sans-serif';c2.textAlign='center';c2.textBaseline='bottom';
       meta.data.forEach((bar,i)=>{
         const v=ds.data[i];if(!v)return;
-        const isSelected=!selectedMeses||selectedMeses.has(labels[i]);
-        c2.fillStyle=isSelected?'#34D399':'rgba(52,211,153,.35)';
+        const active=!selectedMeses||selectedMeses.has(labels[i]);
+        c2.fillStyle=active?'#34D399':'rgba(52,211,153,.35)';
         c2.fillText(v,bar.x,bar.y-3);
       });
       c2.restore();

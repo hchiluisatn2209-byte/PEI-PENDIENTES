@@ -62,7 +62,7 @@ header{background:linear-gradient(90deg,#162d5e,#1B3A70 70%,#245090);border-bott
 .sf-input::placeholder{color:var(--muted)}
 .sf-arrow{color:var(--muted);font-size:9px;flex-shrink:0;transition:transform .18s;pointer-events:none}
 .sf-wrap.open .sf-arrow{transform:rotate(180deg)}
-.sf-chips{display:flex;flex-wrap:wrap;gap:3px;max-width:180px}
+.sf-chips{display:flex;flex-wrap:wrap;gap:3px;max-width:320px}
 .sf-chip{display:inline-flex;align-items:center;gap:3px;background:rgba(0,176,240,.2);border:1px solid rgba(0,176,240,.4);color:var(--turquesa);border-radius:99px;padding:2px 8px;font-size:12px;font-weight:600;white-space:nowrap}
 .sf-chip-x{cursor:pointer;font-size:11px;line-height:1;opacity:.7}
 .sf-chip-x:hover{opacity:1}
@@ -641,19 +641,6 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
         </div>
       </div>
     </div>
-    <div class="chart-card full" style="margin-bottom:20px">
-      <div class="card-title"><span class="dot-sec"></span>Evolución Diaria por Estado</div>
-      <div class="card-sub">N° registros por fecha de corte · todas las hojas</div>
-      <div class="leg-row">
-        <div class="leg-i"><span class="leg-sq" style="background:var(--turquesa)"></span>Total</div>
-        <div class="leg-i"><span class="leg-sq" style="background:var(--turquesa)"></span>Planificada</div>
-        <div class="leg-i"><span class="leg-sq" style="background:var(--magenta)"></span>Detenido</div>
-        <div class="leg-i"><span class="leg-sq" style="background:var(--amarillo)"></span>Replanificada</div>
-        <div class="leg-i"><span class="leg-sq" style="background:var(--azul-c)"></span>AsignadoTarea</div>
-      </div>
-      <div style="position:relative;height:220px"><canvas id="ch-tend"></canvas></div>
-    </div>
-
     <!-- ── DETALLE POR GESTOR ── -->
     <div class="section-title"><span class="dot-sec"></span>Detalle Consolidado por Gestor</div>
     <div class="tbl-card">
@@ -1137,13 +1124,11 @@ function sfRenderChips(id){
   if(inp)inp.placeholder='';
   if(sel===total){chips.innerHTML='<span class="sf-chip" style="background:rgba(0,176,240,.28)">Todos ✓</span>';return;}
   const arr=[...inst.selected];
-  const shown=arr.slice(0,2);
-  const extra=arr.length-shown.length;
-  chips.innerHTML=shown.map(v=>{
+  chips.innerHTML=arr.map(v=>{
     const idx=inst.all.indexOf(v);
-    return '<span class="sf-chip">'+(v.length>14?v.slice(0,13)+'…':v)+
+    return '<span class="sf-chip">'+(v.length>20?v.slice(0,18)+'…':v)+
       '<span class="sf-chip-x" onclick="event.stopPropagation();sfToggleByIdx(\''+id+'\','+idx+')">×</span></span>';
-  }).join('')+(extra?'<span class="sf-chip" style="background:rgba(0,176,240,.15)">+'+extra+'</span>':'');
+  }).join('');
 }
 
 function sfGetVals(id){
@@ -1433,12 +1418,15 @@ function exportarAlertasExcel(tbl){
 // ── CHARTS ─────────────────────────────────────────────────────────────
 function mkChart(id,cfg){if(charts[id])charts[id].destroy();const c=document.getElementById(id);if(!c)return;charts[id]=new Chart(c,cfg);}
 
-function hBar(id,entries,color){
+function hBar(id,entries,color,sfId){
+  const rawLabels=entries.map(([k])=>k);
   mkChart(id,{type:'bar',
-    data:{labels:entries.map(([k])=>k.length>22?k.slice(0,20)+'…':k),datasets:[{data:entries.map(([,v])=>v),backgroundColor:color+'bb',borderColor:color,borderWidth:1,borderRadius:4}]},
+    data:{labels:rawLabels.map(l=>l.length>22?l.slice(0,20)+'…':l),datasets:[{data:entries.map(([,v])=>v),backgroundColor:color+'bb',borderColor:color,borderWidth:1,borderRadius:4}]},
     options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
       plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.x}`}}},
       scales:{x:{grid:{color:GC},ticks:TST},y:{grid:{color:'transparent'},ticks:{...TST,color:'#9BBCD8'}}},
+      onClick:sfId?(_e,els)=>{if(els.length)filterByClick(sfId,rawLabels[els[0].index]);}:undefined,
+      onHover:sfId?(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';}:undefined,
       animation:{onComplete(ctx){
         const ch=ctx.chart,ds=ch.data.datasets[0],meta=ch.getDatasetMeta(0),c2=ch.ctx;
         c2.save();c2.font='bold 11px "Barlow Condensed",sans-serif';c2.fillStyle='#fff';c2.textBaseline='middle';
@@ -1488,6 +1476,8 @@ function segmentedHBar(id,limit){
         x:{stacked:true,grid:{color:GC},ticks:TST},
         y:{stacked:true,grid:{color:'transparent'},ticks:{...TST,color:'#9BBCD8',callback:(v,i)=>labels[i]}}
       },
+      onClick:(_e,els)=>{if(els.length)filterByClick('sf-gestor',sorted[els[0].index].g);},
+      onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},
       animation:{onComplete(ctx){
         const ch=ctx.chart,meta=ch.getDatasetMeta(ch.data.datasets.length-1),c2=ch.ctx;
         c2.save();c2.font='bold 11px "Barlow Condensed",sans-serif';c2.fillStyle='#fff';c2.textBaseline='middle';
@@ -1507,6 +1497,9 @@ function doughnut(id,entries,legId,onClick){
   if(onClick){
     opts.onClick=(_e,els)=>{if(els.length)onClick(labels[els[0].index]);};
     opts.onHover=(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';};
+  } else {
+    opts.onClick=()=>{};
+    opts.onHover=()=>{};
   }
   opts.animation={onComplete(ctx){
     const ch=ctx.chart,c2=ch.ctx,tot2=vals.reduce((a,b)=>a+b,0);
@@ -1526,44 +1519,6 @@ function doughnut(id,entries,legId,onClick){
   mkChart(id,{type:'doughnut',data:{labels,datasets:[{data:vals,backgroundColor:cols.map(c=>c+'bb'),borderColor:cols,borderWidth:1}]},options:opts});
 }
 
-function renderTend(){
-  // Recalcular stats POR CORTE usando filtered (respeta filtros de gestor, corte, etc.)
-  const fStats={};
-  filtered.forEach(r=>{
-    const f=r._fecha;if(!f)return;
-    if(!fStats[f])fStats[f]={total:0,plan:0,det:0,rep:0,asig:0};
-    fStats[f].total++;
-    if(esPlan(r))fStats[f].plan++;
-    if(esDet(r)) fStats[f].det++;
-    if(esRep(r)) fStats[f].rep++;
-    if(esAsig(r))fStats[f].asig++;
-  });
-  const dates=KNOWN_SHEETS.map(s=>s.fecha).filter(d=>fStats[d]);
-  if(!dates.length){if(charts['ch-tend'])charts['ch-tend'].destroy();return;}
-  mkChart('ch-tend',{type:'line',data:{labels:dates,datasets:[
-    {label:'Total',    data:dates.map(d=>fStats[d].total),borderColor:'#00B0F0',backgroundColor:'rgba(0,176,240,.08)',tension:.3,pointRadius:4,fill:true,borderWidth:2},
-    {label:'Plan',     data:dates.map(d=>fStats[d].plan), borderColor:'#00B5CB',backgroundColor:'transparent',tension:.3,pointRadius:3,borderWidth:1.5},
-    {label:'Detenido', data:dates.map(d=>fStats[d].det),  borderColor:'#FF44B0',backgroundColor:'transparent',tension:.3,pointRadius:3,borderWidth:1.5,borderDash:[4,3]},
-    {label:'Replan',   data:dates.map(d=>fStats[d].rep),  borderColor:'#FFA700',backgroundColor:'transparent',tension:.3,pointRadius:3,borderWidth:1.5,borderDash:[2,3]},
-    {label:'AsigTarea',data:dates.map(d=>fStats[d].asig), borderColor:'#6EBEEB',backgroundColor:'transparent',tension:.3,pointRadius:3,borderWidth:1.5},
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
-    tooltip:{mode:'index',intersect:false}},
-    scales:{x:{grid:{color:GC},ticks:{...TST,maxRotation:45,autoSkip:false}},y:{grid:{color:GC},ticks:TST}},
-    animation:{onComplete(ctx){
-      const ch=ctx.chart,c2=ch.ctx;
-      c2.save();c2.font='bold 10px "Barlow Condensed",sans-serif';c2.textAlign='center';c2.textBaseline='bottom';
-      ch.data.datasets.forEach((ds,di)=>{
-        const meta=ch.getDatasetMeta(di);
-        meta.data.forEach((pt,i)=>{
-          const v=ds.data[i];if(!v)return;
-          c2.fillStyle=ds.borderColor;
-          c2.fillText(v,pt.x,pt.y-6);
-        });
-      });
-      c2.restore();
-    }}
-  }});
-}
 
 // Tendencia por FE_PREPLANIFICADA_DMA — antigüedad/ingresos agrupados por mes (ene 25, feb 25, ...)
 function renderTendPrePlan(){
@@ -1583,6 +1538,8 @@ function renderTendPrePlan(){
   ]},options:{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.y} registros`}}},
     scales:{x:{grid:{color:GC},ticks:{...TST,maxRotation:45,autoSkip:false}},y:{grid:{color:GC},ticks:TST,beginAtZero:true}},
+    onClick:(_e,els)=>{if(els.length)filterByClick('sf-preplan-mes',labels[els[0].index]);},
+    onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},
     animation:{onComplete(ctx){
       const ch=ctx.chart,ds=ch.data.datasets[0],meta=ch.getDatasetMeta(0),c2=ch.ctx;
       c2.save();c2.font='bold 10px "Barlow Condensed",sans-serif';c2.fillStyle='#34D399';c2.textAlign='center';c2.textBaseline='bottom';
@@ -1638,14 +1595,17 @@ function renderTopClientes(){
   const labels=sorted.map(([k])=>k.length>35?k.slice(0,33)+'…':k);
   const vals=sorted.map(([,v])=>v);
   const color='#8B6FE8';
+  const rawLabels=sorted.map(([k])=>k);
   mkChart('ch-clientes',{type:'bar',
     data:{labels,datasets:[{data:vals,backgroundColor:color+'bb',borderColor:color,borderWidth:1,borderRadius:4}]},
     options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.x} órdenes`}}},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.x} órdenes · clic para filtrar`}}},
       scales:{
         x:{grid:{color:GC},ticks:TST},
         y:{grid:{color:'transparent'},ticks:{...TST,color:'#C4AAFF'}}
       },
+      onClick:(_e,els)=>{if(els.length)mostrarDetalleCliente(rawLabels[els[0].index]);},
+      onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},
       animation:{onComplete(ctx){
         const ch=ctx.chart,ds=ch.data.datasets[0],meta=ch.getDatasetMeta(0),c2=ch.ctx;
         c2.save();c2.font='bold 11px "Barlow Condensed",sans-serif';c2.fillStyle='#fff';c2.textBaseline='middle';
@@ -1653,6 +1613,45 @@ function renderTopClientes(){
         c2.restore();
       }}
     }});
+}
+
+// Filtrar el dashboard al hacer clic en un gráfico
+function filterByClick(sfId,value){
+  if(!SF[sfId])return;
+  // Si ya está seleccionado ese valor solo, limpiar el filtro (toggle off)
+  const sel=SF[sfId].selected;
+  if(sel.size===1&&sel.has(value)){
+    SF[sfId].selected.clear();
+  } else {
+    SF[sfId].selected.clear();
+    SF[sfId].selected.add(value);
+  }
+  sfRenderChips(sfId);
+  sfRenderList(sfId,'');
+  applyFilters();
+  renderAll();
+}
+
+function mostrarDetalleCliente(cliente){
+  // Filtrar por ese cliente
+  filterByClick('sf-gestor', null); // limpiar gestor
+  // Buscar si hay un panel de detalle cliente ya existente o reutilizar empresa-clientes
+  const filas=filtered.filter(r=>(r[C.CLIENTE]||'').trim()===cliente);
+  const gestores=[...new Set(filas.map(r=>(r[C.GESTOR]||'').trim()).filter(Boolean))].sort();
+  const panel=document.getElementById('empresa-clientes-panel');
+  const title=document.getElementById('empresa-clientes-title');
+  const list=document.getElementById('empresa-clientes-list');
+  title.textContent=`${cliente.length>40?cliente.slice(0,38)+'…':cliente} · ${filas.length} órdenes · ${gestores.length} gestores`;
+  list.innerHTML=gestores.map((g,i)=>{
+    const cnt=filas.filter(r=>(r[C.GESTOR]||'').trim()===g).length;
+    return`<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;background:rgba(255,255,255,.04);font-size:11px;color:#cfe0f5;cursor:pointer" onclick="filterByClick('sf-gestor','${g.replace(/'/,"\\'")}')" title="Filtrar por ${g}">
+      <span style="font-family:var(--font-cond);color:var(--muted);min-width:20px;text-align:right">${i+1}</span>
+      <span style="flex:1">${esc(g)}</span>
+      <span style="font-family:var(--font-cond);color:var(--turquesa);font-weight:700">${cnt}</span>
+    </div>`;
+  }).join('')||'<div class="empty" style="padding:10px">Sin gestores</div>';
+  panel.style.display='block';
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 function mostrarClientesEmpresa(tipoEmpresa){
@@ -1868,6 +1867,9 @@ function applyGcSort(rows,col,dir){
 function renderGcRows(rows){
   return rows.map((r,i)=>{
     const dG=diasDesde(r[C.FE_PLAN]);
+    const motivo=(r[C.MOTIVO]||'').trim()||
+                 (r[C.OBS_REPLAN]||'').trim()||
+                 (r[C.MOTIVO_HIST]||'').trim()||'—';
     return`<tr>
       <td class="td-num">${i+1}</td>
       <td class="td-num">${fmtDate(r[C.FE_PREPLANIFICADA_DMA])}</td>
@@ -1881,7 +1883,7 @@ function renderGcRows(rows){
       <td class="td-muted" data-tip="${esc(r[C.SUCURSAL])}">${r[C.SUCURSAL]||'—'}</td>
       <td class="td-num" style="color:#e8f0ff">${fmtDate(r[C.FE_PLAN])}</td>
       <td>${abDias(dG)}</td>
-      <td style="font-size:13px;color:var(--amarillo)" data-tip="${esc(r[C.MOTIVO])}">${r[C.MOTIVO]||'—'}</td>
+      <td style="font-size:13px;color:var(--amarillo)" data-tip="${esc(motivo)}">${motivo}</td>
       <td class="td-muted" data-tip="${esc(r[C.CONTRATO])}">${r[C.CONTRATO]||'—'}</td>
       <td class="td-muted" data-tip="${esc(r[C.VENDEDOR])}">${r[C.VENDEDOR]||'—'}</td>
     </tr>`;
@@ -2050,6 +2052,9 @@ function renderDetalleTabla(){
       const dG=diasDesde(r[C.FE_PLAN]);
       const obs1=(r[C.OBS_PLAN]||'—').slice(0,80)+(r[C.OBS_PLAN]&&r[C.OBS_PLAN].length>80?'…':'');
       const obs2=(r[C.OBS_REPLAN]||'—').slice(0,80)+(r[C.OBS_REPLAN]&&r[C.OBS_REPLAN].length>80?'…':'');
+      const motivo=(r[C.MOTIVO]||'').trim()||
+                   (r[C.OBS_REPLAN]||'').trim()||
+                   (r[C.MOTIVO_HIST]||'').trim()||'—';
       return`<tr>
         <td style="color:var(--muted);font-family:var(--font-cond)">${i+1}</td>
         <td class="td-num">${fmtDate(r[C.FE_PREPLANIFICADA_DMA])}</td>
@@ -2064,7 +2069,7 @@ function renderDetalleTabla(){
         <td class="td-num">${fmtDate(r[C.FE_PLAN])}</td>
         <td>${abDias(dG)}</td>
         <td class="td-obs" data-tip="${esc(r[C.OBS_PLAN]||'')}">${obs1}</td>
-        <td style="font-size:14px;color:var(--amarillo)" data-tip="${esc(r[C.MOTIVO])}">${r[C.MOTIVO]||'—'}</td>
+        <td style="font-size:14px;color:var(--amarillo)" data-tip="${esc(motivo)}">${motivo}</td>
         <td class="td-obs" data-tip="${esc(r[C.OBS_REPLAN]||'')}">${obs2}</td>
         <td class="td-muted" data-tip="${esc(r[C.CONTRATO])}">${r[C.CONTRATO]||'—'}</td>
         <td class="td-muted" data-tip="${esc(r[C.VENDEDOR])}">${r[C.VENDEDOR]||'—'}</td>
@@ -2178,11 +2183,13 @@ function renderAll(){
   _gestorSeleccionado=null;
   // Gráficos de análisis — sin deduplicación
   segmentedHBar('ch-gestores',10);
-  doughnut('ch-estado',topN(count(filtered,C.EST),8),'leg-estado');
+  doughnut('ch-estado',topN(count(filtered,C.EST),8),'leg-estado',(v)=>filterByClick('sf-estado',v));
   renderMotivos();
   renderTopClientes();
-  doughnut('ch-empresa',topN(count(filtered,C.EMPRESA),8),'leg-empresa',(label)=>mostrarClientesEmpresa(label));
-  renderTend();
+  doughnut('ch-empresa',topN(count(filtered,C.EMPRESA),8),'leg-empresa',(label)=>{
+    filterByClick('sf-empresa',label);
+    mostrarClientesEmpresa(label);
+  });
   renderTendPrePlan();
   renderResumen();
 }
@@ -2511,6 +2518,9 @@ function selectGestor(idx){
 
   const detalleFilas=sortedRows.map((r,i)=>{
     const dG=diasDesde(r[C.FE_PLAN]);
+    const motivo=(r[C.MOTIVO]||'').trim()||
+                 (r[C.OBS_REPLAN]||'').trim()||
+                 (r[C.MOTIVO_HIST]||'').trim()||'—';
     return`<tr>
       <td class="td-num">${i+1}</td>
       <td class="td-num">${fmtDate(r[C.FE_PREPLANIFICADA_DMA])}</td>
@@ -2524,7 +2534,7 @@ function selectGestor(idx){
       <td class="td-muted" data-tip="${esc(r[C.SUCURSAL])}">${r[C.SUCURSAL]||'—'}</td>
       <td class="td-num" style="color:#e8f0ff">${fmtDate(r[C.FE_PLAN])}</td>
       <td>${abDias(dG)}</td>
-      <td style="font-size:13px;color:var(--amarillo)" data-tip="${esc(r[C.MOTIVO])}">${r[C.MOTIVO]||'—'}</td>
+      <td style="font-size:13px;color:var(--amarillo)" data-tip="${esc(motivo)}">${motivo}</td>
       <td class="td-muted" data-tip="${esc(r[C.CONTRATO])}">${r[C.CONTRATO]||'—'}</td>
       <td class="td-muted" data-tip="${esc(r[C.VENDEDOR])}">${r[C.VENDEDOR]||'—'}</td>
     </tr>`;

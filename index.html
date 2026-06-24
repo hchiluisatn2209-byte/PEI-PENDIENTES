@@ -572,6 +572,7 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
           <th class="sortable" onclick="sortAlerta('gest',this,'FE_PLAN')">FE Últ Plan</th>
           <th class="sortable" onclick="sortAlerta('gest',this,'DIAS_G')">Días sin gestión</th>
           <th class="sortable" onclick="sortAlerta('gest',this,'FE_PREPLANIFICADA_DMA')">Fecha Solicitud</th>
+          <th class="sortable" onclick="sortAlerta('gest',this,'FE_PLAN_DMA')">FE Planificado DMA</th>
           <th class="sortable" onclick="sortAlerta('gest',this,'DIAS_S')">Días desde solicitud</th>
         </tr></thead>
         <tbody id="tbl-gest"></tbody>
@@ -595,6 +596,7 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
           <th class="sortable" onclick="sortAlerta('sol',this,'EST')">Estado Servicio</th>
           <th class="sortable" onclick="sortAlerta('sol',this,'FE_PREPLANIFICADA_DMA')">Fecha Solicitud</th>
           <th class="sortable" onclick="sortAlerta('sol',this,'DIAS_S')">Días desde solicitud</th>
+          <th class="sortable" onclick="sortAlerta('sol',this,'FE_PLAN_DMA')">FE Planificado DMA</th>
           <th class="sortable" onclick="sortAlerta('sol',this,'FE_PLAN')">FE Últ Plan</th>
           <th class="sortable" onclick="sortAlerta('sol',this,'DIAS_G')">Días sin gestión</th>
         </tr></thead>
@@ -719,9 +721,8 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwSHv2P5HapoBHN
 // ────────────────────────────────────────────────────────────────────────
 const KNOWN_SHEETS = [
 //  {fecha:'08-06-26',gid:1682673096},
-//  {fecha:'22-06-26',gid:2091286464},
-//  {fecha:'23-06-26',gid:1963583253},
-    {fecha:'24-06-26',gid:583893581},
+  {fecha:'22-06-26',gid:2091286464},
+  {fecha:'23-06-26',gid:1963583253},
 ];
 
 const C={
@@ -1413,6 +1414,7 @@ function applyAlertaSort(rows,col,dir){
     if(col==='DIAS_G')return((a._dG??-Infinity)-(b._dG??-Infinity))*d;
     if(col==='DIAS_S')return((a._dS??-Infinity)-(b._dS??-Infinity))*d;
     if(col==='FE_PLAN')return((parseDate(a[C.FE_PLAN])?.getTime()??0)-(parseDate(b[C.FE_PLAN])?.getTime()??0))*d;
+    if(col==='FE_PLAN_DMA')return((parseDate(a[C.FE_PLAN_DMA])?.getTime()??0)-(parseDate(b[C.FE_PLAN_DMA])?.getTime()??0))*d;
     if(col==='FE_PREPLANIFICADA_DMA')return((parseDate(a[C.FE_PREPLANIFICADA_DMA])?.getTime()??0)-(parseDate(b[C.FE_PREPLANIFICADA_DMA])?.getTime()??0))*d;
     const keyMap={GESTOR:C.GESTOR,LOGIN:C.LOGIN,CLIENTE:C.CLIENTE,PRODUCTO:C.PRODUCTO,EST:C.EST};
     const va=(a[keyMap[col]]||'').toLowerCase();
@@ -1429,7 +1431,7 @@ function renderAlertaTabla(tbl){
   if(countEl)countEl.textContent=rows.length+' REGISTROS';
   const bodyId=isGest?'tbl-gest':'tbl-sol';
   if(!rows.length){
-    document.getElementById(bodyId).innerHTML=`<tr><td colspan="10" class="empty">${isGest?'Sin registros con fecha de plan':'Sin registros con fecha de solicitud'}</td></tr>`;
+    document.getElementById(bodyId).innerHTML=`<tr><td colspan="11" class="empty">${isGest?'Sin registros con fecha de plan':'Sin registros con fecha de solicitud'}</td></tr>`;
     return;
   }
   document.getElementById(bodyId).innerHTML=rows.map((r,i)=>{
@@ -1448,6 +1450,7 @@ function renderAlertaTabla(tbl){
         <td class="td-num">${fmtDate(r[C.FE_PLAN])}</td>
         <td>${abDias(r._dG)}</td>
         <td class="td-num">${fmtDate(r[C.FE_PREPLANIFICADA_DMA])}</td>
+        <td class="td-num">${fmtDate(r[C.FE_PLAN_DMA])}</td>
         <td>${abSol(r._dS)}</td>
       </tr>`;
     } else {
@@ -1460,6 +1463,7 @@ function renderAlertaTabla(tbl){
         <td>${pill(getEst(r))}</td>
         <td class="td-num">${fmtDate(r[C.FE_PREPLANIFICADA_DMA])}</td>
         <td>${abSol(r._dS)}</td>
+        <td class="td-num">${fmtDate(r[C.FE_PLAN_DMA])}</td>
         <td class="td-num">${fmtDate(r[C.FE_PLAN])}</td>
         <td>${abDias(r._dG)}</td>
       </tr>`;

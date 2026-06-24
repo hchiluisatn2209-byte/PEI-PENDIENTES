@@ -1635,12 +1635,11 @@ function renderTendPrePlan(){
     scales:{x:{grid:{color:GC},ticks:{...TST,maxRotation:45,autoSkip:false}},y:{grid:{color:GC},ticks:TST,beginAtZero:true}},
     onClick:(_e,els)=>{
       if(els.length){
-        const idx=els[0].index;
-        applyHighlight('ch-preplan-tend',idx);
-        filterByClick('sf-preplan-mes',labels[idx]);
+        // Solo efecto visual — no cambia el filtro Mes Preplan.
+        applyHighlight('ch-preplan-tend',els[0].index);
       } else {
+        // Clic en área vacía: resetea visual, no toca filtros
         applyHighlight('ch-preplan-tend',-1);
-        filterByClick('sf-preplan-mes',null);
       }
     },
     onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},

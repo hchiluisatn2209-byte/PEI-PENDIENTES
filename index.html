@@ -719,9 +719,8 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwSHv2P5HapoBHN
 // ────────────────────────────────────────────────────────────────────────
 const KNOWN_SHEETS = [
 //  {fecha:'08-06-26',gid:1682673096},
- // {fecha:'22-06-26',gid:2091286464},
- // {fecha:'23-06-26',gid:1963583253},
-    {fecha:'24-06-26',gid:583893581},
+  {fecha:'22-06-26',gid:2091286464},
+  {fecha:'23-06-26',gid:1963583253},
 ];
 
 const C={
@@ -729,6 +728,7 @@ const C={
   USER:'USER',
   CLIENTE:'RAZON_SOCIAL_CLIENTE',
   FE_PLAN:'FE_ULT_PLANIFICADA',
+  FE_PLAN_DMA:'FE_PLANIFICADO_DMA',
   LOGIN:'LOGIN',
   EST:'ESTADO_SERVICIO',
   MOTIVO:'MOTIVO',
@@ -1471,15 +1471,16 @@ function exportarAlertasExcel(tbl){
   if(!rows||!rows.length)return;
   const isGest=tbl==='gest';
   const headers=isGest
-    ?['GESTOR','LOGIN','CLIENTE','PRODUCTO','ESTADO_SERVICIO','FE_ULT_PLAN','DIAS_SIN_GESTION','FE_PREPLANIFICADA_DMA','DIAS_DESDE_SOLICITUD']
-    :['GESTOR','LOGIN','CLIENTE','PRODUCTO','ESTADO_SERVICIO','FE_PREPLANIFICADA_DMA','DIAS_DESDE_SOLICITUD','FE_ULT_PLAN','DIAS_SIN_GESTION'];
+    ?['GESTOR','LOGIN','CLIENTE','PRODUCTO','ESTADO_SERVICIO','FE_ULT_PLAN','DIAS_SIN_GESTION','FE_PREPLANIFICADA_DMA','FE_PLANIFICADO_DMA','DIAS_DESDE_SOLICITUD']
+    :['GESTOR','LOGIN','CLIENTE','PRODUCTO','ESTADO_SERVICIO','FE_PREPLANIFICADA_DMA','FE_PLANIFICADO_DMA','DIAS_DESDE_SOLICITUD','FE_ULT_PLAN','DIAS_SIN_GESTION'];
+  const SEP=';';
   const escape=v=>'"'+(String(v||'').replace(/"/g,'""'))+'"';
-  const lines=[headers.map(escape).join(',')];
+  const lines=['sep=;',headers.map(escape).join(SEP)];
   rows.forEach(r=>{
     const vals=isGest
-      ?[r[C.GESTOR],r[C.LOGIN]||r[C.ID_SERV],r[C.CLIENTE],r[C.PRODUCTO],getEst(r),fmtDate(r[C.FE_PLAN]),r._dG??'',fmtDate(r[C.FE_PREPLANIFICADA_DMA]),r._dS??'']
-      :[r[C.GESTOR],r[C.LOGIN]||r[C.ID_SERV],r[C.CLIENTE],r[C.PRODUCTO],getEst(r),fmtDate(r[C.FE_PREPLANIFICADA_DMA]),r._dS??'',fmtDate(r[C.FE_PLAN]),r._dG??''];
-    lines.push(vals.map(escape).join(','));
+      ?[r[C.GESTOR],r[C.LOGIN]||r[C.ID_SERV],r[C.CLIENTE],r[C.PRODUCTO],getEst(r),fmtDate(r[C.FE_PLAN]),r._dG??'',fmtDate(r[C.FE_PREPLANIFICADA_DMA]),fmtDate(r[C.FE_PLAN_DMA]),r._dS??'']
+      :[r[C.GESTOR],r[C.LOGIN]||r[C.ID_SERV],r[C.CLIENTE],r[C.PRODUCTO],getEst(r),fmtDate(r[C.FE_PREPLANIFICADA_DMA]),fmtDate(r[C.FE_PLAN_DMA]),r._dS??'',fmtDate(r[C.FE_PLAN]),r._dG??''];
+    lines.push(vals.map(escape).join(SEP));
   });
   const bom='\uFEFF';
   const blob=new Blob([bom+lines.join('\n')],{type:'text/csv;charset=utf-8'});
@@ -2316,12 +2317,13 @@ function exportarExcel(){
     C.PRODUCTO,C.TIPO_ORDEN,C.SUCURSAL,C.FE_PLAN,'_dias',
     C.OBS_PLAN,C.MOTIVO,C.OBS_REPLAN,C.CONTRATO,C.EMPRESA,C.VENDEDOR,'_fecha'];
 
+  const SEP2=';';
   const escape=v=>'"'+(String(v||'').replace(/"/g,'""'))+'"';
-  const lines=[headers.map(escape).join(',')];
+  const lines=['sep=;',headers.map(escape).join(SEP2)];
   rows.forEach(r=>{
     const dG=diasDesde(r[C.FE_PLAN]);
     const vals=colKeys.map(k=>k==='_dias'?(dG!==null?dG:''):r[k]||'');
-    lines.push(vals.map(escape).join(','));
+    lines.push(vals.map(escape).join(SEP2));
   });
 
   const bom='﻿';

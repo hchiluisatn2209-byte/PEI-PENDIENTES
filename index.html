@@ -1623,6 +1623,7 @@ function renderTendPrePlan(){
     ?new Set([...SF['sf-preplan-mes'].selected]):null;
 
   // Solo los mismos estados que el KPI Total: Plan+Det+Replan+PrePlan
+  const mapFiltered={};
   const filteredBase=filtered.filter(r=>esPlan(r)||esDet(r)||esRep(r)||esPre(r));
   filteredBase.forEach(r=>{
     const d=parseDate(r[C.FE_PREPLANIFICADA_DMA]);

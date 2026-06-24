@@ -48,20 +48,11 @@ header{background:linear-gradient(90deg,#162d5e,#1B3A70 70%,#245090);border-bott
 .prog-bar{height:100%;background:var(--turquesa);border-radius:99px;transition:width .3s}
 
 /* ── FILTER BAR ── */
-.filter-bar{background:rgba(22,45,94,.97);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:8px 36px;display:flex;align-items:center;gap:10px;flex-wrap:nowrap;position:sticky;top:71px;z-index:190}
+.filter-bar{background:rgba(22,45,94,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:10px 36px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:71px;z-index:190}
 .filter-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--turquesa);font-weight:700;white-space:nowrap}
 .filter-sep{width:1px;height:22px;background:var(--border);flex-shrink:0}
-.filter-reset{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:5px 12px;transition:all .18s;background:transparent;white-space:nowrap}
+.filter-reset{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:5px 12px;transition:all .18s;background:transparent}
 .filter-reset:hover{color:#fff;border-color:var(--turquesa)}
-.btn-filtros{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-cond);font-weight:700;font-size:13px;letter-spacing:1.2px;text-transform:uppercase;padding:6px 16px;border-radius:20px;border:1.5px solid rgba(0,176,240,.45);background:rgba(0,176,240,.1);color:var(--turquesa);cursor:pointer;transition:all .18s;white-space:nowrap;position:relative}
-.btn-filtros:hover,.btn-filtros.active{background:rgba(0,176,240,.22);border-color:var(--turquesa)}
-.btn-filtros-arrow{font-size:10px;transition:transform .2s;line-height:1}
-.btn-filtros.active .btn-filtros-arrow{transform:rotate(180deg)}
-.btn-filtros-count{background:var(--turquesa);color:#0a1e46;font-size:10px;font-weight:800;border-radius:99px;padding:1px 6px;min-width:18px;text-align:center;line-height:1.4}
-/* Panel desplegable de filtros */
-.filter-panel{background:rgba(18,38,82,.98);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 36px;position:sticky;top:120px;z-index:189}
-.filter-panel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px 20px}
-.filter-panel-item{display:flex;flex-direction:column;gap:5px}
 
 /* ── SEARCHABLE DROPDOWN ── */
 .sf-wrap{position:relative;display:inline-flex;flex-direction:column}
@@ -71,7 +62,7 @@ header{background:linear-gradient(90deg,#162d5e,#1B3A70 70%,#245090);border-bott
 .sf-input::placeholder{color:var(--muted)}
 .sf-arrow{color:var(--muted);font-size:9px;flex-shrink:0;transition:transform .18s;pointer-events:none}
 .sf-wrap.open .sf-arrow{transform:rotate(180deg)}
-.sf-chips{display:flex;flex-wrap:nowrap;gap:3px;overflow:hidden;max-width:220px;align-items:center}
+.sf-chips{display:flex;flex-wrap:wrap;gap:3px;max-width:180px}
 .sf-chip{display:inline-flex;align-items:center;gap:3px;background:rgba(0,176,240,.2);border:1px solid rgba(0,176,240,.4);color:var(--turquesa);border-radius:99px;padding:2px 8px;font-size:12px;font-weight:600;white-space:nowrap}
 .sf-chip-x{cursor:pointer;font-size:11px;line-height:1;opacity:.7}
 .sf-chip-x:hover{opacity:1}
@@ -370,69 +361,37 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 
 
 <!-- FILTERS -->
-<div class="filter-bar" id="filter-bar-main">
-  <!-- Botón Filtros -->
-  <button class="btn-filtros" id="btn-filtros" onclick="toggleFiltrosPanel()">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
-    Filtros
-    <span class="btn-filtros-arrow" id="btn-filtros-arrow">▾</span>
-    <span class="btn-filtros-count" id="btn-filtros-count" style="display:none">0</span>
-  </button>
-
+<div class="filter-bar">
+  <span class="filter-label">Grupo</span>
+  <div class="sf-wrap" id="sf-grupo"></div>
   <div class="filter-sep"></div>
-
-  <!-- Corte siempre visible -->
+  <span class="filter-label">Tipo Gestión</span>
+  <div class="sf-wrap" id="sf-tipo-gestion"></div>
+  <div class="filter-sep"></div>
+  <span class="filter-label">Gestor</span>
+  <div class="sf-wrap" id="sf-gestor"></div>
+  <div class="filter-sep"></div>
+  <span class="filter-label">Estado</span>
+  <div class="sf-wrap" id="sf-estado"></div>
+  <div class="filter-sep"></div>
+  <span class="filter-label">Tipo Empresa</span>
+  <div class="sf-wrap" id="sf-empresa"></div>
+  <div class="filter-sep"></div>
+  <span class="filter-label">Tipo Enlace</span>
+  <div class="sf-wrap" id="sf-enlace"></div>
+  <div class="filter-sep"></div>
+  <span class="filter-label">User</span>
+  <div class="sf-wrap" id="sf-user"></div>
+  <div class="filter-sep"></div>
+  <span class="filter-label">Login</span>
+  <div class="sf-wrap" id="sf-login"></div>
+  <div class="filter-sep"></div>
   <span class="filter-label">Corte</span>
   <div class="sf-wrap" id="sf-fecha"></div>
-
   <div class="filter-sep"></div>
-
-  <!-- Mes Preplan siempre visible -->
   <span class="filter-label">Mes Preplan.</span>
   <div class="sf-wrap" id="sf-preplan-mes"></div>
-
-  <div class="filter-sep"></div>
-
-  <!-- Limpiar filtros -->
-  <button class="filter-reset" onclick="clearFilters()">✕ Limpiar</button>
-</div>
-
-<!-- Panel de filtros expandible -->
-<div class="filter-panel" id="filter-panel" style="display:none">
-  <div class="filter-panel-grid">
-    <div class="filter-panel-item">
-      <span class="filter-label">Grupo</span>
-      <div class="sf-wrap" id="sf-grupo"></div>
-    </div>
-    <div class="filter-panel-item">
-      <span class="filter-label">Tipo Gestión</span>
-      <div class="sf-wrap" id="sf-tipo-gestion"></div>
-    </div>
-    <div class="filter-panel-item">
-      <span class="filter-label">Gestor</span>
-      <div class="sf-wrap" id="sf-gestor"></div>
-    </div>
-    <div class="filter-panel-item">
-      <span class="filter-label">Estado</span>
-      <div class="sf-wrap" id="sf-estado"></div>
-    </div>
-    <div class="filter-panel-item">
-      <span class="filter-label">Tipo Empresa</span>
-      <div class="sf-wrap" id="sf-empresa"></div>
-    </div>
-    <div class="filter-panel-item">
-      <span class="filter-label">Tipo Enlace</span>
-      <div class="sf-wrap" id="sf-enlace"></div>
-    </div>
-    <div class="filter-panel-item">
-      <span class="filter-label">User</span>
-      <div class="sf-wrap" id="sf-user"></div>
-    </div>
-    <div class="filter-panel-item">
-      <span class="filter-label">Login</span>
-      <div class="sf-wrap" id="sf-login"></div>
-    </div>
-  </div>
+  <button class="filter-reset" onclick="clearFilters()">✕ Limpiar filtros</button>
 </div>
 
 <!-- TABS -->
@@ -471,11 +430,6 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
       <div class="kpi-lbl">Replanificada</div>
       <div class="kpi-val" id="k-rep">—</div>
       <div class="kpi-sub" id="k-rep-s">no avanzó</div>
-    </div>
-    <div class="kpi-card" style="--ak:var(--azul-c)">
-      <div class="kpi-lbl">AsignadoTarea</div>
-      <div class="kpi-val" id="k-asig">—</div>
-      <div class="kpi-sub" id="k-asig-s">listo a ejecutar</div>
     </div>
     <div class="kpi-card" style="--ak:var(--morado)">
       <div class="kpi-lbl">PrePlanificada</div>
@@ -572,7 +526,6 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
           <th class="sortable" onclick="sortAlerta('gest',this,'FE_PLAN')">FE Últ Plan</th>
           <th class="sortable" onclick="sortAlerta('gest',this,'DIAS_G')">Días sin gestión</th>
           <th class="sortable" onclick="sortAlerta('gest',this,'FE_PREPLANIFICADA_DMA')">Fecha Solicitud</th>
-          <th class="sortable" onclick="sortAlerta('gest',this,'FE_PLAN_DMA')">FE Planificado DMA</th>
           <th class="sortable" onclick="sortAlerta('gest',this,'DIAS_S')">Días desde solicitud</th>
         </tr></thead>
         <tbody id="tbl-gest"></tbody>
@@ -596,7 +549,6 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
           <th class="sortable" onclick="sortAlerta('sol',this,'EST')">Estado Servicio</th>
           <th class="sortable" onclick="sortAlerta('sol',this,'FE_PREPLANIFICADA_DMA')">Fecha Solicitud</th>
           <th class="sortable" onclick="sortAlerta('sol',this,'DIAS_S')">Días desde solicitud</th>
-          <th class="sortable" onclick="sortAlerta('sol',this,'FE_PLAN_DMA')">FE Planificado DMA</th>
           <th class="sortable" onclick="sortAlerta('sol',this,'FE_PLAN')">FE Últ Plan</th>
           <th class="sortable" onclick="sortAlerta('sol',this,'DIAS_G')">Días sin gestión</th>
         </tr></thead>
@@ -620,7 +572,7 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
       <table>
         <thead><tr>
           <th>Tipo Gestión</th><th>Carga total</th>
-          <th>Planificada</th><th>Detenido</th><th>Replanificada</th><th>PrePlanificada</th><th>AsignadoTarea</th>
+          <th>Planificada</th><th>Detenido</th><th>Replanificada</th><th>PrePlanificada</th>
           <th>Gestores</th><th>Clientes</th>
         </tr></thead>
         <tbody id="tbl-tipo-gestion"></tbody>
@@ -667,13 +619,6 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
       </div>
     </div>
 
-    <!-- ── TOP CLIENTES POR RAZON SOCIAL ── -->
-    <div class="chart-card full" style="margin-bottom:20px">
-      <div class="card-title"><span class="dot-sec" style="background:#8B6FE8"></span>Top Clientes · Razón Social</div>
-      <div class="card-sub">Top 15 clientes con más órdenes activas</div>
-      <div style="position:relative;height:340px"><canvas id="ch-clientes"></canvas></div>
-    </div>
-
     <!-- ── MOTIVOS DETENCIÓN / REPLANIFICACIÓN ── -->
     <div class="chart-card full" style="margin-bottom:20px">
       <div class="card-title"><span class="dot-sec" style="background:var(--naranja)"></span>Motivos de Detención y Replanificación</div>
@@ -689,6 +634,48 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
         </div>
       </div>
     </div>
+    <!-- ── TOP CLIENTES (RAZON_SOCIAL_CLIENTE) ── -->
+    <div class="chart-card full" style="margin-bottom:20px">
+      <div class="card-title"><span class="dot-sec" style="background:var(--azul-c2)"></span>Top Clientes · Razón Social</div>
+      <div class="card-sub">Distribución de órdenes activas por cliente (RAZON_SOCIAL_CLIENTE) · Top 20</div>
+      <div class="leg-row">
+        <div class="leg-i"><span class="leg-sq" style="background:var(--turquesa)"></span>Planificada</div>
+        <div class="leg-i"><span class="leg-sq" style="background:var(--magenta)"></span>Detenido</div>
+        <div class="leg-i"><span class="leg-sq" style="background:var(--amarillo)"></span>Replanificada</div>
+        <div class="leg-i"><span class="leg-sq" style="background:var(--azul-c)"></span>AsignadoTarea</div>
+      </div>
+      <div id="ch-clientes-wrap" style="position:relative;height:520px"><canvas id="ch-clientes"></canvas></div>
+    </div>
+
+    <!-- ── MOTIVO_ULT_HIST POR ESTADO ── -->
+    <div class="chart-card full" style="margin-bottom:20px">
+      <div class="card-title"><span class="dot-sec" style="background:var(--morado)"></span>Último Historial de Motivo · por Estado</div>
+      <div class="card-sub">Top causas según MOTIVO_ULT_HIST · solo registros con estado Detenido o Replanificada</div>
+      <div class="motivos-grid">
+        <div class="motivos-col det">
+          <div class="motivos-col-head"><span class="motivos-badge det" id="mot-hist-det-total">0</span>Hist. Detenido</div>
+          <div class="motivos-list" id="mot-hist-det-list"></div>
+        </div>
+        <div class="motivos-col rep">
+          <div class="motivos-col-head"><span class="motivos-badge rep" id="mot-hist-rep-total">0</span>Hist. Replanificada</div>
+          <div class="motivos-list" id="mot-hist-rep-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-card full" style="margin-bottom:20px">
+      <div class="card-title"><span class="dot-sec"></span>Evolución Diaria por Estado</div>
+      <div class="card-sub">N° registros por fecha de corte · todas las hojas</div>
+      <div class="leg-row">
+        <div class="leg-i"><span class="leg-sq" style="background:var(--turquesa)"></span>Total</div>
+        <div class="leg-i"><span class="leg-sq" style="background:var(--turquesa)"></span>Planificada</div>
+        <div class="leg-i"><span class="leg-sq" style="background:var(--magenta)"></span>Detenido</div>
+        <div class="leg-i"><span class="leg-sq" style="background:var(--amarillo)"></span>Replanificada</div>
+        <div class="leg-i"><span class="leg-sq" style="background:var(--azul-c)"></span>AsignadoTarea</div>
+      </div>
+      <div style="position:relative;height:220px"><canvas id="ch-tend"></canvas></div>
+    </div>
+
     <!-- ── DETALLE POR GESTOR ── -->
     <div class="section-title"><span class="dot-sec"></span>Detalle Consolidado por Gestor</div>
     <div class="tbl-card">
@@ -720,9 +707,9 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwSHv2P5HapoBHN
 // 3. Agrega una línea al array con el formato: { fecha: 'DD-MM-YY', gid: NUMERO_GID },
 // ────────────────────────────────────────────────────────────────────────
 const KNOWN_SHEETS = [
-//  {fecha:'08-06-26',gid:1682673096},
-//  {fecha:'22-06-26',gid:2091286464},
-//  {fecha:'23-06-26',gid:1963583253},
+  //{fecha:'08-06-26',gid:1682673096},
+  //{fecha:'22-06-26',gid:2091286464},
+  //{fecha:'23-06-26',gid:1963583253},
   {fecha:'24-06-26',gid:583893581},
 ];
 
@@ -731,7 +718,6 @@ const C={
   USER:'USER',
   CLIENTE:'RAZON_SOCIAL_CLIENTE',
   FE_PLAN:'FE_ULT_PLANIFICADA',
-  FE_PLAN_DMA:'FE_PLANIFICADO_DMA',
   LOGIN:'LOGIN',
   EST:'ESTADO_SERVICIO',
   MOTIVO:'MOTIVO',
@@ -855,7 +841,7 @@ const EST_PILL={Planificada:'p-plan',Detenido:'p-det',Replanificada:'p-replan',A
 // ── ESTADO ─────────────────────────────────────────────────────────────
 // allData: TODOS los registros de TODAS las hojas, sin ninguna deduplicación
 // filtered: subconjunto de allData según los filtros activos del usuario
-let allData=[], filtered=[], charts={}, sheetStats={}, _highlightState={};
+let allData=[], filtered=[], charts={}, sheetStats={};
 
 // ── UTILS ──────────────────────────────────────────────────────────────
 const appsScriptUrl = gid => `${APPS_SCRIPT_URL}?gid=${gid}`;
@@ -1149,7 +1135,6 @@ function sfToggleVal(id,val){
   sfRenderList(id,document.getElementById(id+'-search')?.value||'');
   sfRenderChips(id);
   applyFilters();
-  renderAll();
 }
 
 function sfToggleAll(id){
@@ -1163,7 +1148,6 @@ function sfToggleAll(id){
   sfRenderList(id,q);
   sfRenderChips(id);
   applyFilters();
-  renderAll();
 }
 
 function sfRenderChips(id){
@@ -1176,13 +1160,13 @@ function sfRenderChips(id){
   if(inp)inp.placeholder='';
   if(sel===total){chips.innerHTML='<span class="sf-chip" style="background:rgba(0,176,240,.28)">Todos ✓</span>';return;}
   const arr=[...inst.selected];
-  // Mostrar solo 1 chip + badge "+N" para no expandir la barra
-  const first=arr[0];
-  const extra=arr.length-1;
-  const idx=inst.all.indexOf(first);
-  chips.innerHTML='<span class="sf-chip">'+(first.length>14?first.slice(0,12)+'…':first)+
-    '<span class="sf-chip-x" onclick="event.stopPropagation();sfToggleByIdx(\''+id+'\','+idx+')">×</span></span>'+
-    (extra>0?'<span class="sf-chip" style="background:rgba(0,176,240,.15);cursor:default">+'+extra+'</span>':'');
+  const shown=arr.slice(0,2);
+  const extra=arr.length-shown.length;
+  chips.innerHTML=shown.map(v=>{
+    const idx=inst.all.indexOf(v);
+    return '<span class="sf-chip">'+(v.length>14?v.slice(0,13)+'…':v)+
+      '<span class="sf-chip-x" onclick="event.stopPropagation();sfToggleByIdx(\''+id+'\','+idx+')">×</span></span>';
+  }).join('')+(extra?'<span class="sf-chip" style="background:rgba(0,176,240,.15)">+'+extra+'</span>':'');
 }
 
 function sfGetVals(id){
@@ -1236,36 +1220,14 @@ function applyFilters(){
   const notaCorte=document.getElementById('nota-corte');
   if(notaCorte)notaCorte.style.display=(f!==null)?'':'none';
 
-  updateFiltrosCount();
   renderAll();
-}
-
-function toggleFiltrosPanel(){
-  const panel=document.getElementById('filter-panel');
-  const btn=document.getElementById('btn-filtros');
-  const open=panel.style.display==='none'||panel.style.display==='';
-  panel.style.display=open?'block':'none';
-  btn.classList.toggle('active',open);
-  updateFiltrosCount();
-}
-
-function updateFiltrosCount(){
-  const IDS=['sf-grupo','sf-tipo-gestion','sf-gestor','sf-estado','sf-empresa','sf-enlace','sf-user','sf-login'];
-  const count=IDS.reduce((s,id)=>s+(SF[id]&&SF[id].selected.size>0?1:0),0);
-  const badge=document.getElementById('btn-filtros-count');
-  if(badge){if(count>0){badge.textContent=count;badge.style.display='inline-block';}else{badge.style.display='none';}}
-  const btn=document.getElementById('btn-filtros');
-  const panelOpen=document.getElementById('filter-panel')&&document.getElementById('filter-panel').style.display==='block';
-  if(btn)btn.classList.toggle('active',count>0||panelOpen);
 }
 
 function clearFilters(){
   Object.keys(SF).forEach(id=>{if(SF[id]){SF[id].selected.clear();sfRenderChips(id);sfRenderList(id,'');}});
-  Object.keys(_highlightState).forEach(k=>delete _highlightState[k]);
   filtered=[...allData];
   const notaCorte=document.getElementById('nota-corte');
   if(notaCorte)notaCorte.style.display='none';
-  updateFiltrosCount();
   renderAll();
 }
 
@@ -1277,7 +1239,7 @@ function renderKPIs(){
   const rep  =filtered.filter(esRep).length;
   const asig =filtered.filter(esAsig).length;
   const pre  =filtered.filter(esPre).length;
-  const n    =plan+det+rep+asig+pre;
+  const n    =plan+det+rep+pre;  // Total = solo estos 4 estados
   const gest =new Set(filtered.filter(tieneCarga).map(r=>r[C.GESTOR]).filter(Boolean)).size;
   const cli  =new Set(filtered.map(r=>r[C.CLIENTE]).filter(Boolean)).size;
   const hoj  =new Set(filtered.map(r=>r._fecha)).size;
@@ -1288,14 +1250,12 @@ function renderKPIs(){
   document.getElementById('k-plan').textContent=plan.toLocaleString('es-EC');
   document.getElementById('k-det').textContent=det.toLocaleString('es-EC');
   document.getElementById('k-rep').textContent=rep.toLocaleString('es-EC');
-  document.getElementById('k-asig').textContent=asig.toLocaleString('es-EC');
   document.getElementById('k-pre').textContent=pre.toLocaleString('es-EC');
   document.getElementById('k-misc').textContent=hoj;
   document.getElementById('k-total-s').textContent=hoj+' hojas cargadas';
   document.getElementById('k-plan-s').textContent=pct(plan)+' del total';
   document.getElementById('k-det-s').textContent=pct(det)+' del total';
   document.getElementById('k-rep-s').textContent=pct(rep)+' del total';
-  document.getElementById('k-asig-s').textContent=pct(asig)+' del total';
   document.getElementById('k-misc-s').textContent='fechas · '+cli.toLocaleString('es-EC')+' clientes';
 
   const dates=filtered.map(r=>r._fecha).filter(Boolean).sort();
@@ -1329,7 +1289,7 @@ function renderGestores(){
     if(d!==null&&d>map[g].maxDias)map[g].maxDias=d;
     map[g].rows.push(r);
   });
-  Object.entries(map).forEach(([g,d])=>{_gestorMapCache[g]={};Object.assign(_gestorMapCache[g],d,{nombre:g});});
+  Object.entries(map).forEach(([g,d])=>{if(!_gestorMapCache[g])_gestorMapCache[g]={};Object.assign(_gestorMapCache[g],d,{nombre:g});});
 
   const rows=Object.entries(map)
     .filter(([,d])=>d.plan+d.det+d.rep+d.asig>0)
@@ -1382,7 +1342,22 @@ function renderAlertas(){
     .sort((a,b)=>b._dG-a._dG)
     .slice(0,200);
 
-  _alertaRows.sol=filtered
+  // Deduplicar por LOGIN conservando la FE_PREPLANIFICADA_DMA más antigua
+  // para mostrar la fecha real de ingreso (no la del último corte cargado)
+  const solMap={};
+  filtered.forEach(r=>{
+    const key=(r[C.LOGIN]||r[C.ID_SERV]||'').trim();
+    if(!key)return;
+    const fe=parseDate(r[C.FE_PREPLANIFICADA_DMA]);
+    if(!fe)return;
+    if(!solMap[key]){
+      solMap[key]=r;
+    }else{
+      const feExist=parseDate(solMap[key][C.FE_PREPLANIFICADA_DMA]);
+      if(feExist&&fe<feExist)solMap[key]=r;
+    }
+  });
+  _alertaRows.sol=Object.values(solMap)
     .map(r=>({...r,_dS:diasDesde(r[C.FE_PREPLANIFICADA_DMA]),_dG:diasDesde(r[C.FE_PLAN])}))
     .filter(r=>r._dS!==null)
     .sort((a,b)=>b._dS-a._dS)
@@ -1415,7 +1390,6 @@ function applyAlertaSort(rows,col,dir){
     if(col==='DIAS_G')return((a._dG??-Infinity)-(b._dG??-Infinity))*d;
     if(col==='DIAS_S')return((a._dS??-Infinity)-(b._dS??-Infinity))*d;
     if(col==='FE_PLAN')return((parseDate(a[C.FE_PLAN])?.getTime()??0)-(parseDate(b[C.FE_PLAN])?.getTime()??0))*d;
-    if(col==='FE_PLAN_DMA')return((parseDate(a[C.FE_PLAN_DMA])?.getTime()??0)-(parseDate(b[C.FE_PLAN_DMA])?.getTime()??0))*d;
     if(col==='FE_PREPLANIFICADA_DMA')return((parseDate(a[C.FE_PREPLANIFICADA_DMA])?.getTime()??0)-(parseDate(b[C.FE_PREPLANIFICADA_DMA])?.getTime()??0))*d;
     const keyMap={GESTOR:C.GESTOR,LOGIN:C.LOGIN,CLIENTE:C.CLIENTE,PRODUCTO:C.PRODUCTO,EST:C.EST};
     const va=(a[keyMap[col]]||'').toLowerCase();
@@ -1432,7 +1406,7 @@ function renderAlertaTabla(tbl){
   if(countEl)countEl.textContent=rows.length+' REGISTROS';
   const bodyId=isGest?'tbl-gest':'tbl-sol';
   if(!rows.length){
-    document.getElementById(bodyId).innerHTML=`<tr><td colspan="11" class="empty">${isGest?'Sin registros con fecha de plan':'Sin registros con fecha de solicitud'}</td></tr>`;
+    document.getElementById(bodyId).innerHTML=`<tr><td colspan="10" class="empty">${isGest?'Sin registros con fecha de plan':'Sin registros con fecha de solicitud'}</td></tr>`;
     return;
   }
   document.getElementById(bodyId).innerHTML=rows.map((r,i)=>{
@@ -1451,7 +1425,6 @@ function renderAlertaTabla(tbl){
         <td class="td-num">${fmtDate(r[C.FE_PLAN])}</td>
         <td>${abDias(r._dG)}</td>
         <td class="td-num">${fmtDate(r[C.FE_PREPLANIFICADA_DMA])}</td>
-        <td class="td-num">${fmtDate(r[C.FE_PLAN_DMA])}</td>
         <td>${abSol(r._dS)}</td>
       </tr>`;
     } else {
@@ -1464,7 +1437,6 @@ function renderAlertaTabla(tbl){
         <td>${pill(getEst(r))}</td>
         <td class="td-num">${fmtDate(r[C.FE_PREPLANIFICADA_DMA])}</td>
         <td>${abSol(r._dS)}</td>
-        <td class="td-num">${fmtDate(r[C.FE_PLAN_DMA])}</td>
         <td class="td-num">${fmtDate(r[C.FE_PLAN])}</td>
         <td>${abDias(r._dG)}</td>
       </tr>`;
@@ -1477,16 +1449,15 @@ function exportarAlertasExcel(tbl){
   if(!rows||!rows.length)return;
   const isGest=tbl==='gest';
   const headers=isGest
-    ?['GESTOR','LOGIN','CLIENTE','PRODUCTO','ESTADO_SERVICIO','FE_ULT_PLAN','DIAS_SIN_GESTION','FE_PREPLANIFICADA_DMA','FE_PLANIFICADO_DMA','DIAS_DESDE_SOLICITUD']
-    :['GESTOR','LOGIN','CLIENTE','PRODUCTO','ESTADO_SERVICIO','FE_PREPLANIFICADA_DMA','FE_PLANIFICADO_DMA','DIAS_DESDE_SOLICITUD','FE_ULT_PLAN','DIAS_SIN_GESTION'];
-  const SEP=';';
+    ?['GESTOR','LOGIN','CLIENTE','PRODUCTO','ESTADO_SERVICIO','FE_ULT_PLAN','DIAS_SIN_GESTION','FE_PREPLANIFICADA_DMA','DIAS_DESDE_SOLICITUD']
+    :['GESTOR','LOGIN','CLIENTE','PRODUCTO','ESTADO_SERVICIO','FE_PREPLANIFICADA_DMA','DIAS_DESDE_SOLICITUD','FE_ULT_PLAN','DIAS_SIN_GESTION'];
   const escape=v=>'"'+(String(v||'').replace(/"/g,'""'))+'"';
-  const lines=['sep=;',headers.map(escape).join(SEP)];
+  const lines=[headers.map(escape).join(',')];
   rows.forEach(r=>{
     const vals=isGest
-      ?[r[C.GESTOR],r[C.LOGIN]||r[C.ID_SERV],r[C.CLIENTE],r[C.PRODUCTO],getEst(r),fmtDate(r[C.FE_PLAN]),r._dG??'',fmtDate(r[C.FE_PREPLANIFICADA_DMA]),fmtDate(r[C.FE_PLAN_DMA]),r._dS??'']
-      :[r[C.GESTOR],r[C.LOGIN]||r[C.ID_SERV],r[C.CLIENTE],r[C.PRODUCTO],getEst(r),fmtDate(r[C.FE_PREPLANIFICADA_DMA]),fmtDate(r[C.FE_PLAN_DMA]),r._dS??'',fmtDate(r[C.FE_PLAN]),r._dG??''];
-    lines.push(vals.map(escape).join(SEP));
+      ?[r[C.GESTOR],r[C.LOGIN]||r[C.ID_SERV],r[C.CLIENTE],r[C.PRODUCTO],getEst(r),fmtDate(r[C.FE_PLAN]),r._dG??'',fmtDate(r[C.FE_PREPLANIFICADA_DMA]),r._dS??'']
+      :[r[C.GESTOR],r[C.LOGIN]||r[C.ID_SERV],r[C.CLIENTE],r[C.PRODUCTO],getEst(r),fmtDate(r[C.FE_PREPLANIFICADA_DMA]),r._dS??'',fmtDate(r[C.FE_PLAN]),r._dG??''];
+    lines.push(vals.map(escape).join(','));
   });
   const bom='\uFEFF';
   const blob=new Blob([bom+lines.join('\n')],{type:'text/csv;charset=utf-8'});
@@ -1498,39 +1469,13 @@ function exportarAlertasExcel(tbl){
 }
 
 // ── CHARTS ─────────────────────────────────────────────────────────────
-function mkChart(id,cfg){
-  if(charts[id])charts[id].destroy();
-  const c=document.getElementById(id);if(!c)return;
-  charts[id]=new Chart(c,cfg);
-  // Reapply stored highlight after chart recreated
-  if(_highlightState[id]!==undefined) _doHighlight(id,_highlightState[id]);
-}
+function mkChart(id,cfg){if(charts[id])charts[id].destroy();const c=document.getElementById(id);if(!c)return;charts[id]=new Chart(c,cfg);}
 
-function hBar(id,entries,color,sfId){
-  const rawLabels=entries.map(([k])=>k);
+function hBar(id,entries,color){
   mkChart(id,{type:'bar',
-    data:{labels:rawLabels.map(l=>l.length>22?l.slice(0,20)+'…':l),datasets:[{data:entries.map(([,v])=>v),backgroundColor:color+'bb',borderColor:color,borderWidth:1,borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.x}`}}},
-      scales:{x:{grid:{color:GC},ticks:TST},y:{grid:{color:'transparent'},ticks:{...TST,color:'#9BBCD8'}}},
-      onClick:sfId?(_e,els,chart)=>{
-        const ch=Object.values(charts).find(c2=>c2&&c2.canvas===_e.native.target);
-        if(els.length){
-          applyHighlight(id,els[0].index);
-          filterByClick(sfId,rawLabels[els[0].index]);
-        } else {
-          applyHighlight(id,-1);
-          filterByClick(sfId,null);
-        }
-      }:undefined,
-      onHover:sfId?(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';}:undefined,
-      animation:{onComplete(ctx){
-        const ch=ctx.chart,ds=ch.data.datasets[0],meta=ch.getDatasetMeta(0),c2=ch.ctx;
-        c2.save();c2.font='bold 11px "Barlow Condensed",sans-serif';c2.fillStyle='#fff';c2.textBaseline='middle';
-        meta.data.forEach((bar,i)=>{const v=ds.data[i];if(!v)return;c2.fillText(v,bar.x+5,bar.y);});
-        c2.restore();
-      }}
-    }});
+    data:{labels:entries.map(([k])=>k.length>22?k.slice(0,20)+'…':k),datasets:[{data:entries.map(([,v])=>v),backgroundColor:color+'bb',borderColor:color,borderWidth:1,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},
+      scales:{x:{grid:{color:GC},ticks:TST},y:{grid:{color:'transparent'},ticks:{...TST,color:'#9BBCD8'}}}}});
 }
 
 // Top Gestores por Carga, segmentado por estado (Plan/Det/Rep/Asig) — mismo criterio que ch-top-gestores
@@ -1572,26 +1517,7 @@ function segmentedHBar(id,limit){
       scales:{
         x:{stacked:true,grid:{color:GC},ticks:TST},
         y:{stacked:true,grid:{color:'transparent'},ticks:{...TST,color:'#9BBCD8',callback:(v,i)=>labels[i]}}
-      },
-      onClick:(_e,els)=>{
-        if(els.length){
-          applyHighlight(id,els[0].index);
-          filterByClick('sf-gestor',sorted[els[0].index].g);
-        } else {
-          applyHighlight(id,-1);
-          filterByClick('sf-gestor',null);
-        }
-      },
-      onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},
-      animation:{onComplete(ctx){
-        const ch=ctx.chart,meta=ch.getDatasetMeta(ch.data.datasets.length-1),c2=ch.ctx;
-        c2.save();c2.font='bold 11px "Barlow Condensed",sans-serif';c2.fillStyle='#fff';c2.textBaseline='middle';
-        sorted.forEach((d,i)=>{
-          const bar=meta.data[i];if(!bar)return;
-          c2.fillText(d.tot,bar.x+5,bar.y);
-        });
-        c2.restore();
-      }}
+      }
     }});
 }
 
@@ -1600,92 +1526,122 @@ function doughnut(id,entries,legId,onClick){
   if(legId)document.getElementById(legId).innerHTML=labels.map((l,i)=>`<div class="leg-i"><span class="leg-sq" style="background:${cols[i]}"></span>${l.length>16?l.slice(0,14)+'…':l} · ${Math.round(vals[i]/tot*100)}%</div>`).join('');
   const opts={responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:false}}};
   if(onClick){
-    opts.onClick=(_e,els)=>{
-      if(els.length){
-        applyHighlight(id,els[0].index);
-        onClick(labels[els[0].index]);
-      } else {
-        applyHighlight(id,-1);
-      }
-    };
+    opts.onClick=(_e,els)=>{if(els.length)onClick(labels[els[0].index]);};
     opts.onHover=(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';};
-  } else {
-    opts.onClick=()=>{};
-    opts.onHover=()=>{};
   }
-  opts.animation={onComplete(ctx){
-    const ch=ctx.chart,c2=ch.ctx,tot2=vals.reduce((a,b)=>a+b,0);
-    const meta=ch.getDatasetMeta(0);
-    c2.save();c2.textAlign='center';c2.textBaseline='middle';
-    meta.data.forEach((arc,i)=>{
-      const v=vals[i];if(!v||v/tot2<0.03)return;
-      const angle=(arc.startAngle+arc.endAngle)/2,r=(arc.innerRadius+arc.outerRadius)/2;
-      const x=ch.width/2+Math.cos(angle)*r, y=ch.height/2+Math.sin(angle)*r;
-      c2.font='bold 11px "Barlow Condensed",sans-serif';c2.fillStyle='#fff';
-      c2.fillText(v,x,y-7);
-      c2.font='10px "Barlow Condensed",sans-serif';c2.fillStyle='rgba(255,255,255,.75)';
-      c2.fillText(Math.round(v/tot2*100)+'%',x,y+7);
-    });
-    c2.restore();
-  }};
   mkChart(id,{type:'doughnut',data:{labels,datasets:[{data:vals,backgroundColor:cols.map(c=>c+'bb'),borderColor:cols,borderWidth:1}]},options:opts});
 }
 
+// Top Clientes por RAZON_SOCIAL_CLIENTE — stacked bar horizontal
+function renderTopClientes(){
+  const map={};
+  filtered.filter(tieneCarga).forEach(r=>{
+    const c=(r[C.CLIENTE]||'Sin cliente').trim();
+    if(!map[c])map[c]={plan:0,det:0,rep:0,asig:0};
+    if(esPlan(r))  map[c].plan++;
+    if(esDet(r))   map[c].det++;
+    if(esRep(r))   map[c].rep++;
+    if(esAsig(r))  map[c].asig++;
+  });
+  const sorted=Object.entries(map)
+    .map(([c,d])=>({c,tot:d.plan+d.det+d.rep+d.asig,...d}))
+    .sort((a,b)=>b.tot-a.tot)
+    .slice(0,20);
+  if(!sorted.length){if(charts['ch-clientes'])charts['ch-clientes'].destroy();return;}
+  const labels=sorted.map(d=>d.c.length>35?d.c.slice(0,33)+'…':d.c);
+  const barH=Math.max(420,sorted.length*26);
+  const wrap=document.getElementById('ch-clientes-wrap');
+  if(wrap)wrap.style.height=barH+'px';
+  mkChart('ch-clientes',{type:'bar',
+    data:{labels,datasets:[
+      {label:'Planificada',   data:sorted.map(d=>d.plan), backgroundColor:'rgba(0,176,240,.85)',  stack:'s',borderSkipped:false},
+      {label:'Detenido',      data:sorted.map(d=>d.det),  backgroundColor:'rgba(255,68,176,.85)', stack:'s',borderSkipped:false},
+      {label:'Replanificada', data:sorted.map(d=>d.rep),  backgroundColor:'rgba(255,167,0,.85)',  stack:'s',borderSkipped:false},
+      {label:'AsignadoTarea', data:sorted.map(d=>d.asig), backgroundColor:'rgba(110,190,235,.85)',stack:'s',borderSkipped:false},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      layout:{padding:{right:46}},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          callbacks:{
+            title:ctx=>{const d=sorted[ctx[0].dataIndex];return`${d.c}  (Total: ${d.tot})`;},
+            label:ctx=>`  ${ctx.dataset.label}: ${ctx.parsed.x}`
+          },
+          backgroundColor:'rgba(10,30,70,.97)',borderColor:'rgba(0,176,240,.4)',borderWidth:1,
+          titleFont:{family:"'Barlow Condensed',sans-serif",size:13,weight:'bold'},
+          bodyFont:{family:"'Barlow Condensed',sans-serif",size:11},padding:12,boxPadding:4
+        }
+      },
+      scales:{
+        x:{stacked:true,grid:{color:GC},ticks:TST},
+        y:{stacked:true,grid:{color:'transparent'},ticks:{...TST,color:'#9BBCD8',callback:(v,i)=>labels[i]}}
+      }
+    }
+  });
+}
+
+// MOTIVO_ULT_HIST separado por Detenido y Replanificada
+function renderMotivoUltHist(){
+  const detMap={},repMap={};
+  let detTotal=0,repTotal=0;
+  filtered.forEach(r=>{
+    const mh=(r[C.MOTIVO_HIST]||'').trim();
+    if(!mh||mh==='-')return;
+    if(esDet(r)){detMap[mh]=(detMap[mh]||0)+1;detTotal++;}
+    if(esRep(r)){repMap[mh]=(repMap[mh]||0)+1;repTotal++;}
+  });
+  const detSorted=Object.entries(detMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const repSorted=Object.entries(repMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  document.getElementById('mot-hist-det-total').textContent=detTotal;
+  document.getElementById('mot-hist-rep-total').textContent=repTotal;
+  const render=(arr)=>arr.map(([m,c])=>`<div class="motivo-item"><span class="num">${c}</span><span class="txt">${esc(m)}</span></div>`).join('')||'<div class="empty" style="padding:10px;grid-column:1/-1">Sin motivos registrados</div>';
+  document.getElementById('mot-hist-det-list').innerHTML=render(detSorted);
+  document.getElementById('mot-hist-rep-list').innerHTML=render(repSorted);
+}
+
+function renderTend(){
+  // Recalcular stats POR CORTE usando filtered (respeta filtros de gestor, corte, etc.)
+  const fStats={};
+  filtered.forEach(r=>{
+    const f=r._fecha;if(!f)return;
+    if(!fStats[f])fStats[f]={total:0,plan:0,det:0,rep:0,asig:0};
+    fStats[f].total++;
+    if(esPlan(r))fStats[f].plan++;
+    if(esDet(r)) fStats[f].det++;
+    if(esRep(r)) fStats[f].rep++;
+    if(esAsig(r))fStats[f].asig++;
+  });
+  const dates=KNOWN_SHEETS.map(s=>s.fecha).filter(d=>fStats[d]);
+  if(!dates.length){if(charts['ch-tend'])charts['ch-tend'].destroy();return;}
+  mkChart('ch-tend',{type:'line',data:{labels:dates,datasets:[
+    {label:'Total',    data:dates.map(d=>fStats[d].total),borderColor:'#00B0F0',backgroundColor:'rgba(0,176,240,.08)',tension:.3,pointRadius:4,fill:true,borderWidth:2},
+    {label:'Plan',     data:dates.map(d=>fStats[d].plan), borderColor:'#00B5CB',backgroundColor:'transparent',tension:.3,pointRadius:3,borderWidth:1.5},
+    {label:'Detenido', data:dates.map(d=>fStats[d].det),  borderColor:'#FF44B0',backgroundColor:'transparent',tension:.3,pointRadius:3,borderWidth:1.5,borderDash:[4,3]},
+    {label:'Replan',   data:dates.map(d=>fStats[d].rep),  borderColor:'#FFA700',backgroundColor:'transparent',tension:.3,pointRadius:3,borderWidth:1.5,borderDash:[2,3]},
+    {label:'AsigTarea',data:dates.map(d=>fStats[d].asig), borderColor:'#6EBEEB',backgroundColor:'transparent',tension:.3,pointRadius:3,borderWidth:1.5},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{grid:{color:GC},ticks:{...TST,maxRotation:45,autoSkip:false}},y:{grid:{color:GC},ticks:TST}}}});
+}
 
 // Tendencia por FE_PREPLANIFICADA_DMA — antigüedad/ingresos agrupados por mes (ene 25, feb 25, ...)
 function renderTendPrePlan(){
-  const selectedMeses=SF['sf-preplan-mes']&&SF['sf-preplan-mes'].selected.size>0
-    ?new Set([...SF['sf-preplan-mes'].selected]):null;
-
-  // Solo los mismos estados que el KPI Total: Plan+Det+Replan+PrePlan
-  const mapFiltered={};
-  const filteredBase=filtered.filter(r=>esPlan(r)||esDet(r)||esRep(r)||esPre(r)||esAsig(r));
-  filteredBase.forEach(r=>{
+  const map={};
+  filtered.forEach(r=>{
     const d=parseDate(r[C.FE_PREPLANIFICADA_DMA]);
     if(!d)return;
     const key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
-    mapFiltered[key]=(mapFiltered[key]||0)+1;
+    map[key]=(map[key]||0)+1;
   });
-
-  const keys=Object.keys(mapFiltered).sort();
+  const keys=Object.keys(map).sort();
   if(!keys.length){if(charts['ch-preplan-tend'])charts['ch-preplan-tend'].destroy();return;}
-
   const labels=keys.map(k=>{const [y,m]=k.split('-');return MESES_ABR[+m-1]+' '+y.slice(2);});
-  const data=keys.map(k=>mapFiltered[k]);
-
-  // Si hay filtro activo: barras seleccionadas intensas, el resto atenuado
-  // Si no hay filtro: todas iguales
-  const bgColors=labels.map(l=>
-    !selectedMeses?'rgba(52,211,153,.75)':
-    selectedMeses.has(l)?'rgba(52,211,153,.95)':'rgba(52,211,153,.15)'
-  );
-  const borderColors=labels.map(l=>
-    !selectedMeses?'#34D399':
-    selectedMeses.has(l)?'#34D399':'rgba(52,211,153,.2)'
-  );
-
+  const data=keys.map(k=>map[k]);
   mkChart('ch-preplan-tend',{type:'bar',data:{labels,datasets:[
-    {label:'Registros',data,backgroundColor:bgColors,borderColor:borderColors,borderWidth:1,borderRadius:4}
-  ]},options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.y} registros`}}},
-    scales:{x:{grid:{color:GC},ticks:{...TST,maxRotation:45,autoSkip:false}},y:{grid:{color:GC},ticks:TST,beginAtZero:true}},
-    onClick:(_e,els)=>{
-      if(els.length) filterByClick('sf-preplan-mes',labels[els[0].index]);
-      else filterByClick('sf-preplan-mes',null);
-    },
-    onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},
-    animation:{onComplete(ctx){
-      const ch=ctx.chart,ds=ch.data.datasets[0],meta=ch.getDatasetMeta(0),c2=ch.ctx;
-      c2.save();c2.font='bold 10px "Barlow Condensed",sans-serif';c2.textAlign='center';c2.textBaseline='bottom';
-      meta.data.forEach((bar,i)=>{
-        const v=ds.data[i];if(!v)return;
-        const active=!selectedMeses||selectedMeses.has(labels[i]);
-        c2.fillStyle=active?'#34D399':'rgba(52,211,153,.35)';
-        c2.fillText(v,bar.x,bar.y-3);
-      });
-      c2.restore();
-    }}
-  }});
+    {label:'Registros',data,backgroundColor:'rgba(52,211,153,.75)',borderColor:'#34D399',borderWidth:1,borderRadius:4}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+    tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.y} registros`}}},
+    scales:{x:{grid:{color:GC},ticks:{...TST,maxRotation:45,autoSkip:false}},y:{grid:{color:GC},ticks:TST,beginAtZero:true}}}});
 }
 
 // Motivos de Detención y Replanificación — top causas, separadas por tipo de evento, solo con dato real
@@ -1693,25 +1649,10 @@ function renderMotivos(){
   const detMap={},repMap={};
   let detTotal=0,repTotal=0;
   filtered.forEach(r=>{
-    // Para Detenido: buscar en MOTIVO → MOTIVO_ULT_HIST
-    if(esDet(r)){
-      const motivo=((r[C.MOTIVO]||'').trim()||
-                    (r[C.MOTIVO_HIST]||'').trim());
-      if(motivo&&motivo!=='-'){
-        detMap[motivo]=(detMap[motivo]||0)+1;
-        detTotal++;
-      }
-    }
-    // Para Replanificada: buscar en MOTIVO → ULT_OBS_REPLANIFICADA → MOTIVO_ULT_HIST
-    if(esRep(r)){
-      const motivo=((r[C.MOTIVO]||'').trim()||
-                    (r[C.OBS_REPLAN]||'').trim()||
-                    (r[C.MOTIVO_HIST]||'').trim());
-      if(motivo&&motivo!=='-'){
-        repMap[motivo]=(repMap[motivo]||0)+1;
-        repTotal++;
-      }
-    }
+    const motivo=(r[C.MOTIVO]||'').trim();
+    if(!motivo||motivo==='-')return;
+    if(esDet(r)){detMap[motivo]=(detMap[motivo]||0)+1;detTotal++;}
+    if(esRep(r)){repMap[motivo]=(repMap[motivo]||0)+1;repTotal++;}
   });
   const detSorted=Object.entries(detMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
   const repSorted=Object.entries(repMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
@@ -1720,132 +1661,6 @@ function renderMotivos(){
   const render=(arr)=>arr.map(([m,c])=>`<div class="motivo-item"><span class="num">${c}</span><span class="txt">${esc(m)}</span></div>`).join('')||'<div class="empty" style="padding:10px;grid-column:1/-1">Sin motivos registrados</div>';
   document.getElementById('mot-det-list').innerHTML=render(detSorted);
   document.getElementById('mot-rep-list').innerHTML=render(repSorted);
-}
-
-// Top Clientes por RAZON_SOCIAL_CLIENTE
-function renderTopClientes(){
-  const map={};
-  filtered.forEach(r=>{
-    const cl=(r[C.CLIENTE]||'').trim();
-    if(cl)map[cl]=(map[cl]||0)+1;
-  });
-  const sorted=Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,15);
-  if(!sorted.length){if(charts['ch-clientes'])charts['ch-clientes'].destroy();return;}
-  const labels=sorted.map(([k])=>k.length>35?k.slice(0,33)+'…':k);
-  const vals=sorted.map(([,v])=>v);
-  const color='#8B6FE8';
-  const rawLabels=sorted.map(([k])=>k);
-  mkChart('ch-clientes',{type:'bar',
-    data:{labels,datasets:[{data:vals,backgroundColor:color+'bb',borderColor:color,borderWidth:1,borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.x} órdenes · clic para filtrar`}}},
-      scales:{
-        x:{grid:{color:GC},ticks:TST},
-        y:{grid:{color:'transparent'},ticks:{...TST,color:'#C4AAFF'}}
-      },
-      onClick:(_e,els)=>{
-        if(els.length){
-          applyHighlight('ch-clientes',els[0].index);
-          mostrarDetalleCliente(rawLabels[els[0].index]);
-        } else {
-          applyHighlight('ch-clientes',-1);
-        }
-      },
-      onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},
-      animation:{onComplete(ctx){
-        const ch=ctx.chart,ds=ch.data.datasets[0],meta=ch.getDatasetMeta(0),c2=ch.ctx;
-        c2.save();c2.font='bold 11px "Barlow Condensed",sans-serif';c2.fillStyle='#fff';c2.textBaseline='middle';
-        meta.data.forEach((bar,i)=>{const v=ds.data[i];if(!v)return;c2.fillText(v,bar.x+5,bar.y);});
-        c2.restore();
-      }}
-    }});
-}
-
-// Aplicar highlight/dim en un chart al seleccionar un elemento
-function applyHighlight(chartId,selectedIndex){
-  if(selectedIndex===-1) delete _highlightState[chartId];
-  else _highlightState[chartId]=selectedIndex;
-  _doHighlight(chartId,selectedIndex);
-}
-
-function _doHighlight(chartId,selectedIndex){
-  const ch=charts[chartId];if(!ch)return;
-  const ds=ch.data.datasets;
-  const n=ch.data.labels?ch.data.labels.length:0;
-  ds.forEach(dataset=>{
-    // Always grab base color from original config (stored first time)
-    if(!dataset._baseColor) dataset._baseColor=
-      Array.isArray(dataset.backgroundColor)?[...dataset.backgroundColor]:dataset.backgroundColor;
-    if(!dataset._baseBorder) dataset._baseBorder=
-      Array.isArray(dataset.borderColor)?[...dataset.borderColor]:dataset.borderColor;
-    const baseColor=dataset._baseColor;
-    const baseBorder=dataset._baseBorder;
-    if(selectedIndex===-1){
-      dataset.backgroundColor=Array.isArray(baseColor)?[...baseColor]:baseColor;
-      dataset.borderColor=Array.isArray(baseBorder)?[...baseBorder]:baseBorder;
-    } else {
-      if(Array.isArray(baseColor)){
-        dataset.backgroundColor=baseColor.map((col,i)=>i===selectedIndex?col:fadeColor(col,.15));
-        dataset.borderColor=Array.isArray(baseBorder)?baseBorder.map((col,i)=>i===selectedIndex?col:fadeColor(col,.15)):baseBorder;
-      } else {
-        dataset.backgroundColor=Array.from({length:n},(_,i)=>i===selectedIndex?baseColor:fadeColor(baseColor,.15));
-        dataset.borderColor=Array.from({length:n},(_,i)=>i===selectedIndex?baseBorder:fadeColor(baseBorder,.15));
-      }
-    }
-  });
-  ch.update('none');
-}
-
-function fadeColor(color,alpha){
-  // Convierte cualquier color a rgba con alpha reducido
-  const m=color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-  if(m)return`rgba(${m[1]},${m[2]},${m[3]},${alpha})`;
-  if(color.startsWith('#')){
-    const hex=color.replace('#','');
-    const r=parseInt(hex.slice(0,2),16),g=parseInt(hex.slice(2,4),16),b=parseInt(hex.slice(4,6),16);
-    return`rgba(${r},${g},${b},${alpha})`;
-  }
-  return color;
-}
-
-// Filtrar el dashboard al hacer clic en un gráfico
-function filterByClick(sfId,value){
-  if(!sfId)return;
-  if(!SF[sfId])return;
-  const sel=SF[sfId].selected;
-  if(!value||sel.size===1&&sel.has(value)){
-    // Toggle off — limpiar filtro
-    SF[sfId].selected.clear();
-  } else {
-    SF[sfId].selected.clear();
-    SF[sfId].selected.add(value);
-  }
-  sfRenderChips(sfId);
-  sfRenderList(sfId,'');
-  applyFilters();
-  renderAll();
-}
-
-function mostrarDetalleCliente(cliente){
-  // Filtrar por ese cliente
-  filterByClick('sf-gestor', null); // limpiar gestor
-  // Buscar si hay un panel de detalle cliente ya existente o reutilizar empresa-clientes
-  const filas=filtered.filter(r=>(r[C.CLIENTE]||'').trim()===cliente);
-  const gestores=[...new Set(filas.map(r=>(r[C.GESTOR]||'').trim()).filter(Boolean))].sort();
-  const panel=document.getElementById('empresa-clientes-panel');
-  const title=document.getElementById('empresa-clientes-title');
-  const list=document.getElementById('empresa-clientes-list');
-  title.textContent=`${cliente.length>40?cliente.slice(0,38)+'…':cliente} · ${filas.length} órdenes · ${gestores.length} gestores`;
-  list.innerHTML=gestores.map((g,i)=>{
-    const cnt=filas.filter(r=>(r[C.GESTOR]||'').trim()===g).length;
-    return`<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;background:rgba(255,255,255,.04);font-size:11px;color:#cfe0f5;cursor:pointer" onclick="filterByClick('sf-gestor','${g.replace(/'/,"\\'")}')" title="Filtrar por ${g}">
-      <span style="font-family:var(--font-cond);color:var(--muted);min-width:20px;text-align:right">${i+1}</span>
-      <span style="flex:1">${esc(g)}</span>
-      <span style="font-family:var(--font-cond);color:var(--turquesa);font-weight:700">${cnt}</span>
-    </div>`;
-  }).join('')||'<div class="empty" style="padding:10px">Sin gestores</div>';
-  panel.style.display='block';
-  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 function mostrarClientesEmpresa(tipoEmpresa){
@@ -1926,45 +1741,37 @@ function renderResumen(){
 
 function renderResumenPorTipo(){
   const tipoMap={};
-  filtered.filter(r=>esPlan(r)||esDet(r)||esRep(r)||esPre(r)||esAsig(r)).forEach(r=>{
+  filtered.filter(r=>esPlan(r)||esDet(r)||esRep(r)||esPre(r)).forEach(r=>{
     const t=r[C.TIPO_GESTION]||'OTROS';
-    if(!tipoMap[t])tipoMap[t]={plan:0,det:0,rep:0,pre:0,asig:0,gestores:new Set(),cli:new Set()};
+    if(!tipoMap[t])tipoMap[t]={plan:0,det:0,rep:0,pre:0,gestores:new Set(),cli:new Set()};
     if(esPlan(r))tipoMap[t].plan++;
     if(esDet(r)) tipoMap[t].det++;
     if(esRep(r)) tipoMap[t].rep++;
     if(esPre(r)) tipoMap[t].pre++;
-    if(esAsig(r))tipoMap[t].asig++;
     tipoMap[t].gestores.add(r[C.GESTOR]||'');
     if(r[C.CLIENTE])tipoMap[t].cli.add(r[C.CLIENTE]);
   });
   const tipoRows=Object.entries(tipoMap).sort((a,b)=>{
-    return(b[1].plan+b[1].det+b[1].rep+b[1].pre+b[1].asig)-(a[1].plan+a[1].det+a[1].rep+a[1].pre+a[1].asig);
+    return(b[1].plan+b[1].det+b[1].rep+b[1].pre)-(a[1].plan+a[1].det+a[1].rep+a[1].pre);
   });
-  const grandTotal=tipoRows.reduce((s,[,d])=>s+d.plan+d.det+d.rep+d.pre+d.asig,0);
-  const maxT=tipoRows[0]?(tipoRows[0][1].plan+tipoRows[0][1].det+tipoRows[0][1].rep+tipoRows[0][1].pre+tipoRows[0][1].asig):1;
+  const maxT=tipoRows[0]?(tipoRows[0][1].plan+tipoRows[0][1].det+tipoRows[0][1].rep+tipoRows[0][1].pre):1;
   const el=document.getElementById('tbl-tipo-gestion');
   if(!el)return;
   el.innerHTML=tipoRows.length?tipoRows.map(([t,d])=>{
-    const tot=d.plan+d.det+d.rep+d.pre+d.asig;
-    const pct=grandTotal?Math.round(tot/grandTotal*100):0;
+    const tot=d.plan+d.det+d.rep+d.pre;
     const bw=Math.round(tot/maxT*80);
     const col=t==='PROYECTOS'?'#6EBEEB':t==='OPERATIVO'?'#34D399':t==='OTROS'?'#FF9A44':'var(--muted)';
     return`<tr>
       <td style="font-weight:700;font-family:var(--font-cond);color:${col}">${t}</td>
-      <td style="font-family:var(--font-cond)">
-        ${tot}
-        <span style="font-size:10px;color:${col};font-weight:700;margin-left:3px">${pct}%</span>
-        <span style="display:inline-block;height:3px;width:${bw}px;background:${col};opacity:.6;border-radius:99px;vertical-align:middle;margin-left:6px"></span>
-      </td>
+      <td style="font-family:var(--font-cond)">${tot} <span style="display:inline-block;height:3px;width:${bw}px;background:${col};opacity:.6;border-radius:99px;vertical-align:middle;margin-left:4px"></span></td>
       <td><span class="pill p-plan">${d.plan}</span></td>
       <td><span class="pill p-det">${d.det}</span></td>
       <td><span class="pill p-replan">${d.rep}</span></td>
       <td><span class="pill p-pre">${d.pre}</span></td>
-      <td><span class="pill p-asig">${d.asig}</span></td>
       <td style="font-family:var(--font-cond);color:var(--muted)">${d.gestores.size}</td>
       <td style="font-family:var(--font-cond);color:var(--muted)">${d.cli.size}</td>
     </tr>`;
-  }).join(''):`<tr><td colspan="9" class="empty">Sin datos</td></tr>`;
+  }).join(''):`<tr><td colspan="8" class="empty">Sin datos</td></tr>`;
 }
 
 // ── GRÁFICO TOP GESTORES + DETALLE ────────────────────────────────────
@@ -2063,9 +1870,6 @@ function applyGcSort(rows,col,dir){
 function renderGcRows(rows){
   return rows.map((r,i)=>{
     const dG=diasDesde(r[C.FE_PLAN]);
-    const motivo=(r[C.MOTIVO]||'').trim()||
-                 (r[C.OBS_REPLAN]||'').trim()||
-                 (r[C.MOTIVO_HIST]||'').trim()||'—';
     return`<tr>
       <td class="td-num">${i+1}</td>
       <td class="td-num">${fmtDate(r[C.FE_PREPLANIFICADA_DMA])}</td>
@@ -2079,7 +1883,7 @@ function renderGcRows(rows){
       <td class="td-muted" data-tip="${esc(r[C.SUCURSAL])}">${r[C.SUCURSAL]||'—'}</td>
       <td class="td-num" style="color:#e8f0ff">${fmtDate(r[C.FE_PLAN])}</td>
       <td>${abDias(dG)}</td>
-      <td style="font-size:13px;color:var(--amarillo)" data-tip="${esc(motivo)}">${motivo}</td>
+      <td style="font-size:13px;color:var(--amarillo)" data-tip="${esc(r[C.MOTIVO])}">${r[C.MOTIVO]||'—'}</td>
       <td class="td-muted" data-tip="${esc(r[C.CONTRATO])}">${r[C.CONTRATO]||'—'}</td>
       <td class="td-muted" data-tip="${esc(r[C.VENDEDOR])}">${r[C.VENDEDOR]||'—'}</td>
     </tr>`;
@@ -2248,9 +2052,6 @@ function renderDetalleTabla(){
       const dG=diasDesde(r[C.FE_PLAN]);
       const obs1=(r[C.OBS_PLAN]||'—').slice(0,80)+(r[C.OBS_PLAN]&&r[C.OBS_PLAN].length>80?'…':'');
       const obs2=(r[C.OBS_REPLAN]||'—').slice(0,80)+(r[C.OBS_REPLAN]&&r[C.OBS_REPLAN].length>80?'…':'');
-      const motivo=(r[C.MOTIVO]||'').trim()||
-                   (r[C.OBS_REPLAN]||'').trim()||
-                   (r[C.MOTIVO_HIST]||'').trim()||'—';
       return`<tr>
         <td style="color:var(--muted);font-family:var(--font-cond)">${i+1}</td>
         <td class="td-num">${fmtDate(r[C.FE_PREPLANIFICADA_DMA])}</td>
@@ -2265,7 +2066,7 @@ function renderDetalleTabla(){
         <td class="td-num">${fmtDate(r[C.FE_PLAN])}</td>
         <td>${abDias(dG)}</td>
         <td class="td-obs" data-tip="${esc(r[C.OBS_PLAN]||'')}">${obs1}</td>
-        <td style="font-size:14px;color:var(--amarillo)" data-tip="${esc(motivo)}">${motivo}</td>
+        <td style="font-size:14px;color:var(--amarillo)" data-tip="${esc(r[C.MOTIVO])}">${r[C.MOTIVO]||'—'}</td>
         <td class="td-obs" data-tip="${esc(r[C.OBS_REPLAN]||'')}">${obs2}</td>
         <td class="td-muted" data-tip="${esc(r[C.CONTRATO])}">${r[C.CONTRATO]||'—'}</td>
         <td class="td-muted" data-tip="${esc(r[C.VENDEDOR])}">${r[C.VENDEDOR]||'—'}</td>
@@ -2323,13 +2124,12 @@ function exportarExcel(){
     C.PRODUCTO,C.TIPO_ORDEN,C.SUCURSAL,C.FE_PLAN,'_dias',
     C.OBS_PLAN,C.MOTIVO,C.OBS_REPLAN,C.CONTRATO,C.EMPRESA,C.VENDEDOR,'_fecha'];
 
-  const SEP2=';';
   const escape=v=>'"'+(String(v||'').replace(/"/g,'""'))+'"';
-  const lines=['sep=;',headers.map(escape).join(SEP2)];
+  const lines=[headers.map(escape).join(',')];
   rows.forEach(r=>{
     const dG=diasDesde(r[C.FE_PLAN]);
     const vals=colKeys.map(k=>k==='_dias'?(dG!==null?dG:''):r[k]||'');
-    lines.push(vals.map(escape).join(SEP2));
+    lines.push(vals.map(escape).join(','));
   });
 
   const bom='﻿';
@@ -2376,24 +2176,16 @@ function renderAll(){
   renderGestores();
   renderAlertas();
   renderTopGestores();
-  // Si hay un gestor seleccionado, mantener y refrescar su detalle con los nuevos filtros
-  if(_gestorSeleccionado){
-    const wrap=document.getElementById('detalle-gestor-wrap');
-    if(wrap)wrap.style.display='';
-    renderDetalleTabla();
-  } else {
-    const wrap=document.getElementById('detalle-gestor-wrap');
-    if(wrap)wrap.style.display='none';
-  }
+  document.getElementById('detalle-gestor-wrap').style.display='none';
+  _gestorSeleccionado=null;
   // Gráficos de análisis — sin deduplicación
   segmentedHBar('ch-gestores',10);
-  doughnut('ch-estado',topN(count(filtered,C.EST),8),'leg-estado',(v)=>filterByClick('sf-estado',v));
+  doughnut('ch-estado',topN(count(filtered,C.EST),8),'leg-estado');
   renderMotivos();
+  renderMotivoUltHist();
   renderTopClientes();
-  doughnut('ch-empresa',topN(count(filtered,C.EMPRESA),8),'leg-empresa',(label)=>{
-    filterByClick('sf-empresa',label);
-    mostrarClientesEmpresa(label);
-  });
+  doughnut('ch-empresa',topN(count(filtered,C.EMPRESA),8),'leg-empresa',(label)=>mostrarClientesEmpresa(label));
+  renderTend();
   renderTendPrePlan();
   renderResumen();
 }
@@ -2520,15 +2312,6 @@ async function loadAll(){
         // Regla especial: Banco del Austro + raacosta → PROYECTOS
         if((row[C.CLIENTE]||'').trim()==='Banco del Austro S.A.' &&
            (row[C.GESTOR]||'').trim().toLowerCase()==='raacosta'){
-          row._tipo_gestion='PROYECTOS';
-        }
-        // Regla especial: LOGIN termina en "nr1" → PROYECTOS
-        if((row[C.LOGIN]||'').trim().toLowerCase().endsWith('nr1')){
-          row._tipo_gestion='PROYECTOS';
-        }
-        // Regla especial: Junta de Beneficencia de Guayaquil + ggavilanez → PROYECTOS
-        if((row[C.CLIENTE]||'').trim()==='Junta de Beneficencia de Guayaquil' &&
-           (row[C.GESTOR]||'').trim().toLowerCase()==='ggavilanez'){
           row._tipo_gestion='PROYECTOS';
         }
         const dPre = parseDate(row[C.FE_PREPLANIFICADA_DMA]);
@@ -2722,9 +2505,6 @@ function selectGestor(idx){
 
   const detalleFilas=sortedRows.map((r,i)=>{
     const dG=diasDesde(r[C.FE_PLAN]);
-    const motivo=(r[C.MOTIVO]||'').trim()||
-                 (r[C.OBS_REPLAN]||'').trim()||
-                 (r[C.MOTIVO_HIST]||'').trim()||'—';
     return`<tr>
       <td class="td-num">${i+1}</td>
       <td class="td-num">${fmtDate(r[C.FE_PREPLANIFICADA_DMA])}</td>
@@ -2738,7 +2518,7 @@ function selectGestor(idx){
       <td class="td-muted" data-tip="${esc(r[C.SUCURSAL])}">${r[C.SUCURSAL]||'—'}</td>
       <td class="td-num" style="color:#e8f0ff">${fmtDate(r[C.FE_PLAN])}</td>
       <td>${abDias(dG)}</td>
-      <td style="font-size:13px;color:var(--amarillo)" data-tip="${esc(motivo)}">${motivo}</td>
+      <td style="font-size:13px;color:var(--amarillo)" data-tip="${esc(r[C.MOTIVO])}">${r[C.MOTIVO]||'—'}</td>
       <td class="td-muted" data-tip="${esc(r[C.CONTRATO])}">${r[C.CONTRATO]||'—'}</td>
       <td class="td-muted" data-tip="${esc(r[C.VENDEDOR])}">${r[C.VENDEDOR]||'—'}</td>
     </tr>`;

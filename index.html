@@ -472,6 +472,11 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
       <div class="kpi-val" id="k-rep">—</div>
       <div class="kpi-sub" id="k-rep-s">no avanzó</div>
     </div>
+    <div class="kpi-card" style="--ak:var(--azul-c)">
+      <div class="kpi-lbl">AsignadoTarea</div>
+      <div class="kpi-val" id="k-asig">—</div>
+      <div class="kpi-sub" id="k-asig-s">listo a ejecutar</div>
+    </div>
     <div class="kpi-card" style="--ak:var(--morado)">
       <div class="kpi-lbl">PrePlanificada</div>
       <div class="kpi-val" id="k-pre">—</div>
@@ -1268,7 +1273,7 @@ function renderKPIs(){
   const rep  =filtered.filter(esRep).length;
   const asig =filtered.filter(esAsig).length;
   const pre  =filtered.filter(esPre).length;
-  const n    =plan+det+rep+pre;  // Total = solo estos 4 estados
+  const n    =plan+det+rep+asig+pre;
   const gest =new Set(filtered.filter(tieneCarga).map(r=>r[C.GESTOR]).filter(Boolean)).size;
   const cli  =new Set(filtered.map(r=>r[C.CLIENTE]).filter(Boolean)).size;
   const hoj  =new Set(filtered.map(r=>r._fecha)).size;
@@ -1279,12 +1284,14 @@ function renderKPIs(){
   document.getElementById('k-plan').textContent=plan.toLocaleString('es-EC');
   document.getElementById('k-det').textContent=det.toLocaleString('es-EC');
   document.getElementById('k-rep').textContent=rep.toLocaleString('es-EC');
+  document.getElementById('k-asig').textContent=asig.toLocaleString('es-EC');
   document.getElementById('k-pre').textContent=pre.toLocaleString('es-EC');
   document.getElementById('k-misc').textContent=hoj;
   document.getElementById('k-total-s').textContent=hoj+' hojas cargadas';
   document.getElementById('k-plan-s').textContent=pct(plan)+' del total';
   document.getElementById('k-det-s').textContent=pct(det)+' del total';
   document.getElementById('k-rep-s').textContent=pct(rep)+' del total';
+  document.getElementById('k-asig-s').textContent=pct(asig)+' del total';
   document.getElementById('k-misc-s').textContent='fechas · '+cli.toLocaleString('es-EC')+' clientes';
 
   const dates=filtered.map(r=>r._fecha).filter(Boolean).sort();

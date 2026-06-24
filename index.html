@@ -1140,6 +1140,7 @@ function sfToggleVal(id,val){
   sfRenderList(id,document.getElementById(id+'-search')?.value||'');
   sfRenderChips(id);
   applyFilters();
+  renderAll();
 }
 
 function sfToggleAll(id){
@@ -1153,6 +1154,7 @@ function sfToggleAll(id){
   sfRenderList(id,q);
   sfRenderChips(id);
   applyFilters();
+  renderAll();
 }
 
 function sfRenderChips(id){

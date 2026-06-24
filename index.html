@@ -1622,9 +1622,9 @@ function renderTendPrePlan(){
   const selectedMeses=SF['sf-preplan-mes']&&SF['sf-preplan-mes'].selected.size>0
     ?new Set([...SF['sf-preplan-mes'].selected]):null;
 
-  // Siempre usar filtered para los conteos
-  const mapFiltered={};
-  filtered.forEach(r=>{
+  // Solo los mismos estados que el KPI Total: Plan+Det+Replan+PrePlan
+  const filteredBase=filtered.filter(r=>esPlan(r)||esDet(r)||esRep(r)||esPre(r));
+  filteredBase.forEach(r=>{
     const d=parseDate(r[C.FE_PREPLANIFICADA_DMA]);
     if(!d)return;
     const key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');

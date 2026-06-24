@@ -1617,36 +1617,69 @@ function doughnut(id,entries,legId,onClick){
 
 // Tendencia por FE_PREPLANIFICADA_DMA — antigüedad/ingresos agrupados por mes (ene 25, feb 25, ...)
 function renderTendPrePlan(){
-  const map={};
+  // Construir mapa usando allData para mostrar contexto completo de todos los meses
+  const mapAll={}, mapFiltered={};
+  allData.forEach(r=>{
+    const d=parseDate(r[C.FE_PREPLANIFICADA_DMA]);
+    if(!d)return;
+    const key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    mapAll[key]=(mapAll[key]||0)+1;
+  });
   filtered.forEach(r=>{
     const d=parseDate(r[C.FE_PREPLANIFICADA_DMA]);
     if(!d)return;
     const key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
-    map[key]=(map[key]||0)+1;
+    mapFiltered[key]=(mapFiltered[key]||0)+1;
   });
-  const keys=Object.keys(map).sort();
+  const keys=Object.keys(mapAll).sort();
   if(!keys.length){if(charts['ch-preplan-tend'])charts['ch-preplan-tend'].destroy();return;}
   const labels=keys.map(k=>{const [y,m]=k.split('-');return MESES_ABR[+m-1]+' '+y.slice(2);});
-  const data=keys.map(k=>map[k]);
+  // Mes activo en el filtro sf-preplan-mes
+  const activeMes=SF['sf-preplan-mes']&&SF['sf-preplan-mes'].selected.size===1
+    ?[...SF['sf-preplan-mes'].selected][0]:null;
+  const data=keys.map(k=>mapAll[k]);
+  // Colores: mes activo = verde intenso, resto = según si tiene datos filtrados o está fuera
+  const bgColors=labels.map(l=>{
+    if(activeMes){
+      return l===activeMes?'rgba(52,211,153,.95)':'rgba(52,211,153,.18)';
+    }
+    return 'rgba(52,211,153,.75)';
+  });
+  const borderColors=labels.map(l=>{
+    if(activeMes){
+      return l===activeMes?'#34D399':'rgba(52,211,153,.25)';
+    }
+    return '#34D399';
+  });
   mkChart('ch-preplan-tend',{type:'bar',data:{labels,datasets:[
-    {label:'Registros',data,backgroundColor:'rgba(52,211,153,.75)',borderColor:'#34D399',borderWidth:1,borderRadius:4}
+    {label:'Registros',data,backgroundColor:bgColors,borderColor:borderColors,borderWidth:1,borderRadius:4}
   ]},options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.y} registros`}}},
+    plugins:{legend:{display:false},tooltip:{callbacks:{
+      label:ctx=>{
+        const key2=keys[ctx.dataIndex];
+        const tot=mapAll[key2]||0;
+        const fil=mapFiltered[key2]||0;
+        return activeMes?` ${fil} filtrados / ${tot} total`:(` ${tot} registros`);
+      }
+    }}},
     scales:{x:{grid:{color:GC},ticks:{...TST,maxRotation:45,autoSkip:false}},y:{grid:{color:GC},ticks:TST,beginAtZero:true}},
     onClick:(_e,els)=>{
       if(els.length){
-        // Solo efecto visual — no cambia el filtro Mes Preplan.
-        applyHighlight('ch-preplan-tend',els[0].index);
+        const idx=els[0].index;
+        filterByClick('sf-preplan-mes',labels[idx]);
       } else {
-        // Clic en área vacía: resetea visual, no toca filtros
-        applyHighlight('ch-preplan-tend',-1);
+        filterByClick('sf-preplan-mes',null);
       }
     },
     onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},
     animation:{onComplete(ctx){
       const ch=ctx.chart,ds=ch.data.datasets[0],meta=ch.getDatasetMeta(0),c2=ch.ctx;
-      c2.save();c2.font='bold 10px "Barlow Condensed",sans-serif';c2.fillStyle='#34D399';c2.textAlign='center';c2.textBaseline='bottom';
-      meta.data.forEach((bar,i)=>{const v=ds.data[i];if(!v)return;c2.fillText(v,bar.x,bar.y-3);});
+      c2.save();c2.font='bold 10px "Barlow Condensed",sans-serif';c2.textAlign='center';c2.textBaseline='bottom';
+      meta.data.forEach((bar,i)=>{
+        const v=ds.data[i];if(!v)return;
+        c2.fillStyle=activeMes&&labels[i]===activeMes?'#34D399':activeMes?'rgba(52,211,153,.4)':'#34D399';
+        c2.fillText(v,bar.x,bar.y-3);
+      });
       c2.restore();
     }}
   }});

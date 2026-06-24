@@ -846,7 +846,7 @@ const EST_PILL={Planificada:'p-plan',Detenido:'p-det',Replanificada:'p-replan',A
 // ── ESTADO ─────────────────────────────────────────────────────────────
 // allData: TODOS los registros de TODAS las hojas, sin ninguna deduplicación
 // filtered: subconjunto de allData según los filtros activos del usuario
-let allData=[], filtered=[], charts={}, sheetStats={};
+let allData=[], filtered=[], charts={}, sheetStats={}, _highlightState={};
 
 // ── UTILS ──────────────────────────────────────────────────────────────
 const appsScriptUrl = gid => `${APPS_SCRIPT_URL}?gid=${gid}`;
@@ -1250,6 +1250,7 @@ function updateFiltrosCount(){
 
 function clearFilters(){
   Object.keys(SF).forEach(id=>{if(SF[id]){SF[id].selected.clear();sfRenderChips(id);sfRenderList(id,'');}});
+  Object.keys(_highlightState).forEach(k=>delete _highlightState[k]);
   filtered=[...allData];
   const notaCorte=document.getElementById('nota-corte');
   if(notaCorte)notaCorte.style.display='none';
@@ -1480,7 +1481,13 @@ function exportarAlertasExcel(tbl){
 }
 
 // ── CHARTS ─────────────────────────────────────────────────────────────
-function mkChart(id,cfg){if(charts[id])charts[id].destroy();const c=document.getElementById(id);if(!c)return;charts[id]=new Chart(c,cfg);}
+function mkChart(id,cfg){
+  if(charts[id])charts[id].destroy();
+  const c=document.getElementById(id);if(!c)return;
+  charts[id]=new Chart(c,cfg);
+  // Reapply stored highlight after chart recreated
+  if(_highlightState[id]!==undefined) _doHighlight(id,_highlightState[id]);
+}
 
 function hBar(id,entries,color,sfId){
   const rawLabels=entries.map(([k])=>k);
@@ -1721,24 +1728,33 @@ function renderTopClientes(){
 
 // Aplicar highlight/dim en un chart al seleccionar un elemento
 function applyHighlight(chartId,selectedIndex){
+  if(selectedIndex===-1) delete _highlightState[chartId];
+  else _highlightState[chartId]=selectedIndex;
+  _doHighlight(chartId,selectedIndex);
+}
+
+function _doHighlight(chartId,selectedIndex){
   const ch=charts[chartId];if(!ch)return;
   const ds=ch.data.datasets;
-  const n=ch.data.labels.length;
+  const n=ch.data.labels?ch.data.labels.length:0;
   ds.forEach(dataset=>{
-    const baseColor=dataset._baseColor||(dataset._baseColor=dataset.backgroundColor);
-    const baseBorder=dataset._baseBorder||(dataset._baseBorder=dataset.borderColor);
+    // Always grab base color from original config (stored first time)
+    if(!dataset._baseColor) dataset._baseColor=
+      Array.isArray(dataset.backgroundColor)?[...dataset.backgroundColor]:dataset.backgroundColor;
+    if(!dataset._baseBorder) dataset._baseBorder=
+      Array.isArray(dataset.borderColor)?[...dataset.borderColor]:dataset.borderColor;
+    const baseColor=dataset._baseColor;
+    const baseBorder=dataset._baseBorder;
     if(selectedIndex===-1){
-      // Reset — quitar highlight
-      dataset.backgroundColor=baseColor;
-      dataset.borderColor=baseBorder;
+      dataset.backgroundColor=Array.isArray(baseColor)?[...baseColor]:baseColor;
+      dataset.borderColor=Array.isArray(baseBorder)?[...baseBorder]:baseBorder;
     } else {
-      // Dim todos, highlight el seleccionado
       if(Array.isArray(baseColor)){
-        dataset.backgroundColor=baseColor.map((col,i)=>i===selectedIndex?col:fadeColor(col,.18));
-        dataset.borderColor=Array.isArray(baseBorder)?baseBorder.map((col,i)=>i===selectedIndex?col:fadeColor(col,.18)):baseBorder;
+        dataset.backgroundColor=baseColor.map((col,i)=>i===selectedIndex?col:fadeColor(col,.15));
+        dataset.borderColor=Array.isArray(baseBorder)?baseBorder.map((col,i)=>i===selectedIndex?col:fadeColor(col,.15)):baseBorder;
       } else {
-        dataset.backgroundColor=Array.from({length:n},(_,i)=>i===selectedIndex?baseColor:fadeColor(baseColor,.18));
-        dataset.borderColor=Array.from({length:n},(_,i)=>i===selectedIndex?baseBorder:fadeColor(baseBorder,.18));
+        dataset.backgroundColor=Array.from({length:n},(_,i)=>i===selectedIndex?baseColor:fadeColor(baseColor,.15));
+        dataset.borderColor=Array.from({length:n},(_,i)=>i===selectedIndex?baseBorder:fadeColor(baseBorder,.15));
       }
     }
   });
@@ -1759,10 +1775,11 @@ function fadeColor(color,alpha){
 
 // Filtrar el dashboard al hacer clic en un gráfico
 function filterByClick(sfId,value){
+  if(!sfId)return;
   if(!SF[sfId])return;
-  // Si ya está seleccionado ese valor solo, limpiar el filtro (toggle off)
   const sel=SF[sfId].selected;
-  if(sel.size===1&&sel.has(value)){
+  if(!value||sel.size===1&&sel.has(value)){
+    // Toggle off — limpiar filtro
     SF[sfId].selected.clear();
   } else {
     SF[sfId].selected.clear();

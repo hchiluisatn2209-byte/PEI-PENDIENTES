@@ -48,11 +48,20 @@ header{background:linear-gradient(90deg,#162d5e,#1B3A70 70%,#245090);border-bott
 .prog-bar{height:100%;background:var(--turquesa);border-radius:99px;transition:width .3s}
 
 /* ── FILTER BAR ── */
-.filter-bar{background:rgba(22,45,94,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:10px 36px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:71px;z-index:190}
+.filter-bar{background:rgba(22,45,94,.97);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:8px 36px;display:flex;align-items:center;gap:10px;flex-wrap:nowrap;position:sticky;top:71px;z-index:190}
 .filter-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--turquesa);font-weight:700;white-space:nowrap}
 .filter-sep{width:1px;height:22px;background:var(--border);flex-shrink:0}
-.filter-reset{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:5px 12px;transition:all .18s;background:transparent}
+.filter-reset{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:5px 12px;transition:all .18s;background:transparent;white-space:nowrap}
 .filter-reset:hover{color:#fff;border-color:var(--turquesa)}
+.btn-filtros{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-cond);font-weight:700;font-size:13px;letter-spacing:1.2px;text-transform:uppercase;padding:6px 16px;border-radius:20px;border:1.5px solid rgba(0,176,240,.45);background:rgba(0,176,240,.1);color:var(--turquesa);cursor:pointer;transition:all .18s;white-space:nowrap;position:relative}
+.btn-filtros:hover,.btn-filtros.active{background:rgba(0,176,240,.22);border-color:var(--turquesa)}
+.btn-filtros-arrow{font-size:10px;transition:transform .2s;line-height:1}
+.btn-filtros.active .btn-filtros-arrow{transform:rotate(180deg)}
+.btn-filtros-count{background:var(--turquesa);color:#0a1e46;font-size:10px;font-weight:800;border-radius:99px;padding:1px 6px;min-width:18px;text-align:center;line-height:1.4}
+/* Panel desplegable de filtros */
+.filter-panel{background:rgba(18,38,82,.98);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 36px;position:sticky;top:120px;z-index:189}
+.filter-panel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px 20px}
+.filter-panel-item{display:flex;flex-direction:column;gap:5px}
 
 /* ── SEARCHABLE DROPDOWN ── */
 .sf-wrap{position:relative;display:inline-flex;flex-direction:column}
@@ -361,37 +370,69 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 
 
 <!-- FILTERS -->
-<div class="filter-bar">
-  <span class="filter-label">Grupo</span>
-  <div class="sf-wrap" id="sf-grupo"></div>
+<div class="filter-bar" id="filter-bar-main">
+  <!-- Botón Filtros -->
+  <button class="btn-filtros" id="btn-filtros" onclick="toggleFiltrosPanel()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+    Filtros
+    <span class="btn-filtros-arrow" id="btn-filtros-arrow">▾</span>
+    <span class="btn-filtros-count" id="btn-filtros-count" style="display:none">0</span>
+  </button>
+
   <div class="filter-sep"></div>
-  <span class="filter-label">Tipo Gestión</span>
-  <div class="sf-wrap" id="sf-tipo-gestion"></div>
-  <div class="filter-sep"></div>
-  <span class="filter-label">Gestor</span>
-  <div class="sf-wrap" id="sf-gestor"></div>
-  <div class="filter-sep"></div>
-  <span class="filter-label">Estado</span>
-  <div class="sf-wrap" id="sf-estado"></div>
-  <div class="filter-sep"></div>
-  <span class="filter-label">Tipo Empresa</span>
-  <div class="sf-wrap" id="sf-empresa"></div>
-  <div class="filter-sep"></div>
-  <span class="filter-label">Tipo Enlace</span>
-  <div class="sf-wrap" id="sf-enlace"></div>
-  <div class="filter-sep"></div>
-  <span class="filter-label">User</span>
-  <div class="sf-wrap" id="sf-user"></div>
-  <div class="filter-sep"></div>
-  <span class="filter-label">Login</span>
-  <div class="sf-wrap" id="sf-login"></div>
-  <div class="filter-sep"></div>
+
+  <!-- Corte siempre visible -->
   <span class="filter-label">Corte</span>
   <div class="sf-wrap" id="sf-fecha"></div>
+
   <div class="filter-sep"></div>
+
+  <!-- Mes Preplan siempre visible -->
   <span class="filter-label">Mes Preplan.</span>
   <div class="sf-wrap" id="sf-preplan-mes"></div>
-  <button class="filter-reset" onclick="clearFilters()">✕ Limpiar filtros</button>
+
+  <div class="filter-sep"></div>
+
+  <!-- Limpiar filtros -->
+  <button class="filter-reset" onclick="clearFilters()">✕ Limpiar</button>
+</div>
+
+<!-- Panel de filtros expandible -->
+<div class="filter-panel" id="filter-panel" style="display:none">
+  <div class="filter-panel-grid">
+    <div class="filter-panel-item">
+      <span class="filter-label">Grupo</span>
+      <div class="sf-wrap" id="sf-grupo"></div>
+    </div>
+    <div class="filter-panel-item">
+      <span class="filter-label">Tipo Gestión</span>
+      <div class="sf-wrap" id="sf-tipo-gestion"></div>
+    </div>
+    <div class="filter-panel-item">
+      <span class="filter-label">Gestor</span>
+      <div class="sf-wrap" id="sf-gestor"></div>
+    </div>
+    <div class="filter-panel-item">
+      <span class="filter-label">Estado</span>
+      <div class="sf-wrap" id="sf-estado"></div>
+    </div>
+    <div class="filter-panel-item">
+      <span class="filter-label">Tipo Empresa</span>
+      <div class="sf-wrap" id="sf-empresa"></div>
+    </div>
+    <div class="filter-panel-item">
+      <span class="filter-label">Tipo Enlace</span>
+      <div class="sf-wrap" id="sf-enlace"></div>
+    </div>
+    <div class="filter-panel-item">
+      <span class="filter-label">User</span>
+      <div class="sf-wrap" id="sf-user"></div>
+    </div>
+    <div class="filter-panel-item">
+      <span class="filter-label">Login</span>
+      <div class="sf-wrap" id="sf-login"></div>
+    </div>
+  </div>
 </div>
 
 <!-- TABS -->
@@ -1182,7 +1223,27 @@ function applyFilters(){
   const notaCorte=document.getElementById('nota-corte');
   if(notaCorte)notaCorte.style.display=(f!==null)?'':'none';
 
+  updateFiltrosCount();
   renderAll();
+}
+
+function toggleFiltrosPanel(){
+  const panel=document.getElementById('filter-panel');
+  const btn=document.getElementById('btn-filtros');
+  const open=panel.style.display==='none'||panel.style.display==='';
+  panel.style.display=open?'block':'none';
+  btn.classList.toggle('active',open);
+  updateFiltrosCount();
+}
+
+function updateFiltrosCount(){
+  const IDS=['sf-grupo','sf-tipo-gestion','sf-gestor','sf-estado','sf-empresa','sf-enlace','sf-user','sf-login'];
+  const count=IDS.reduce((s,id)=>s+(SF[id]&&SF[id].selected.size>0?1:0),0);
+  const badge=document.getElementById('btn-filtros-count');
+  if(badge){if(count>0){badge.textContent=count;badge.style.display='inline-block';}else{badge.style.display='none';}}
+  const btn=document.getElementById('btn-filtros');
+  const panelOpen=document.getElementById('filter-panel')&&document.getElementById('filter-panel').style.display==='block';
+  if(btn)btn.classList.toggle('active',count>0||panelOpen);
 }
 
 function clearFilters(){
@@ -1190,6 +1251,7 @@ function clearFilters(){
   filtered=[...allData];
   const notaCorte=document.getElementById('nota-corte');
   if(notaCorte)notaCorte.style.display='none';
+  updateFiltrosCount();
   renderAll();
 }
 
@@ -1425,7 +1487,16 @@ function hBar(id,entries,color,sfId){
     options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
       plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.x}`}}},
       scales:{x:{grid:{color:GC},ticks:TST},y:{grid:{color:'transparent'},ticks:{...TST,color:'#9BBCD8'}}},
-      onClick:sfId?(_e,els)=>{if(els.length)filterByClick(sfId,rawLabels[els[0].index]);}:undefined,
+      onClick:sfId?(_e,els,chart)=>{
+        const ch=Object.values(charts).find(c2=>c2&&c2.canvas===_e.native.target);
+        if(els.length){
+          applyHighlight(id,els[0].index);
+          filterByClick(sfId,rawLabels[els[0].index]);
+        } else {
+          applyHighlight(id,-1);
+          filterByClick(sfId,null);
+        }
+      }:undefined,
       onHover:sfId?(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';}:undefined,
       animation:{onComplete(ctx){
         const ch=ctx.chart,ds=ch.data.datasets[0],meta=ch.getDatasetMeta(0),c2=ch.ctx;
@@ -1476,7 +1547,15 @@ function segmentedHBar(id,limit){
         x:{stacked:true,grid:{color:GC},ticks:TST},
         y:{stacked:true,grid:{color:'transparent'},ticks:{...TST,color:'#9BBCD8',callback:(v,i)=>labels[i]}}
       },
-      onClick:(_e,els)=>{if(els.length)filterByClick('sf-gestor',sorted[els[0].index].g);},
+      onClick:(_e,els)=>{
+        if(els.length){
+          applyHighlight(id,els[0].index);
+          filterByClick('sf-gestor',sorted[els[0].index].g);
+        } else {
+          applyHighlight(id,-1);
+          filterByClick('sf-gestor',null);
+        }
+      },
       onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},
       animation:{onComplete(ctx){
         const ch=ctx.chart,meta=ch.getDatasetMeta(ch.data.datasets.length-1),c2=ch.ctx;
@@ -1495,7 +1574,14 @@ function doughnut(id,entries,legId,onClick){
   if(legId)document.getElementById(legId).innerHTML=labels.map((l,i)=>`<div class="leg-i"><span class="leg-sq" style="background:${cols[i]}"></span>${l.length>16?l.slice(0,14)+'…':l} · ${Math.round(vals[i]/tot*100)}%</div>`).join('');
   const opts={responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:false}}};
   if(onClick){
-    opts.onClick=(_e,els)=>{if(els.length)onClick(labels[els[0].index]);};
+    opts.onClick=(_e,els)=>{
+      if(els.length){
+        applyHighlight(id,els[0].index);
+        onClick(labels[els[0].index]);
+      } else {
+        applyHighlight(id,-1);
+      }
+    };
     opts.onHover=(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';};
   } else {
     opts.onClick=()=>{};
@@ -1538,7 +1624,16 @@ function renderTendPrePlan(){
   ]},options:{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.y} registros`}}},
     scales:{x:{grid:{color:GC},ticks:{...TST,maxRotation:45,autoSkip:false}},y:{grid:{color:GC},ticks:TST,beginAtZero:true}},
-    onClick:(_e,els)=>{if(els.length)filterByClick('sf-preplan-mes',labels[els[0].index]);},
+    onClick:(_e,els)=>{
+      if(els.length){
+        const idx=els[0].index;
+        applyHighlight('ch-preplan-tend',idx);
+        filterByClick('sf-preplan-mes',labels[idx]);
+      } else {
+        applyHighlight('ch-preplan-tend',-1);
+        filterByClick('sf-preplan-mes',null);
+      }
+    },
     onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},
     animation:{onComplete(ctx){
       const ch=ctx.chart,ds=ch.data.datasets[0],meta=ch.getDatasetMeta(0),c2=ch.ctx;
@@ -1604,7 +1699,14 @@ function renderTopClientes(){
         x:{grid:{color:GC},ticks:TST},
         y:{grid:{color:'transparent'},ticks:{...TST,color:'#C4AAFF'}}
       },
-      onClick:(_e,els)=>{if(els.length)mostrarDetalleCliente(rawLabels[els[0].index]);},
+      onClick:(_e,els)=>{
+        if(els.length){
+          applyHighlight('ch-clientes',els[0].index);
+          mostrarDetalleCliente(rawLabels[els[0].index]);
+        } else {
+          applyHighlight('ch-clientes',-1);
+        }
+      },
       onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},
       animation:{onComplete(ctx){
         const ch=ctx.chart,ds=ch.data.datasets[0],meta=ch.getDatasetMeta(0),c2=ch.ctx;
@@ -1613,6 +1715,44 @@ function renderTopClientes(){
         c2.restore();
       }}
     }});
+}
+
+// Aplicar highlight/dim en un chart al seleccionar un elemento
+function applyHighlight(chartId,selectedIndex){
+  const ch=charts[chartId];if(!ch)return;
+  const ds=ch.data.datasets;
+  const n=ch.data.labels.length;
+  ds.forEach(dataset=>{
+    const baseColor=dataset._baseColor||(dataset._baseColor=dataset.backgroundColor);
+    const baseBorder=dataset._baseBorder||(dataset._baseBorder=dataset.borderColor);
+    if(selectedIndex===-1){
+      // Reset — quitar highlight
+      dataset.backgroundColor=baseColor;
+      dataset.borderColor=baseBorder;
+    } else {
+      // Dim todos, highlight el seleccionado
+      if(Array.isArray(baseColor)){
+        dataset.backgroundColor=baseColor.map((col,i)=>i===selectedIndex?col:fadeColor(col,.18));
+        dataset.borderColor=Array.isArray(baseBorder)?baseBorder.map((col,i)=>i===selectedIndex?col:fadeColor(col,.18)):baseBorder;
+      } else {
+        dataset.backgroundColor=Array.from({length:n},(_,i)=>i===selectedIndex?baseColor:fadeColor(baseColor,.18));
+        dataset.borderColor=Array.from({length:n},(_,i)=>i===selectedIndex?baseBorder:fadeColor(baseBorder,.18));
+      }
+    }
+  });
+  ch.update('none');
+}
+
+function fadeColor(color,alpha){
+  // Convierte cualquier color a rgba con alpha reducido
+  const m=color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if(m)return`rgba(${m[1]},${m[2]},${m[3]},${alpha})`;
+  if(color.startsWith('#')){
+    const hex=color.replace('#','');
+    const r=parseInt(hex.slice(0,2),16),g=parseInt(hex.slice(2,4),16),b=parseInt(hex.slice(4,6),16);
+    return`rgba(${r},${g},${b},${alpha})`;
+  }
+  return color;
 }
 
 // Filtrar el dashboard al hacer clic en un gráfico

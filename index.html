@@ -1316,7 +1316,7 @@ function renderGestores(){
     if(d!==null&&d>map[g].maxDias)map[g].maxDias=d;
     map[g].rows.push(r);
   });
-  Object.entries(map).forEach(([g,d])=>{if(!_gestorMapCache[g])_gestorMapCache[g]={};Object.assign(_gestorMapCache[g],d,{nombre:g});});
+  Object.entries(map).forEach(([g,d])=>{_gestorMapCache[g]={};Object.assign(_gestorMapCache[g],d,{nombre:g});});
 
   const rows=Object.entries(map)
     .filter(([,d])=>d.plan+d.det+d.rep+d.asig>0)
@@ -2337,8 +2337,15 @@ function renderAll(){
   renderGestores();
   renderAlertas();
   renderTopGestores();
-  document.getElementById('detalle-gestor-wrap').style.display='none';
-  _gestorSeleccionado=null;
+  // Si hay un gestor seleccionado, mantener y refrescar su detalle con los nuevos filtros
+  if(_gestorSeleccionado){
+    const wrap=document.getElementById('detalle-gestor-wrap');
+    if(wrap)wrap.style.display='';
+    renderDetalleTabla();
+  } else {
+    const wrap=document.getElementById('detalle-gestor-wrap');
+    if(wrap)wrap.style.display='none';
+  }
   // Gráficos de análisis — sin deduplicación
   segmentedHBar('ch-gestores',10);
   doughnut('ch-estado',topN(count(filtered,C.EST),8),'leg-estado',(v)=>filterByClick('sf-estado',v));

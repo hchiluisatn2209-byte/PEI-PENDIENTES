@@ -91,13 +91,16 @@ header{background:linear-gradient(90deg,#162d5e,#1B3A70 70%,#245090);border-bott
 .sf-opt-all{border-bottom:1px solid var(--border);font-weight:600;color:var(--muted)}
 
 /* ── TABS ── */
-.tabs-bar{padding:16px 36px 0;display:flex;gap:0;border-bottom:1px solid var(--border)}
+.tabs-bar{padding:16px 36px 0;display:flex;gap:0;border-bottom:1px solid var(--border);position:sticky;top:117px;z-index:185;background:linear-gradient(160deg,#162d5e 0%,#1B3A70 50%,#1e4a85 100%);backdrop-filter:blur(10px)}
 .tab{padding:10px 24px;font-family:var(--font-cond);font-weight:700;font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;transition:all .15s}
 .tab:hover{color:#fff}
 .tab.active{color:var(--turquesa);border-bottom-color:var(--turquesa)}
 
 /* ── MAIN ── */
-main{padding:22px 36px 44px;max-width:1440px;margin:0 auto}
+main{padding:0 36px 44px;max-width:1440px;margin:0 auto}
+
+/* ── KPI STICKY WRAP ── */
+.kpi-sticky-wrap{position:sticky;top:164px;z-index:180;background:linear-gradient(160deg,#162d5e 0%,#1B3A70 50%,#1e4a85 100%);padding:14px 36px 12px;margin:0 -36px;border-bottom:1px solid var(--border);backdrop-filter:blur(10px);box-shadow:0 4px 20px rgba(0,0,0,.35)}
 .section-title{font-family:var(--font-cond);font-weight:700;font-size:13px;letter-spacing:2.5px;text-transform:uppercase;color:var(--turquesa);margin-bottom:14px;display:flex;align-items:center;gap:10px}
 .section-title::after{content:'';flex:1;height:1px;background:var(--border)}
 .dot-sec{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,var(--turquesa),#5D34B0);flex-shrink:0}
@@ -439,18 +442,18 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 <div class="tabs-bar">
   <div class="tab active" onclick="switchTab('analisis')">Análisis General</div>
   <div class="tab" onclick="switchTab('carga')">Carga por Gestor</div>
-  <div class="tab" onclick="switchTab('alertas')">Alertas de Días</div>
 </div>
 
 <main>
-  <!-- KPIs -->
-  <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-    <span><span class="dot-sec"></span>Indicadores Clave · Estado Servicio</span>
-    <button class="btn-export-kpi" onclick="exportKpiExcel()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Exportar Excel
-    </button>
-  </div>
+  <!-- KPIs STICKY -->
+  <div class="kpi-sticky-wrap">
+    <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+      <span><span class="dot-sec"></span>Indicadores Clave · Estado Servicio</span>
+      <button class="btn-export-kpi" onclick="exportKpiExcel()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar Excel
+      </button>
+    </div>
   <div class="kpi-strip">
     <div class="kpi-card" style="--ak:var(--turquesa)">
       <div class="kpi-lbl">Total Órdenes</div>
@@ -493,6 +496,9 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
       <div class="kpi-sub" id="k-misc-s">fechas · empresas</div>
     </div>
   </div>
+  </div><!-- /kpi-sticky-wrap -->
+
+  <div style="padding-top:22px">
 
   <!-- TAB CARGA -->
   <div id="tab-carga" style="display:none">
@@ -551,59 +557,7 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
     </div>
   </div>
 
-  <!-- TAB ALERTAS -->
-  <div id="tab-alertas" style="display:none">
-    <div class="section-title"><span class="dot-sec"></span>Alertas · Días sin Gestión (FE ULT PLAN vs hoy)</div>
-    <div class="tbl-card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
-        <span id="alerta-gest-count" style="font-family:var(--font-cond);font-size:11px;color:var(--muted);letter-spacing:1px"></span>
-        <button onclick="exportarAlertasExcel('gest')" style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1.5px solid rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#34D399;font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;letter-spacing:.5px;white-space:nowrap">
-          ⬇ Exportar Excel
-        </button>
-      </div>
-      <div class="tbl-scroll"><table>
-        <thead><tr>
-          <th>#</th>
-          <th class="sortable" onclick="sortAlerta('gest',this,'GESTOR')">Gestor</th>
-          <th class="sortable" onclick="sortAlerta('gest',this,'LOGIN')">Login/Servicio</th>
-          <th class="sortable" onclick="sortAlerta('gest',this,'CLIENTE')">Cliente</th>
-          <th class="sortable" onclick="sortAlerta('gest',this,'PRODUCTO')">Producto</th>
-          <th class="sortable" onclick="sortAlerta('gest',this,'EST')">Estado Servicio</th>
-          <th class="sortable" onclick="sortAlerta('gest',this,'FE_PLAN')">FE Últ Plan</th>
-          <th class="sortable" onclick="sortAlerta('gest',this,'DIAS_G')">Días sin gestión</th>
-          <th class="sortable" onclick="sortAlerta('gest',this,'FE_PREPLANIFICADA_DMA')">Fecha Solicitud</th>
-          <th class="sortable" onclick="sortAlerta('gest',this,'FE_PLAN_DMA')">FE Planificado DMA</th>
-          <th class="sortable" onclick="sortAlerta('gest',this,'DIAS_S')">Días desde solicitud</th>
-        </tr></thead>
-        <tbody id="tbl-gest"></tbody>
-      </table></div>
-    </div>
-    <div class="section-title"><span class="dot-sec"></span>Solicitudes Antiguas · Días desde ingreso (FECHA_SOLICITUD vs hoy)</div>
-    <div class="tbl-card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
-        <span id="alerta-sol-count" style="font-family:var(--font-cond);font-size:11px;color:var(--muted);letter-spacing:1px"></span>
-        <button onclick="exportarAlertasExcel('sol')" style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1.5px solid rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#34D399;font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;letter-spacing:.5px;white-space:nowrap">
-          ⬇ Exportar Excel
-        </button>
-      </div>
-      <div class="tbl-scroll"><table>
-        <thead><tr>
-          <th>#</th>
-          <th class="sortable" onclick="sortAlerta('sol',this,'GESTOR')">Gestor</th>
-          <th class="sortable" onclick="sortAlerta('sol',this,'LOGIN')">Login/Servicio</th>
-          <th class="sortable" onclick="sortAlerta('sol',this,'CLIENTE')">Cliente</th>
-          <th class="sortable" onclick="sortAlerta('sol',this,'PRODUCTO')">Producto</th>
-          <th class="sortable" onclick="sortAlerta('sol',this,'EST')">Estado Servicio</th>
-          <th class="sortable" onclick="sortAlerta('sol',this,'FE_PREPLANIFICADA_DMA')">Fecha Solicitud</th>
-          <th class="sortable" onclick="sortAlerta('sol',this,'DIAS_S')">Días desde solicitud</th>
-          <th class="sortable" onclick="sortAlerta('sol',this,'FE_PLAN_DMA')">FE Planificado DMA</th>
-          <th class="sortable" onclick="sortAlerta('sol',this,'FE_PLAN')">FE Últ Plan</th>
-          <th class="sortable" onclick="sortAlerta('sol',this,'DIAS_G')">Días sin gestión</th>
-        </tr></thead>
-        <tbody id="tbl-sol"></tbody>
-      </table></div>
-    </div>
-  </div>
+
 
   <!-- TAB ANALISIS -->
   <div id="tab-analisis">
@@ -705,7 +659,7 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
         <tbody id="tbl-resumen"></tbody>
       </table>
     </div>
-  </div>
+    </div><!-- /padding-top -->
 </main>
 <footer id="footer-txt">GTN · PEI PENDIENTES · Proyectos e Implementación</footer>
 
@@ -1063,8 +1017,8 @@ function setProgress(done,total){
 
 // ── TABS ───────────────────────────────────────────────────────────────
 function switchTab(t){
-  ['analisis','carga','alertas'].forEach(id=>document.getElementById('tab-'+id).style.display=id===t?'':'none');
-  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['analisis','carga','alertas'][i]===t));
+  ['analisis','carga'].forEach(id=>document.getElementById('tab-'+id).style.display=id===t?'':'none');
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['analisis','carga'][i]===t));
 }
 
 // ── SEARCHABLE MULTI-SELECT FILTERS ────────────────────────────────────
@@ -1380,130 +1334,9 @@ function renderGestores(){
 }
 
 // ── ALERTAS ────────────────────────────────────────────────────────────
-let _alertaRows={gest:[],sol:[]};
-let _alertaSortState={gest:{col:null,dir:'asc'},sol:{col:null,dir:'asc'}};
 
-function renderAlertas(){
-  _alertaRows.gest=filtered.filter(tieneCarga)
-    .map(r=>({...r,_dG:diasDesde(r[C.FE_PLAN]),_dS:diasDesde(r[C.FE_PREPLANIFICADA_DMA])}))
-    .filter(r=>r._dG!==null)
-    .sort((a,b)=>b._dG-a._dG)
-    .slice(0,200);
 
-  _alertaRows.sol=filtered
-    .map(r=>({...r,_dS:diasDesde(r[C.FE_PREPLANIFICADA_DMA]),_dG:diasDesde(r[C.FE_PLAN])}))
-    .filter(r=>r._dS!==null)
-    .sort((a,b)=>b._dS-a._dS)
-    .slice(0,200);
 
-  // Resetear estados de sort al recargar datos
-  _alertaSortState={gest:{col:null,dir:'asc'},sol:{col:null,dir:'asc'}};
-  ['tbl-gest','tbl-sol'].forEach(id=>{
-    const tbl=document.getElementById(id);
-    if(tbl)tbl.closest('table').querySelectorAll('th.sortable').forEach(h=>h.classList.remove('sort-asc','sort-desc'));
-  });
-
-  renderAlertaTabla('gest');
-  renderAlertaTabla('sol');
-}
-
-function sortAlerta(tbl,th,col){
-  const st=_alertaSortState[tbl];
-  if(st.col===col){st.dir=st.dir==='asc'?'desc':'asc';}
-  else{st.col=col;st.dir='asc';}
-  th.closest('thead').querySelectorAll('th.sortable').forEach(h=>h.classList.remove('sort-asc','sort-desc'));
-  th.classList.add(st.dir==='asc'?'sort-asc':'sort-desc');
-  renderAlertaTabla(tbl);
-}
-
-function applyAlertaSort(rows,col,dir){
-  if(!col)return rows;
-  const d=dir==='asc'?1:-1;
-  return [...rows].sort((a,b)=>{
-    if(col==='DIAS_G')return((a._dG??-Infinity)-(b._dG??-Infinity))*d;
-    if(col==='DIAS_S')return((a._dS??-Infinity)-(b._dS??-Infinity))*d;
-    if(col==='FE_PLAN')return((parseDate(a[C.FE_PLAN])?.getTime()??0)-(parseDate(b[C.FE_PLAN])?.getTime()??0))*d;
-    if(col==='FE_PLAN_DMA')return((parseDate(a[C.FE_PLAN_DMA])?.getTime()??0)-(parseDate(b[C.FE_PLAN_DMA])?.getTime()??0))*d;
-    if(col==='FE_PREPLANIFICADA_DMA')return((parseDate(a[C.FE_PREPLANIFICADA_DMA])?.getTime()??0)-(parseDate(b[C.FE_PREPLANIFICADA_DMA])?.getTime()??0))*d;
-    const keyMap={GESTOR:C.GESTOR,LOGIN:C.LOGIN,CLIENTE:C.CLIENTE,PRODUCTO:C.PRODUCTO,EST:C.EST};
-    const va=(a[keyMap[col]]||'').toLowerCase();
-    const vb=(b[keyMap[col]]||'').toLowerCase();
-    return va<vb?-d:va>vb?d:0;
-  });
-}
-
-function renderAlertaTabla(tbl){
-  const st=_alertaSortState[tbl];
-  const rows=applyAlertaSort(_alertaRows[tbl],st.col,st.dir);
-  const isGest=tbl==='gest';
-  const countEl=document.getElementById(isGest?'alerta-gest-count':'alerta-sol-count');
-  if(countEl)countEl.textContent=rows.length+' REGISTROS';
-  const bodyId=isGest?'tbl-gest':'tbl-sol';
-  if(!rows.length){
-    document.getElementById(bodyId).innerHTML=`<tr><td colspan="11" class="empty">${isGest?'Sin registros con fecha de plan':'Sin registros con fecha de solicitud'}</td></tr>`;
-    return;
-  }
-  document.getElementById(bodyId).innerHTML=rows.map((r,i)=>{
-    const ges=r[C.GESTOR]||'—';
-    const login=r[C.LOGIN]||r[C.ID_SERV]||'—';
-    const cli=r[C.CLIENTE]||'—';
-    const prod=r[C.PRODUCTO]||'—';
-    if(isGest){
-      return`<tr>
-        <td style="color:var(--muted);font-family:var(--font-cond)">${i+1}</td>
-        <td style="font-weight:700;color:var(--turquesa);max-width:160px;overflow:hidden;text-overflow:ellipsis;font-size:14px" data-tip="${esc(ges)}">${ges}</td>
-        <td class="td-login" data-tip="${esc(login)}">${login}</td>
-        <td class="td-client" data-tip="${esc(cli)}">${cli}</td>
-        <td class="td-muted" data-tip="${esc(prod)}">${prod}</td>
-        <td>${pill(getEst(r))}</td>
-        <td class="td-num">${fmtDate(r[C.FE_PLAN])}</td>
-        <td>${abDias(r._dG)}</td>
-        <td class="td-num">${fmtDate(r[C.FE_PREPLANIFICADA_DMA])}</td>
-        <td class="td-num">${fmtDate(r[C.FE_PLAN_DMA])}</td>
-        <td>${abSol(r._dS)}</td>
-      </tr>`;
-    } else {
-      return`<tr>
-        <td style="color:var(--muted);font-family:var(--font-cond)">${i+1}</td>
-        <td style="font-weight:700;color:var(--turquesa);max-width:160px;overflow:hidden;text-overflow:ellipsis;font-size:14px" data-tip="${esc(ges)}">${ges}</td>
-        <td class="td-login" data-tip="${esc(login)}">${login}</td>
-        <td class="td-client" data-tip="${esc(cli)}">${cli}</td>
-        <td class="td-muted" data-tip="${esc(prod)}">${prod}</td>
-        <td>${pill(getEst(r))}</td>
-        <td class="td-num">${fmtDate(r[C.FE_PREPLANIFICADA_DMA])}</td>
-        <td>${abSol(r._dS)}</td>
-        <td class="td-num">${fmtDate(r[C.FE_PLAN_DMA])}</td>
-        <td class="td-num">${fmtDate(r[C.FE_PLAN])}</td>
-        <td>${abDias(r._dG)}</td>
-      </tr>`;
-    }
-  }).join('');
-}
-
-function exportarAlertasExcel(tbl){
-  const rows=_alertaRows[tbl];
-  if(!rows||!rows.length)return;
-  const isGest=tbl==='gest';
-  const headers=isGest
-    ?['GESTOR','LOGIN','CLIENTE','PRODUCTO','ESTADO_SERVICIO','FE_ULT_PLAN','DIAS_SIN_GESTION','FE_PREPLANIFICADA_DMA','FE_PLANIFICADO_DMA','DIAS_DESDE_SOLICITUD']
-    :['GESTOR','LOGIN','CLIENTE','PRODUCTO','ESTADO_SERVICIO','FE_PREPLANIFICADA_DMA','FE_PLANIFICADO_DMA','DIAS_DESDE_SOLICITUD','FE_ULT_PLAN','DIAS_SIN_GESTION'];
-  const SEP=';';
-  const escape=v=>'"'+(String(v||'').replace(/"/g,'""'))+'"';
-  const lines=['sep=;',headers.map(escape).join(SEP)];
-  rows.forEach(r=>{
-    const vals=isGest
-      ?[r[C.GESTOR],r[C.LOGIN]||r[C.ID_SERV],r[C.CLIENTE],r[C.PRODUCTO],getEst(r),fmtDate(r[C.FE_PLAN]),r._dG??'',fmtDate(r[C.FE_PREPLANIFICADA_DMA]),fmtDate(r[C.FE_PLAN_DMA]),r._dS??'']
-      :[r[C.GESTOR],r[C.LOGIN]||r[C.ID_SERV],r[C.CLIENTE],r[C.PRODUCTO],getEst(r),fmtDate(r[C.FE_PREPLANIFICADA_DMA]),fmtDate(r[C.FE_PLAN_DMA]),r._dS??'',fmtDate(r[C.FE_PLAN]),r._dG??''];
-    lines.push(vals.map(escape).join(SEP));
-  });
-  const bom='\uFEFF';
-  const blob=new Blob([bom+lines.join('\n')],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=`PEI_Alertas_${isGest?'DiasGestion':'SolicitudesAntiguas'}_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
 
 // ── CHARTS ─────────────────────────────────────────────────────────────
 function mkChart(id,cfg){
@@ -2382,7 +2215,6 @@ function exportKpiExcel(){
 function renderAll(){
   renderKPIs();
   renderGestores();
-  renderAlertas();
   renderTopGestores();
   // Si hay un gestor seleccionado, mantener y refrescar su detalle con los nuevos filtros
   if(_gestorSeleccionado){
@@ -2507,6 +2339,11 @@ async function loadAll(){
       valid = valid.filter(row => {
         const fe = (row[C.FE_PREPLANIFICADA_DMA]||'').trim();
         return fe !== '-' && fe !== '';
+      });
+      // Excluir registros con FE_PREPLANIFICADA_DMA anterior al año 2025
+      valid = valid.filter(row => {
+        const d = parseDate(row[C.FE_PREPLANIFICADA_DMA]);
+        return d && d.getFullYear() >= 2025;
       });
       // Excluir LOGIN no deseados (cuentas técnicas, DataCenter, etc.)
       valid = valid.filter(row => {

@@ -584,7 +584,7 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
     <!-- ── TENDENCIA FE_PREPLANIFICADA_DMA ── -->
     <div class="chart-card full" style="margin-bottom:20px">
       <div class="card-title"><span class="dot-sec" style="background:#34D399"></span>Tendencia de Preplanificación · Antigüedad de Registros</div>
-      <div class="card-sub">N° de registros por mes según FE_PREPLANIFICADA_DMA · <span style="color:var(--turquesa);opacity:.8">Clic para filtrar · Ctrl+Clic para selección múltiple · Clic en barra activa para quitar filtro</span></div>
+      <div class="card-sub">N° de registros por mes según FE_PREPLANIFICADA_DMA · <span style="color:var(--turquesa);opacity:.8">Clic para filtrar un mes · Doble clic para agregar/quitar de la selección · Clic en zona vacía para limpiar</span></div>
       <div style="position:relative;height:240px"><canvas id="ch-preplan-tend"></canvas></div>
     </div>
 
@@ -1528,20 +1528,34 @@ function renderTendPrePlan(){
   (function attachPreplanCanvasClick(){
     const canvas=document.getElementById('ch-preplan-tend');
     if(!canvas)return;
-    // Remover listener anterior si existe
-    if(canvas._preplanClickHandler) canvas.removeEventListener('click',canvas._preplanClickHandler);
-    canvas._preplanClickHandler=function(ev){
+
+    // Remover listeners anteriores
+    if(canvas._preplanClickHandler)  canvas.removeEventListener('click',   canvas._preplanClickHandler);
+    if(canvas._preplanDblHandler)    canvas.removeEventListener('dblclick', canvas._preplanDblHandler);
+
+    function getBarIndex(ev){
       const chart=charts['ch-preplan-tend'];
-      if(!chart)return;
-      const multi=!!(ev.ctrlKey||ev.shiftKey||ev.metaKey);
+      if(!chart)return -1;
       const pts=chart.getElementsAtEventForMode(ev,'nearest',{intersect:true},false);
-      if(pts.length){
-        filterByClick('sf-preplan-mes',labels[pts[0].index],multi);
-      } else {
-        filterByClick('sf-preplan-mes',null);
-      }
+      return pts.length?pts[0].index:-1;
+    }
+
+    // Clic simple → selección exclusiva (o quitar si ya era el único)
+    canvas._preplanClickHandler=function(ev){
+      const idx=getBarIndex(ev);
+      if(idx>=0) filterByClick('sf-preplan-mes',labels[idx],false);
+      else        filterByClick('sf-preplan-mes',null);
     };
-    canvas.addEventListener('click',canvas._preplanClickHandler);
+
+    // Doble clic → agregar/quitar de la selección múltiple
+    canvas._preplanDblHandler=function(ev){
+      ev.preventDefault();
+      const idx=getBarIndex(ev);
+      if(idx>=0) filterByClick('sf-preplan-mes',labels[idx],true);
+    };
+
+    canvas.addEventListener('click',   canvas._preplanClickHandler);
+    canvas.addEventListener('dblclick', canvas._preplanDblHandler);
   })();
 }
 

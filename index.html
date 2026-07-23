@@ -326,6 +326,25 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 .gc-donut-legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 .gc-donut-legend-pct{margin-left:auto;font-weight:700;font-size:11px}
 .gc-alert-panel{display:flex;flex-direction:column;gap:6px}
+.gc-motivos-panel{display:flex;flex-direction:column;gap:0}
+.gc-motivos-title{font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--naranja);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.gc-motivos-sub{font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,.06)}
+.gc-mot-item{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;cursor:pointer;transition:background .15s;border:1px solid transparent;margin-bottom:3px;user-select:none}
+.gc-mot-item:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.08)}
+.gc-mot-item.gc-mot-active{background:rgba(255,167,0,.08);border-color:rgba(255,167,0,.3)}
+.gc-mot-item.gc-mot-active-det{background:rgba(255,68,176,.08);border-color:rgba(255,68,176,.3)}
+.gc-mot-num{font-family:var(--font-cond);font-weight:800;font-size:15px;line-height:1;min-width:20px;flex-shrink:0}
+.gc-mot-txt{font-size:10.5px;color:#cfe0f5;line-height:1.3;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gc-mot-arrow{font-size:8px;color:var(--muted);transition:transform .2s;flex-shrink:0}
+.gc-mot-item.gc-mot-active .gc-mot-arrow,.gc-mot-item.gc-mot-active-det .gc-mot-arrow{transform:rotate(180deg);color:var(--turquesa)}
+.gc-mot-detail{background:rgba(0,5,20,.5);border:1px solid rgba(52,211,153,.2);border-radius:0 0 6px 6px;margin-top:-3px;margin-bottom:4px;overflow:hidden}
+.gc-mot-detail-hdr{padding:5px 10px;font-size:10px;color:var(--muted);border-bottom:1px solid rgba(255,255,255,.05)}
+.gc-mot-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.gc-mot-tbl th{background:#091830;padding:4px 8px;text-align:left;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:700;white-space:nowrap}
+.gc-mot-tbl td{padding:4px 8px;border-bottom:1px solid rgba(255,255,255,.04);white-space:nowrap}
+.gc-mot-tbl tr:last-child td{border-bottom:none}
+.gc-mot-tbl tr:hover td{background:rgba(255,255,255,.03)}
+.gc-mot-scroll{max-height:200px;overflow-y:auto;overflow-x:auto}
 .gc-alert-title{font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--azul-c);text-transform:uppercase;margin-bottom:2px}
 .gc-alert-row{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)}
 .gc-alert-semaforo{width:11px;height:11px;border-radius:50%;flex-shrink:0;margin-top:3px}
@@ -2517,6 +2536,7 @@ loadAll();
 
 // ── GESTOR NAVIGATOR ──────────────────────────────────────────────────────
 let _gestorData = [];   // [{g, d, detRows, uid}]
+window._gcMotCache = {}; // cache for motivo rows
 
 function donutSVG(plan,det,rep,asig,tot){
   if(!tot) return '<svg width="130" height="130"><text x="65" y="70" text-anchor="middle" fill="#888" font-size="12">Sin datos</text></svg>';
@@ -2580,6 +2600,48 @@ function buildAnalisisHTML(g, d, detRows){
     </div>`;
   }).join('');
 
+  // Motivos de Detención y Replanificación del gestor
+  const gDetMap={}, gRepMap={}, gDetRows={}, gRepRows={};
+  detRows.forEach(r=>{
+    if(esDet(r)){
+      const m=((r[C.MOTIVO]||'').trim()||(r[C.MOTIVO_HIST]||'').trim());
+      if(m&&m!=='-'){
+        gDetMap[m]=(gDetMap[m]||0)+1;
+        if(!gDetRows[m])gDetRows[m]=[];
+        gDetRows[m].push(r);
+      }
+    }
+    if(esRep(r)){
+      const m=((r[C.MOTIVO]||'').trim()||(r[C.OBS_REPLAN]||'').trim()||(r[C.MOTIVO_HIST]||'').trim());
+      if(m&&m!=='-'){
+        gRepMap[m]=(gRepMap[m]||0)+1;
+        if(!gRepRows[m])gRepRows[m]=[];
+        gRepRows[m].push(r);
+      }
+    }
+  });
+  const gDetSorted=Object.entries(gDetMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const gRepSorted=Object.entries(gRepMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const uid2=g.replace(/[^a-z0-9]/gi,'_');
+
+
+  function buildMotItems(arr, rowsMap, tipo){
+    if(!arr.length) return '<div style="color:var(--muted);font-size:11px;padding:6px 0">Sin motivos registrados</div>';
+    return arr.map(([m,c],i)=>{
+      const uid3=uid2+'_'+tipo+'_'+i;
+      const color=tipo==='det'?'#FF44B0':'#FFA700';
+      // Store rows in global cache keyed by uid3
+      if(!window._gcMotCache) window._gcMotCache={};
+      window._gcMotCache[uid3]=rowsMap[m]||[];
+      return`<div class="gc-mot-item" id="gcmi-${uid3}" onclick="gcToggleMot('${uid3}','${tipo}')">
+        <span class="gc-mot-num" style="color:${color}">${c}</span>
+        <span class="gc-mot-txt" title="${esc(m)}">${esc(m)}</span>
+        <span class="gc-mot-arrow">▼</span>
+      </div>
+      <div class="gc-mot-detail" id="gcmd-${uid3}" style="display:none"></div>`;
+    }).join('');
+  }
+
   return`<div class="gc-analisis-grid">
     <div class="gc-donut-wrap">
       <div class="gc-donut-title">Distribución Estados</div>
@@ -2590,8 +2652,49 @@ function buildAnalisisHTML(g, d, detRows){
       <div class="gc-alert-title">🔴 Top 5 · Mayor Antigüedad</div>
       ${alertRows||'<div style="color:#666;font-size:12px">Sin alertas críticas</div>'}
     </div>
-
+    <div class="gc-motivos-panel">
+      <div class="gc-motivos-title">⚡ Motivos de Gestión</div>
+      <div class="gc-motivos-sub" style="color:#FF44B0">Detención · ${Object.keys(gDetMap).length} causas</div>
+      ${buildMotItems(gDetSorted, gDetRows, 'det')}
+      <div class="gc-motivos-sub" style="color:#FFA700;margin-top:8px">Replanificación · ${Object.keys(gRepMap).length} causas</div>
+      ${buildMotItems(gRepSorted, gRepRows, 'rep')}
+    </div>
   </div>`;
+}
+
+function gcToggleMot(uid3, tipo){
+  const rows=(window._gcMotCache||{})[uid3]||[];
+  const item=document.getElementById('gcmi-'+uid3);
+  const detail=document.getElementById('gcmd-'+uid3);
+  if(!item||!detail)return;
+  const isOpen=detail.style.display!=='none';
+  // Close all in same panel
+  item.closest('.gc-motivos-panel').querySelectorAll('.gc-mot-detail').forEach(d=>d.style.display='none');
+  item.closest('.gc-motivos-panel').querySelectorAll('.gc-mot-item').forEach(el=>{
+    el.classList.remove('gc-mot-active','gc-mot-active-det');
+  });
+  if(isOpen)return;
+  const activeClass=tipo==='det'?'gc-mot-active-det':'gc-mot-active';
+  item.classList.add(activeClass);
+  detail.style.display='block';
+  if(!rows||!rows.length){detail.innerHTML='<div class="gc-mot-detail-hdr">Sin registros</div>';return;}
+  detail.innerHTML=`
+    <div class="gc-mot-detail-hdr">${rows.length} registro${rows.length!==1?'s':''}</div>
+    <div class="gc-mot-scroll">
+      <table class="gc-mot-tbl">
+        <thead><tr><th>#</th><th>Razón Social</th><th>Login</th><th>Días</th></tr></thead>
+        <tbody>${rows.map((r,i)=>{
+          const dias=diasDesde(r[C.FE_PLAN]);
+          const sc=dias>7?'#FF44B0':dias>3?'#FFA700':'#34D399';
+          return`<tr>
+            <td style="color:var(--muted);font-family:var(--font-cond)">${i+1}</td>
+            <td style="font-weight:600;color:#e8f0ff;max-width:150px;overflow:hidden;text-overflow:ellipsis" title="${esc(r[C.CLIENTE])}">${r[C.CLIENTE]||'—'}</td>
+            <td style="color:var(--azul-c);font-weight:600">${r[C.LOGIN]||'—'}</td>
+            <td><span style="color:${sc};font-weight:700;font-family:var(--font-cond)">${dias!==null?dias+'d':'—'}</span></td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>
+    </div>`;
 }
 
 function selectGestor(idx){

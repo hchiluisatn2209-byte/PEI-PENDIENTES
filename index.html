@@ -1374,6 +1374,15 @@ function populateSel(sfId,vals,desc=false,sortFn=null){
 }
 
 function applyFilters(){
+  // Si el filtro de gestor fue limpiado externamente, quitar el activo visual del nav
+  const sfG=SF['sf-gestor'];
+  if(sfG&&sfG.selected.size===0){
+    _gestorData.forEach((_,i)=>document.getElementById('gnav-'+i)?.classList.remove('active'));
+  } else if(sfG&&sfG.selected.size===1){
+    // Resaltar el gestor que coincide con el filtro
+    const gSel=[...sfG.selected][0];
+    _gestorData.forEach(({g},i)=>document.getElementById('gnav-'+i)?.classList.toggle('active',g===gSel));
+  }
   const grp=sfGetVals('sf-grupo');
   const tg =sfGetVals('sf-tipo-gestion');
   const g  =sfGetVals('sf-gestor');
@@ -2905,10 +2914,34 @@ function gcToggleMot(uid3, tipo){
 }
 
 function selectGestor(idx){
+  const {g,d,detRows,uid}=_gestorData[idx];
+
+  // Sincronizar con el filtro sf-gestor
+  const sfG=SF['sf-gestor'];
+  const yaActivo=sfG&&sfG.selected.size===1&&sfG.selected.has(g);
+  if(sfG){
+    if(yaActivo){
+      // Clic en el mismo gestor activo → deseleccionar y volver a "Todos"
+      sfG.selected.clear();
+    } else {
+      sfG.selected.clear();
+      sfG.selected.add(g);
+    }
+    sfRenderChips('sf-gestor');
+    sfRenderList('sf-gestor','');
+    applyFilters();
+    renderAll();
+    // Si deseleccionó, limpiar panel
+    if(yaActivo){
+      document.getElementById('gestor-panel').innerHTML='<div class="empty" style="padding:32px;text-align:center">Selecciona un gestor para ver su detalle</div>';
+      _gestorData.forEach((_,i)=>document.getElementById('gnav-'+i)?.classList.remove('active'));
+      return;
+    }
+  }
+
   _gestorData.forEach((_,i)=>{
     document.getElementById('gnav-'+i)?.classList.toggle('active', i===idx);
   });
-  const {g,d,detRows,uid}=_gestorData[idx];
   const tot=d.plan+d.det+d.rep+d.asig+(d.prueba||0)+(d.verif||0)+(d.asignada||0);
   const pp=tot?Math.round(d.plan/tot*100):0;
   const pd=tot?Math.round(d.det/tot*100):0;

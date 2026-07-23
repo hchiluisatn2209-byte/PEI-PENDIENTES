@@ -443,7 +443,7 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
   border-color:rgba(0,176,240,.1);
   background:rgba(0,176,240,.02);
   color:var(--muted);
-  pointer-events:auto;
+  cursor:pointer;
 }
 .gestor-nav-tab.dimmed:hover{
   opacity:.65;
@@ -1585,8 +1585,8 @@ function renderGestores(){
     const idxInData=gestorDataIdx[g]??-1;
     const dimmed=!inFilter;
     const cls=`gestor-nav-tab${isActive?' active':''}${dimmed?' dimmed':''}`;
-    const onclick=idxInData>=0?`selectGestor(${idxInData})`:`''`;
-    return`<div class="${cls}" id="gnav-g-${g.replace(/[^a-z0-9]/gi,'_')}" onclick="${onclick}" style="${dimmed?'cursor:not-allowed':''}">
+    const onclick=idxInData>=0?`selectGestor(${idxInData})`:`selectGestorByName('${g.replace(/'/g,"\'")}')`;
+    return`<div class="${cls}" id="gnav-g-${g.replace(/[^a-z0-9]/gi,'_')}" onclick="${onclick}">
       <div class="nav-alert" style="background:${alertColor}"></div>
       ${g}
       <span class="nav-badge">${tot}</span>
@@ -3104,6 +3104,19 @@ function selectGestorPanel(idx){
         </table>
       </div>
     </div>`;
+}
+
+// Seleccionar gestor por nombre (cuando está fuera del filtered actual)
+function selectGestorByName(nombre){
+  const sfG=SF['sf-gestor'];
+  if(!sfG) return;
+  const yaActivo=sfG.selected.size===1&&sfG.selected.has(nombre);
+  sfG.selected.clear();
+  if(!yaActivo) sfG.selected.add(nombre);
+  sfRenderChips('sf-gestor');
+  sfRenderList('sf-gestor','');
+  applyFilters();
+  renderAll();
 }
 
 function switchGpTab(tab){

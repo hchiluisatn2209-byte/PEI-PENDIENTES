@@ -1510,12 +1510,7 @@ function renderTendPrePlan(){
   ]},options:{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.y} registros`}}},
     scales:{x:{grid:{color:GC},ticks:{...TST,maxRotation:45,autoSkip:false}},y:{grid:{color:GC},ticks:TST,beginAtZero:true}},
-    onClick:(e,els)=>{
-      const multi=window._lastClickMulti===true;
-      if(els.length) filterByClick('sf-preplan-mes',labels[els[0].index],multi);
-      else filterByClick('sf-preplan-mes',null);
-    },
-    onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},
+    onHover:(e,els)=>{if(e.native)e.native.target.style.cursor=els.length?'pointer':'default';},
     animation:{onComplete(ctx){
       const ch=ctx.chart,ds=ch.data.datasets[0],meta=ch.getDatasetMeta(0),c2=ch.ctx;
       c2.save();c2.font='bold 10px "Barlow Condensed",sans-serif';c2.textAlign='center';c2.textBaseline='bottom';
@@ -1528,6 +1523,26 @@ function renderTendPrePlan(){
       c2.restore();
     }}
   }});
+
+  // Listener nativo en el canvas — captura ctrlKey/shiftKey con total fidelidad
+  (function attachPreplanCanvasClick(){
+    const canvas=document.getElementById('ch-preplan-tend');
+    if(!canvas)return;
+    // Remover listener anterior si existe
+    if(canvas._preplanClickHandler) canvas.removeEventListener('click',canvas._preplanClickHandler);
+    canvas._preplanClickHandler=function(ev){
+      const chart=charts['ch-preplan-tend'];
+      if(!chart)return;
+      const multi=!!(ev.ctrlKey||ev.shiftKey||ev.metaKey);
+      const pts=chart.getElementsAtEventForMode(ev,'nearest',{intersect:true},false);
+      if(pts.length){
+        filterByClick('sf-preplan-mes',labels[pts[0].index],multi);
+      } else {
+        filterByClick('sf-preplan-mes',null);
+      }
+    };
+    canvas.addEventListener('click',canvas._preplanClickHandler);
+  })();
 }
 
 // Motivos de Detención y Replanificación — top causas, separadas por tipo de evento, solo con dato real

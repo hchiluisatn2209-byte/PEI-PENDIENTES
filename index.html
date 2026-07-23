@@ -584,7 +584,7 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
     <!-- ── TENDENCIA FE_PREPLANIFICADA_DMA ── -->
     <div class="chart-card full" style="margin-bottom:20px">
       <div class="card-title"><span class="dot-sec" style="background:#34D399"></span>Tendencia de Preplanificación · Antigüedad de Registros</div>
-      <div class="card-sub">N° de registros por mes según FE_PREPLANIFICADA_DMA</div>
+      <div class="card-sub">N° de registros por mes según FE_PREPLANIFICADA_DMA · <span style="color:var(--turquesa);opacity:.8">Clic para filtrar · Ctrl+Clic para selección múltiple · Clic en barra activa para quitar filtro</span></div>
       <div style="position:relative;height:240px"><canvas id="ch-preplan-tend"></canvas></div>
     </div>
 
@@ -1510,8 +1510,9 @@ function renderTendPrePlan(){
   ]},options:{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.y} registros`}}},
     scales:{x:{grid:{color:GC},ticks:{...TST,maxRotation:45,autoSkip:false}},y:{grid:{color:GC},ticks:TST,beginAtZero:true}},
-    onClick:(_e,els)=>{
-      if(els.length) filterByClick('sf-preplan-mes',labels[els[0].index]);
+    onClick:(e,els)=>{
+      const multi=e.native&&(e.native.ctrlKey||e.native.shiftKey||e.native.metaKey);
+      if(els.length) filterByClick('sf-preplan-mes',labels[els[0].index],multi);
       else filterByClick('sf-preplan-mes',null);
     },
     onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},
@@ -1650,16 +1651,21 @@ function fadeColor(color,alpha){
 }
 
 // Filtrar el dashboard al hacer clic en un gráfico
-function filterByClick(sfId,value){
+function filterByClick(sfId,value,multi=false){
   if(!sfId)return;
   if(!SF[sfId])return;
   const sel=SF[sfId].selected;
-  if(!value||sel.size===1&&sel.has(value)){
-    // Toggle off — limpiar filtro
-    SF[sfId].selected.clear();
+  if(!value){
+    // Clic en zona vacía → limpiar todo
+    sel.clear();
+  } else if(multi){
+    // Ctrl+clic o Shift+clic → toggle individual (multi-selección)
+    if(sel.has(value)) sel.delete(value);
+    else sel.add(value);
   } else {
-    SF[sfId].selected.clear();
-    SF[sfId].selected.add(value);
+    // Clic simple: si ya era el único seleccionado → limpiar; si no → seleccionar solo ese
+    if(sel.size===1&&sel.has(value)) sel.clear();
+    else{ sel.clear(); sel.add(value); }
   }
   sfRenderChips(sfId);
   sfRenderList(sfId,'');

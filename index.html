@@ -153,6 +153,15 @@ main{padding:0 16px 44px}
 
 /* ── CARDS GESTORES ── */
 .gestores-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+/* ── SUB-TABS CARGA ── */
+.carga-subtabs{display:flex;gap:0;border-bottom:2px solid rgba(0,176,240,.15);margin-bottom:14px;margin-top:4px}
+.carga-subtab{padding:8px 20px;cursor:pointer;font-family:var(--font-cond);font-weight:700;font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:8px;margin-bottom:-2px}
+.carga-subtab:hover{color:var(--turquesa)}
+.carga-subtab.active{color:var(--turquesa);border-bottom-color:var(--turquesa)}
+.carga-subtab .st-badge{font-size:10px;font-weight:800;padding:1px 7px;border-radius:10px;background:rgba(0,176,240,.15);color:var(--turquesa);transition:background .2s}
+.carga-subtab.active .st-badge{background:rgba(0,176,240,.3)}
+html.light .carga-subtab{color:#5577aa}
+html.light .carga-subtab.active{color:var(--turquesa)}
 .gestor-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:16px 20px;transition:transform .18s,box-shadow .18s;backdrop-filter:blur(6px);box-shadow:0 2px 16px rgba(0,0,0,.2)}
 .gestor-card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.4)}
 .gc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
@@ -727,7 +736,19 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
     <div id="nota-corte" style="display:none;margin-bottom:10px;padding:8px 16px;background:rgba(0,176,240,.07);border:1px solid rgba(0,176,240,.2);border-radius:8px;font-size:13px;color:var(--azul-c)">
       📅 <strong>Corte activo</strong> — mostrando registros de la hoja seleccionada.
     </div>
-    <div class="gestores-grid" id="gestores-grid"><div class="empty">Cargando...</div></div>
+    <!-- Sub-pestañas por tipo de gestión -->
+    <div class="carga-subtabs">
+      <div class="carga-subtab active" id="cst-operativo" onclick="switchCargaSubTab('operativo')">
+        🔧 Carga OTS Operativo <span class="st-badge" id="cst-badge-operativo">0</span>
+      </div>
+      <div class="carga-subtab" id="cst-proyectos" onclick="switchCargaSubTab('proyectos')">
+        📐 Carga OTS Proyectos <span class="st-badge" id="cst-badge-proyectos">0</span>
+      </div>
+    </div>
+    <div id="gestores-grid-operativo"><div class="empty">Cargando...</div></div>
+    <div id="gestores-grid-proyectos" style="display:none"><div class="empty">Cargando...</div></div>
+    <!-- alias para compatibilidad -->
+    <div id="gestores-grid" style="display:none"></div>
 
     <!-- DETALLE GESTOR SELECCIONADO -->
     <div id="detalle-gestor-wrap" style="display:none">
@@ -1525,8 +1546,24 @@ function renderGestores(){
     .filter(([,d])=>d.plan+d.det+d.rep+d.asig+d.prueba+d.verif+(d.asignada||0)>0)
     .sort((a,b)=>(b[1].plan+b[1].det+b[1].rep+b[1].asig+b[1].prueba+b[1].verif+(b[1].asignada||0))-(a[1].plan+a[1].det+a[1].rep+a[1].asig+a[1].prueba+a[1].verif+(a[1].asignada||0)));
 
-  const grid=document.getElementById('gestores-grid');
-  if(!rows.length){grid.innerHTML='<div class="empty">Sin datos con carga activa</div>';return;}
+  // Separar gestores por tipo de gestión
+  const rowsOp=rows.filter(([g])=>{const t=(g&&PERSONAL_MAP[g.toLowerCase()]?.tipo)||'';return t==='OPERATIVO'||t===''});
+  const rowsPr=rows.filter(([g])=>{const t=(g&&PERSONAL_MAP[g.toLowerCase()]?.tipo)||'';return t==='PROYECTOS'});
+
+  const gridOp=document.getElementById('gestores-grid-operativo');
+  const gridPr=document.getElementById('gestores-grid-proyectos');
+
+  // Actualizar badges
+  const badgeOp=document.getElementById('cst-badge-operativo');
+  const badgePr=document.getElementById('cst-badge-proyectos');
+  if(badgeOp) badgeOp.textContent=rowsOp.reduce((s,[,d])=>s+d.plan+d.det+d.rep+d.asig+(d.prueba||0)+(d.verif||0)+(d.asignada||0),0);
+  if(badgePr) badgePr.textContent=rowsPr.reduce((s,[,d])=>s+d.plan+d.det+d.rep+d.asig+(d.prueba||0)+(d.verif||0)+(d.asignada||0),0);
+
+  if(!rows.length){
+    if(gridOp) gridOp.innerHTML='<div class="empty">Sin datos con carga activa</div>';
+    if(gridPr) gridPr.innerHTML='<div class="empty">Sin datos con carga activa</div>';
+    return;
+  }
   // Sync visual del nav con el filtro sf-gestor (sin llamar a applyFilters)
   const _sfG=SF['sf-gestor'];
   const _gSel=_sfG&&_sfG.selected.size===1?[..._sfG.selected][0]:null;
@@ -1593,9 +1630,48 @@ function renderGestores(){
     </div>`;
   }).join('');
 
-  grid.innerHTML=`
-    <div class="gestor-nav">${navHTML}</div>
-    <div class="gestor-panel" id="gestor-panel"></div>`;
+  // Construir nav HTML por tipo
+  function buildNavForGrid(gRows){
+    return gRows.map(([g,d])=>{
+      const tot=d.plan+d.det+d.rep+d.asig;
+      const alertColor=d.maxDias>7?'#FF44B0':d.maxDias>3?'#FFA700':'#34D399';
+      const inFilter=filteredGestores.has(g);
+      const isActive=_gSel?g===_gSel:false;
+      const idxInData=gestorDataIdx[g]??-1;
+      const dimmed=!inFilter;
+      const cls=`gestor-nav-tab${isActive?' active':''}${dimmed?' dimmed':''}`;
+      const onclick=idxInData>=0?`selectGestor(${idxInData})`:`selectGestorByName('${g.replace(/'/g,"\\'")}')`;
+      return`<div class="${cls}" id="gnav-g-${g.replace(/[^a-z0-9]/gi,'_')}" onclick="${onclick}">
+        <div class="nav-alert" style="background:${alertColor}"></div>
+        ${g}
+        <span class="nav-badge">${tot}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // Determinar qué grid recibe el panel de detalle
+  const activeGestor=_gSel?(_gestorData.find(gd=>gd.g===_gSel)):_gestorData[0];
+  const activeTipo=activeGestor?(PERSONAL_MAP[(activeGestor.g||'').toLowerCase()]?.tipo||'OPERATIVO'):'OPERATIVO';
+  const panelInOp=activeTipo!=='PROYECTOS';
+
+  if(gridOp) gridOp.innerHTML=`
+    <div class="gestor-nav">${buildNavForGrid(allGestoresSorted.filter(([g])=>{const t=(PERSONAL_MAP[g.toLowerCase()]?.tipo)||'';return t==='OPERATIVO'||t==='';}))}</div>
+    ${panelInOp?'<div class="gestor-panel" id="gestor-panel"></div>':''}`;
+
+  if(gridPr) gridPr.innerHTML=`
+    <div class="gestor-nav">${buildNavForGrid(allGestoresSorted.filter(([g])=>(PERSONAL_MAP[g.toLowerCase()]?.tipo)==='PROYECTOS'))}</div>
+    ${!panelInOp?'<div class="gestor-panel" id="gestor-panel"></div>':''}`;
+
+  // Asegurar que el panel existe en alguno de los grids
+  if(!document.getElementById('gestor-panel')){
+    if(gridOp) gridOp.innerHTML+=`<div class="gestor-panel" id="gestor-panel"></div>`;
+  }
+
+  // Activar sub-tab del tipo del gestor activo si hay filtro
+  if(_gSel && activeGestor){
+    const tipo=activeTipo==='PROYECTOS'?'proyectos':'operativo';
+    if(_cargaSubTab!==tipo) switchCargaSubTab(tipo);
+  }
 
   // Cargar panel del gestor activo
   if(_gSel){
@@ -3104,6 +3180,18 @@ function selectGestorPanel(idx){
         </table>
       </div>
     </div>`;
+}
+
+// ── SUB-TABS CARGA POR GESTOR ────────────────────────────────────────────
+let _cargaSubTab = 'operativo';
+
+function switchCargaSubTab(tipo){
+  _cargaSubTab = tipo;
+  ['operativo','proyectos'].forEach(t=>{
+    document.getElementById('cst-'+t)?.classList.toggle('active', t===tipo);
+    const grid=document.getElementById('gestores-grid-'+t);
+    if(grid) grid.style.display = t===tipo ? '' : 'none';
+  });
 }
 
 // Seleccionar gestor por nombre (cuando está fuera del filtered actual)

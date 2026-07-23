@@ -136,11 +136,14 @@ main{padding:0 36px 44px;max-width:1440px;margin:0 auto}
 
 /* ── PILLS ESTADO ── */
 .pill{display:inline-block;font-size:12px;padding:3px 10px;border-radius:99px;font-weight:700;white-space:nowrap;font-family:var(--font-cond);letter-spacing:.3px}
-.p-plan  {background:rgba(0,176,240,.15);  color:#00B0F0; border:1px solid rgba(0,176,240,.3)}
+.p-plan  {background:rgba(52,211,153,.15); color:#34D399; border:1px solid rgba(52,211,153,.3)}
 .p-det   {background:rgba(255,68,176,.15); color:#FF44B0; border:1px solid rgba(255,68,176,.3)}
 .p-replan{background:rgba(255,167,0,.15);  color:#FFA700; border:1px solid rgba(255,167,0,.3)}
-.p-asig  {background:rgba(110,190,235,.15);color:#6EBEEB; border:1px solid rgba(110,190,235,.3)}
+.p-asig  {background:rgba(126,217,87,.15); color:#7ED957; border:1px solid rgba(126,217,87,.3)}
 .p-pre   {background:rgba(139,111,232,.15);color:#8B6FE8; border:1px solid rgba(139,111,232,.3)}
+.p-pruebas {background:rgba(0,176,240,.15);  color:#00B0F0; border:1px solid rgba(0,176,240,.3)}
+.p-verif   {background:rgba(255,140,66,.15); color:#FF8C42; border:1px solid rgba(255,140,66,.3)}
+.p-asignada{background:rgba(110,190,235,.15); color:#6EBEEB; border:1px solid rgba(110,190,235,.3)}
 .p-gray  {background:rgba(155,188,216,.1); color:var(--muted);border:1px solid var(--border)}
 
 /* ── ALERT BADGES ── */
@@ -490,7 +493,7 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
       <div class="kpi-val" id="k-total">—</div>
       <div class="kpi-sub" id="k-total-s">registros cargados</div>
     </div>
-    <div class="kpi-card" style="--ak:var(--turquesa)">
+    <div class="kpi-card" style="--ak:#34D399">
       <div class="kpi-lbl">Planificada</div>
       <div class="kpi-val" id="k-plan">—</div>
       <div class="kpi-sub" id="k-plan-s">coordinó actividad</div>
@@ -505,7 +508,7 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
       <div class="kpi-val" id="k-rep">—</div>
       <div class="kpi-sub" id="k-rep-s">no avanzó</div>
     </div>
-    <div class="kpi-card" style="--ak:var(--azul-c)">
+    <div class="kpi-card" style="--ak:#7ED957">
       <div class="kpi-lbl">AsignadoTarea</div>
       <div class="kpi-val" id="k-asig">—</div>
       <div class="kpi-sub" id="k-asig-s">listo a ejecutar</div>
@@ -514,6 +517,21 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
       <div class="kpi-lbl">PrePlanificada</div>
       <div class="kpi-val" id="k-pre">—</div>
       <div class="kpi-sub">sin gestor aún</div>
+    </div>
+    <div class="kpi-card" style="--ak:#00B0F0">
+      <div class="kpi-lbl">EnPruebas</div>
+      <div class="kpi-val" id="k-prueba">—</div>
+      <div class="kpi-sub" id="k-prueba-s">en validación</div>
+    </div>
+    <div class="kpi-card" style="--ak:#FF8C42">
+      <div class="kpi-lbl">EnVerificacion</div>
+      <div class="kpi-val" id="k-verif">—</div>
+      <div class="kpi-sub" id="k-verif-s">en revisión</div>
+    </div>
+    <div class="kpi-card" style="--ak:#6EBEEB">
+      <div class="kpi-lbl">Asignada</div>
+      <div class="kpi-val" id="k-asignada">—</div>
+      <div class="kpi-sub" id="k-asignada-s">asignada</div>
     </div>
     <div class="kpi-card" style="--ak:var(--azul-c)">
       <div class="kpi-lbl">Gestores con Carga</div>
@@ -615,10 +633,10 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
         <div class="card-title"><span class="dot-sec"></span>Top Gestores por Carga</div>
         <div class="card-sub">Órdenes con carga activa (Plan+Det+Replan+Asig)</div>
         <div class="leg-row">
-          <div class="leg-i"><span class="leg-sq" style="background:var(--turquesa)"></span>Planificada</div>
+          <div class="leg-i"><span class="leg-sq" style="background:#34D399"></span>Planificada</div>
           <div class="leg-i"><span class="leg-sq" style="background:var(--magenta)"></span>Detenido</div>
           <div class="leg-i"><span class="leg-sq" style="background:var(--amarillo)"></span>Replanificada</div>
-          <div class="leg-i"><span class="leg-sq" style="background:var(--azul-c)"></span>AsignadoTarea</div>
+          <div class="leg-i"><span class="leg-sq" style="background:#7ED957"></span>AsignadoTarea</div>
         </div>
         <div style="position:relative;height:260px"><canvas id="ch-gestores"></canvas></div>
       </div>
@@ -833,8 +851,8 @@ const PERSONAL_MAP={
 const PALETTE=['#00B0F0','#FF44B0','#FF6F42','#FFA700','#8B6FE8','#6EBEEB','#34D399','#FF9A44','#AA7FD0','#64B4F5'];
 const GC='rgba(0,176,240,0.08)';
 const TST={color:'#9BBCD8',font:{size:10,family:"'Barlow Condensed',sans-serif"}};
-const EST_COL={Planificada:'#00B0F0',Detenido:'#FF44B0',Replanificada:'#FFA700',AsignadoTarea:'#6EBEEB',PrePlanificada:'#8B6FE8'};
-const EST_PILL={Planificada:'p-plan',Detenido:'p-det',Replanificada:'p-replan',AsignadoTarea:'p-asig',PrePlanificada:'p-pre'};
+const EST_COL={Planificada:'#34D399',Detenido:'#FF44B0',Replanificada:'#FFA700',AsignadoTarea:'#7ED957',PrePlanificada:'#8B6FE8',EnPruebas:'#00B0F0',EnVerificacion:'#FF8C42',Asignada:'#6EBEEB'};
+const EST_PILL={Planificada:'p-plan',Detenido:'p-det',Replanificada:'p-replan',AsignadoTarea:'p-asig',PrePlanificada:'p-pre',EnPruebas:'p-pruebas',EnVerificacion:'p-verif',Asignada:'p-asignada'};
 
 // ── ESTADO ─────────────────────────────────────────────────────────────
 // allData: TODOS los registros de TODAS las hojas, sin ninguna deduplicación
@@ -996,12 +1014,15 @@ function diasDesde(f){
 }
 
 function getEst(r){return(r[C.EST]||'').trim();}
-const tieneCarga=r=>{const e=getEst(r);return['Planificada','Detenido','Replanificada','AsignadoTarea'].includes(e);};
-const esPlan=r=>getEst(r)==='Planificada';
-const esDet =r=>getEst(r)==='Detenido';
-const esRep =r=>getEst(r)==='Replanificada';
-const esAsig=r=>getEst(r)==='AsignadoTarea';
-const esPre =r=>getEst(r)==='PrePlanificada';
+const tieneCarga=r=>{const e=getEst(r);return['Planificada','Detenido','Replanificada','AsignadoTarea','EnPruebas','EnVerificacion','Asignada'].includes(e);};
+const esPlan  =r=>getEst(r)==='Planificada';
+const esDet   =r=>getEst(r)==='Detenido';
+const esRep   =r=>getEst(r)==='Replanificada';
+const esAsig  =r=>getEst(r)==='AsignadoTarea';
+const esPre   =r=>getEst(r)==='PrePlanificada';
+const esPrueba =r=>getEst(r)==='EnPruebas';
+const esVerif  =r=>getEst(r)==='EnVerificacion';
+const esAsignada=r=>getEst(r)==='Asignada';
 
 function count(data,key){return data.reduce((a,r)=>{const v=r[key]||'Sin dato';a[v]=(a[v]||0)+1;return a;},{});}
 function topN(obj,n){return Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,n);}
@@ -1256,11 +1277,14 @@ function clearFilters(){
 // ── KPIs ───────────────────────────────────────────────────────────────
 // Sin deduplicación: los KPIs reflejan exactamente los registros en filtered
 function renderKPIs(){
-  const plan =filtered.filter(esPlan).length;
-  const det  =filtered.filter(esDet).length;
-  const rep  =filtered.filter(esRep).length;
-  const asig =filtered.filter(esAsig).length;
-  const pre  =filtered.filter(esPre).length;
+  const plan  =filtered.filter(esPlan).length;
+  const det   =filtered.filter(esDet).length;
+  const rep   =filtered.filter(esRep).length;
+  const asig  =filtered.filter(esAsig).length;
+  const pre   =filtered.filter(esPre).length;
+  const prueba   =filtered.filter(esPrueba).length;
+  const verif    =filtered.filter(esVerif).length;
+  const asignadaK=filtered.filter(esAsignada).length;
   const n    =plan+det+rep+asig+pre;
   const gest =new Set(filtered.filter(tieneCarga).map(r=>r[C.GESTOR]).filter(Boolean)).size;
   const cli  =new Set(filtered.map(r=>r[C.CLIENTE]).filter(Boolean)).size;
@@ -1274,6 +1298,12 @@ function renderKPIs(){
   document.getElementById('k-rep').textContent=rep.toLocaleString('es-EC');
   document.getElementById('k-asig').textContent=asig.toLocaleString('es-EC');
   document.getElementById('k-pre').textContent=pre.toLocaleString('es-EC');
+  document.getElementById('k-prueba').textContent=prueba.toLocaleString('es-EC');
+  document.getElementById('k-verif').textContent=verif.toLocaleString('es-EC');
+  document.getElementById('k-prueba-s').textContent=pct(prueba)+' del total';
+  document.getElementById('k-verif-s').textContent=pct(verif)+' del total';
+  document.getElementById('k-asignada').textContent=asignadaK.toLocaleString('es-EC');
+  document.getElementById('k-asignada-s').textContent=pct(asignadaK)+' del total';
   document.getElementById('k-misc').textContent=hoj;
   document.getElementById('k-total-s').textContent=hoj+' hojas cargadas';
   document.getElementById('k-plan-s').textContent=pct(plan)+' del total';
@@ -1303,11 +1333,14 @@ function renderGestores(){
   const map={};
   filtered.forEach(r=>{
     const g=r[C.GESTOR]||'Sin gestor';
-    if(!map[g])map[g]={plan:0,det:0,rep:0,asig:0,cli:new Set(),maxDias:0,rows:[]};
-    if(esPlan(r))map[g].plan++;
-    if(esDet(r)) map[g].det++;
-    if(esRep(r)) map[g].rep++;
-    if(esAsig(r))map[g].asig++;
+    if(!map[g])map[g]={plan:0,det:0,rep:0,asig:0,pre:0,prueba:0,verif:0,asignada:0,cli:new Set(),maxDias:0,rows:[]};
+    if(esPlan(r))     map[g].plan++;
+    if(esDet(r))      map[g].det++;
+    if(esRep(r))      map[g].rep++;
+    if(esAsig(r))     map[g].asig++;
+    if(esPrueba(r))   map[g].prueba++;
+    if(esVerif(r))    map[g].verif++;
+    if(esAsignada(r)) map[g].asignada++;
     if(r[C.CLIENTE])map[g].cli.add(r[C.CLIENTE]);
     const d=diasDesde(r[C.FE_PLAN]);
     if(d!==null&&d>map[g].maxDias)map[g].maxDias=d;
@@ -1316,8 +1349,8 @@ function renderGestores(){
   Object.entries(map).forEach(([g,d])=>{_gestorMapCache[g]={};Object.assign(_gestorMapCache[g],d,{nombre:g});});
 
   const rows=Object.entries(map)
-    .filter(([,d])=>d.plan+d.det+d.rep+d.asig>0)
-    .sort((a,b)=>(b[1].plan+b[1].det+b[1].rep+b[1].asig)-(a[1].plan+a[1].det+a[1].rep+a[1].asig));
+    .filter(([,d])=>d.plan+d.det+d.rep+d.asig+d.prueba+d.verif+(d.asignada||0)>0)
+    .sort((a,b)=>(b[1].plan+b[1].det+b[1].rep+b[1].asig+b[1].prueba+b[1].verif+(b[1].asignada||0))-(a[1].plan+a[1].det+a[1].rep+a[1].asig+a[1].prueba+a[1].verif+(a[1].asignada||0)));
 
   const grid=document.getElementById('gestores-grid');
   if(!rows.length){grid.innerHTML='<div class="empty">Sin datos con carga activa</div>';return;}
@@ -1325,7 +1358,7 @@ function renderGestores(){
   // Construir _gestorData con detRows pre-calculados
   _gestorData=rows.map(([g,d])=>{
     const uid=++_gcIdCounter;
-    const estOrd={Planificada:0,Detenido:1,Replanificada:2,AsignadoTarea:3,PrePlanificada:4};
+    const estOrd={Planificada:0,Detenido:1,Replanificada:2,AsignadoTarea:3,PrePlanificada:4,EnPruebas:5,EnVerificacion:6,Asignada:7};
     const detRows=[...d.rows]
       .filter(r=>tieneCarga(r))
       .sort((a,b)=>{
@@ -1400,7 +1433,7 @@ function segmentedHBar(id,limit){
   const map={};
   filtered.filter(tieneCarga).forEach(r=>{
     const g=r[C.GESTOR]||'Sin gestor';
-    if(!map[g])map[g]={plan:0,det:0,rep:0,asig:0};
+    if(!map[g])map[g]={plan:0,det:0,rep:0,asig:0,pre:0,prueba:0,verif:0,asignada:0};
     if(esPlan(r))  map[g].plan++;
     if(esDet(r))   map[g].det++;
     if(esRep(r))   map[g].rep++;
@@ -1413,10 +1446,10 @@ function segmentedHBar(id,limit){
   const labels=sorted.map(d=>d.g.length>22?d.g.slice(0,20)+'…':d.g);
   mkChart(id,{type:'bar',
     data:{labels,datasets:[
-      {label:'Planificada',   data:sorted.map(d=>d.plan), backgroundColor:'rgba(0,176,240,.85)',  stack:'s',borderSkipped:false},
+      {label:'Planificada',   data:sorted.map(d=>d.plan), backgroundColor:'rgba(52,211,153,.85)',  stack:'s',borderSkipped:false},
       {label:'Detenido',      data:sorted.map(d=>d.det),  backgroundColor:'rgba(255,68,176,.85)', stack:'s',borderSkipped:false},
       {label:'Replanificada', data:sorted.map(d=>d.rep),  backgroundColor:'rgba(255,167,0,.85)',  stack:'s',borderSkipped:false},
-      {label:'AsignadoTarea', data:sorted.map(d=>d.asig), backgroundColor:'rgba(110,190,235,.85)',stack:'s',borderSkipped:false},
+      {label:'AsignadoTarea', data:sorted.map(d=>d.asig), backgroundColor:'rgba(126,217,87,.85)',stack:'s',borderSkipped:false},
     ]},
     options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
       plugins:{
@@ -1501,7 +1534,7 @@ function renderTendPrePlan(){
 
   // Solo los mismos estados que el KPI Total: Plan+Det+Replan+PrePlan
   const mapFiltered={};
-  const filteredBase=filtered.filter(r=>esPlan(r)||esDet(r)||esRep(r)||esPre(r)||esAsig(r));
+  const filteredBase=filtered.filter(r=>esPlan(r)||esDet(r)||esRep(r)||esPre(r)||esAsig(r)||esPrueba(r)||esVerif(r)||esAsignada(r));
   filteredBase.forEach(r=>{
     const d=parseDate(r[C.FE_PREPLANIFICADA_DMA]);
     if(!d)return;
@@ -1970,7 +2003,7 @@ function renderResumen(){
 
 function renderResumenPorTipo(){
   const tipoMap={};
-  filtered.filter(r=>esPlan(r)||esDet(r)||esRep(r)||esPre(r)||esAsig(r)).forEach(r=>{
+  filtered.filter(r=>esPlan(r)||esDet(r)||esRep(r)||esPre(r)||esAsig(r)||esPrueba(r)||esVerif(r)||esAsignada(r)).forEach(r=>{
     const t=r[C.TIPO_GESTION]||'OTROS';
     if(!tipoMap[t])tipoMap[t]={plan:0,det:0,rep:0,pre:0,asig:0,gestores:new Set(),cli:new Set()};
     if(esPlan(r))tipoMap[t].plan++;
@@ -2158,7 +2191,7 @@ function renderDetalleTabla(){
     Replanificada:d.rows.filter(esRep).length,
     AsignadoTarea:d.rows.filter(esAsig).length
   };
-  const estCols={Planificada:'#00B0F0',Detenido:'#FF44B0',Replanificada:'#FFA700',AsignadoTarea:'#6EBEEB'};
+  const estCols={Planificada:'#34D399',Detenido:'#FF44B0',Replanificada:'#FFA700',AsignadoTarea:'#7ED957'};
 
   document.getElementById('detalle-estado-filtros').innerHTML=estados.map(e=>{
     const isAll=e==='all';
@@ -2493,7 +2526,7 @@ async function loadAll(){
   populateSel('sf-tipo-gestion', allData.map(r=>r[C.TIPO_GESTION]));
   populateSel('sf-gestor', allData.map(r=>r[C.GESTOR]).filter(g=>!GESTOR_EXCLUIDOS.includes((g||'').trim().toLowerCase())));
   populateSel('sf-user',   allData.map(r=>r._user));
-  const ESTADOS_OK=['Planificada','Detenido','Replanificada','AsignadoTarea','PrePlanificada'];
+  const ESTADOS_OK=['Planificada','Detenido','Replanificada','AsignadoTarea','PrePlanificada','EnPruebas','EnVerificacion','Asignada'];
   populateSel('sf-estado', allData.map(r=>getEst(r)).filter(v=>ESTADOS_OK.includes(v)));
   populateSel('sf-empresa',allData.map(r=>r[C.EMPRESA]));
   populateSel('sf-enlace', allData.map(r=>r[C.ENLACE]));
@@ -2538,14 +2571,25 @@ loadAll();
 let _gestorData = [];   // [{g, d, detRows, uid}]
 
 function donutSVG(plan,det,rep,asig,tot){
+  return donutSVGExt(plan,det,rep,asig,0,0,0,tot||plan+det+rep+asig);
+}
+function donutSVGExt(plan,det,rep,asig,prueba,verif,asignada,tot){
   if(!tot) return '<svg width="130" height="130"><text x="65" y="70" text-anchor="middle" fill="#888" font-size="12">Sin datos</text></svg>';
   const cx=65,cy=65,r=50,sw=18,circ=2*Math.PI*r;
-  const colors=['#00B0F0','#FF44B0','#FFA700','#6EBEEB'];
+  const segs=[
+    {v:plan,  c:'#00B0F0'},
+    {v:det,   c:'#FF44B0'},
+    {v:rep,   c:'#FFA700'},
+    {v:asig,  c:'#7ED957'},
+    {v:prueba,   c:'#00B0F0'},
+    {v:verif,    c:'#FF8C42'},
+    {v:asignada, c:'#6EBEEB'},
+  ];
   let offset=0,arcs='';
-  [plan,det,rep,asig].forEach((v,i)=>{
+  segs.forEach(({v,c})=>{
     if(!v)return;
     const dash=(v/tot)*circ;
-    arcs+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${colors[i]}" stroke-width="${sw}"
+    arcs+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${c}" stroke-width="${sw}"
       stroke-dasharray="${dash} ${circ}" stroke-dashoffset="${-offset}" transform="rotate(-90 ${cx} ${cy})"/>`;
     offset+=dash;
   });
@@ -2558,14 +2602,18 @@ function donutSVG(plan,det,rep,asig,tot){
 }
 
 function buildAnalisisHTML(g, d, detRows){
-  const tot=d.plan+d.det+d.rep+d.asig;
-  const colors={Planificada:'#00B0F0',Detenido:'#FF44B0',Replanificada:'#FFA700',AsignadoTarea:'#6EBEEB',PrePlanificada:'#A78BFA'};
-  const donut=donutSVG(d.plan,d.det,d.rep,d.asig,tot);
+  const prueba=d.prueba||0, verif=d.verif||0, asignada=d.asignada||0;
+  const tot=d.plan+d.det+d.rep+d.asig+prueba+verif+asignada;
+  const colors={Planificada:'#34D399',Detenido:'#FF44B0',Replanificada:'#FFA700',AsignadoTarea:'#7ED957',PrePlanificada:'#A78BFA',EnPruebas:'#00B0F0',EnVerificacion:'#FF8C42'};
+  const donut=donutSVGExt(d.plan,d.det,d.rep,d.asig,prueba,verif,asignada,tot);
   const legend=[
-    {lbl:'Planificada',val:d.plan,color:'#00B0F0'},
+    {lbl:'Planificada',val:d.plan,color:'#34D399'},
     {lbl:'Detenido',val:d.det,color:'#FF44B0'},
     {lbl:'Replanificada',val:d.rep,color:'#FFA700'},
-    {lbl:'AsignadoTarea',val:d.asig,color:'#6EBEEB'},
+    {lbl:'AsignadoTarea',val:d.asig,color:'#7ED957'},
+    {lbl:'EnPruebas',val:prueba,color:'#00B0F0'},
+    {lbl:'EnVerificacion',val:verif,color:'#FF8C42'},
+    {lbl:'Asignada',val:asignada,color:'#6EBEEB'},
   ].filter(x=>x.val>0).map(x=>`
     <div class="gc-donut-legend-item">
       <div class="gc-donut-legend-dot" style="background:${x.color}"></div>
@@ -2701,11 +2749,14 @@ function selectGestor(idx){
     document.getElementById('gnav-'+i)?.classList.toggle('active', i===idx);
   });
   const {g,d,detRows,uid}=_gestorData[idx];
-  const tot=d.plan+d.det+d.rep+d.asig;
+  const tot=d.plan+d.det+d.rep+d.asig+(d.prueba||0)+(d.verif||0)+(d.asignada||0);
   const pp=tot?Math.round(d.plan/tot*100):0;
   const pd=tot?Math.round(d.det/tot*100):0;
   const pr=tot?Math.round(d.rep/tot*100):0;
   const pa=tot?Math.round(d.asig/tot*100):0;
+  const ppru=tot?Math.round((d.prueba||0)/tot*100):0;
+  const pver=tot?Math.round((d.verif||0)/tot*100):0;
+  const pasi=tot?Math.round((d.asignada||0)/tot*100):0;
   const maxD=d.maxDias;
   const alertCls=maxD>7?'gb-crit':maxD>3?'gb-warn':'gb-ok';
   const alertTxt=maxD<0?`📅 ${Math.abs(maxD)}d futura`:
@@ -2715,7 +2766,7 @@ function selectGestor(idx){
                  `✓ ${maxD}d`;
 
   // Detallefilas
-  const estOrd={Planificada:0,Detenido:1,Replanificada:2,AsignadoTarea:3,PrePlanificada:4};
+  const estOrd={Planificada:0,Detenido:1,Replanificada:2,AsignadoTarea:3,PrePlanificada:4,EnPruebas:5,EnVerificacion:6};
   const sortedRows=[...detRows].sort((a,b)=>{
     const eo=(estOrd[getEst(a)]??9)-(estOrd[getEst(b)]??9);
     if(eo!==0)return eo;
@@ -2756,16 +2807,22 @@ function selectGestor(idx){
       </div>
     </div>
     <div class="gc-bar">
-      ${d.plan?`<div class="gc-seg" style="width:${pp}%;background:#00B0F0" title="Planificada:${d.plan}"></div>`:''}
-      ${d.det? `<div class="gc-seg" style="width:${pd}%;background:#FF44B0" title="Detenido:${d.det}"></div>`:''}
-      ${d.rep? `<div class="gc-seg" style="width:${pr}%;background:#FFA700" title="Replanificada:${d.rep}"></div>`:''}
-      ${d.asig?`<div class="gc-seg" style="width:${pa}%;background:#6EBEEB" title="AsignadoTarea:${d.asig}"></div>`:''}
+      ${d.plan?       `<div class="gc-seg" style="width:${pp}%;background:#00B0F0"  title="Planificada:${d.plan}"></div>`:''}
+      ${d.det?        `<div class="gc-seg" style="width:${pd}%;background:#FF44B0"  title="Detenido:${d.det}"></div>`:''}
+      ${d.rep?        `<div class="gc-seg" style="width:${pr}%;background:#FFA700"  title="Replanificada:${d.rep}"></div>`:''}
+      ${d.asig?       `<div class="gc-seg" style="width:${pa}%;background:#6EBEEB"  title="AsignadoTarea:${d.asig}"></div>`:''}
+      ${d.prueba?     `<div class="gc-seg" style="width:${ppru}%;background:#00B0F0" title="EnPruebas:${d.prueba}"></div>`:''}
+      ${d.verif?      `<div class="gc-seg" style="width:${pver}%;background:#FF8C42" title="EnVerificacion:${d.verif}"></div>`:''}
+      ${d.asignada?  `<div class="gc-seg" style="width:${pasi}%;background:#6EBEEB" title="Asignada:${d.asignada}"></div>`:''}
     </div>
     <div class="gc-estados">
-      ${d.plan?`<div class="gc-est"><span class="gc-est-dot" style="background:#00B0F0"></span><span class="gc-est-n" style="color:#00B0F0">${d.plan}</span> Planificada</div>`:''}
-      ${d.det? `<div class="gc-est"><span class="gc-est-dot" style="background:#FF44B0"></span><span class="gc-est-n" style="color:#FF44B0">${d.det}</span> Detenido</div>`:''}
-      ${d.rep? `<div class="gc-est"><span class="gc-est-dot" style="background:#FFA700"></span><span class="gc-est-n" style="color:#FFA700">${d.rep}</span> Replanificada</div>`:''}
-      ${d.asig?`<div class="gc-est"><span class="gc-est-dot" style="background:#6EBEEB"></span><span class="gc-est-n" style="color:#6EBEEB">${d.asig}</span> AsignadoTarea</div>`:''}
+      ${d.plan?        `<div class="gc-est"><span class="gc-est-dot" style="background:#34D399"></span><span class="gc-est-n" style="color:#34D399">${d.plan}</span> Planificada</div>`:''}
+      ${d.det?         `<div class="gc-est"><span class="gc-est-dot" style="background:#FF44B0"></span><span class="gc-est-n" style="color:#FF44B0">${d.det}</span> Detenido</div>`:''}
+      ${d.rep?         `<div class="gc-est"><span class="gc-est-dot" style="background:#FFA700"></span><span class="gc-est-n" style="color:#FFA700">${d.rep}</span> Replanificada</div>`:''}
+      ${d.asig?        `<div class="gc-est"><span class="gc-est-dot" style="background:#7ED957"></span><span class="gc-est-n" style="color:#7ED957">${d.asig}</span> AsignadoTarea</div>`:''}
+      ${d.prueba?      `<div class="gc-est"><span class="gc-est-dot" style="background:#00B0F0"></span><span class="gc-est-n" style="color:#00B0F0">${d.prueba}</span> EnPruebas</div>`:''}
+      ${d.verif?       `<div class="gc-est"><span class="gc-est-dot" style="background:#FF8C42"></span><span class="gc-est-n" style="color:#FF8C42">${d.verif}</span> EnVerificacion</div>`:''}
+      ${d.asignada?   `<div class="gc-est"><span class="gc-est-dot" style="background:#6EBEEB"></span><span class="gc-est-n" style="color:#6EBEEB">${d.asignada}</span> Asignada</div>`:''}
     </div>
     <div class="gp-tabs">
       <div class="gp-tab active" id="gpt-analisis" onclick="switchGpTab('analisis')">📊 Análisis</div>

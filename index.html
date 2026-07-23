@@ -2566,7 +2566,7 @@ function donutSVG(plan,det,rep,asig,tot){
   </svg>`;
 }
 
-function buildAnalisisHTML(g, d, detRows){
+function buildAnalisisHTML(g, d, detRows, uid){
   const tot=d.plan+d.det+d.rep+d.asig;
   const colors={Planificada:'#00B0F0',Detenido:'#FF44B0',Replanificada:'#FFA700',AsignadoTarea:'#6EBEEB',PrePlanificada:'#A78BFA'};
   const donut=donutSVG(d.plan,d.det,d.rep,d.asig,tot);
@@ -2790,7 +2790,7 @@ function selectGestor(idx){
       </button>
     </div>
     <div class="gp-panel active" id="gpp-analisis">
-      ${buildAnalisisHTML(g,d,detRows)}
+      ${buildAnalisisHTML(g,d,detRows,uid)}
     </div>
     <div class="gp-panel" id="gpp-detalle">
       <div class="gc-detail" id="det-${uid}">

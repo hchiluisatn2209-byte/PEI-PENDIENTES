@@ -1511,7 +1511,7 @@ function renderTendPrePlan(){
     plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.y} registros`}}},
     scales:{x:{grid:{color:GC},ticks:{...TST,maxRotation:45,autoSkip:false}},y:{grid:{color:GC},ticks:TST,beginAtZero:true}},
     onClick:(e,els)=>{
-      const multi=e.native&&(e.native.ctrlKey||e.native.shiftKey||e.native.metaKey);
+      const multi=window._lastClickMulti===true;
       if(els.length) filterByClick('sf-preplan-mes',labels[els[0].index],multi);
       else filterByClick('sf-preplan-mes',null);
     },
@@ -2661,6 +2661,14 @@ function switchGpTab(tab){
     document.getElementById('gpp-'+t)?.classList.toggle('active',t===tab);
   });
 }
+
+// ── RASTREADOR DE TECLAS MODIFICADORAS (Ctrl/Shift/Meta) ──────────────
+// Chart.js 4.x no siempre expone e.native correctamente en onClick,
+// por eso capturamos el estado de las teclas en el canvas directamente.
+window._lastClickMulti=false;
+document.addEventListener('mousedown',function(ev){
+  window._lastClickMulti=!!(ev.ctrlKey||ev.shiftKey||ev.metaKey);
+});
 
 </script>
 </body>

@@ -2767,6 +2767,8 @@ function selectGestor(idx){
       ${d.rep? `<div class="gc-est"><span class="gc-est-dot" style="background:#FFA700"></span><span class="gc-est-n" style="color:#FFA700">${d.rep}</span> Replanificada</div>`:''}
       ${d.asig?`<div class="gc-est"><span class="gc-est-dot" style="background:#6EBEEB"></span><span class="gc-est-n" style="color:#6EBEEB">${d.asig}</span> AsignadoTarea</div>`:''}
     </div>
+    <div class="gp-tabs">
+      <div class="gp-tab active" id="gpt-analisis" onclick="switchGpTab('analisis')">📊 Análisis</div>
       <div class="gp-tab" id="gpt-detalle" onclick="switchGpTab('detalle')">📋 Detalle · ${detRows.length} órdenes</div>
       <div style="flex:1"></div>
       <button onclick="exportarExcelGestor('${encodeURIComponent(g)}')"

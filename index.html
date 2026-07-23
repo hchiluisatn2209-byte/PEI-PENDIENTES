@@ -747,6 +747,8 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
     </div>
     <div id="gestores-grid-operativo"><div class="empty">Cargando...</div></div>
     <div id="gestores-grid-proyectos" style="display:none"><div class="empty">Cargando...</div></div>
+    <!-- Panel compartido de análisis/detalle del gestor seleccionado -->
+    <div class="gestor-panel" id="gestor-panel"></div>
     <!-- alias para compatibilidad -->
     <div id="gestores-grid" style="display:none"></div>
 
@@ -1649,23 +1651,19 @@ function renderGestores(){
     }).join('');
   }
 
-  // Determinar qué grid recibe el panel de detalle
+  // Determinar tipo del gestor activo para sincronizar sub-tab
   const activeGestor=_gSel?(_gestorData.find(gd=>gd.g===_gSel)):_gestorData[0];
   const activeTipo=activeGestor?(PERSONAL_MAP[(activeGestor.g||'').toLowerCase()]?.tipo||'OPERATIVO'):'OPERATIVO';
-  const panelInOp=activeTipo!=='PROYECTOS';
 
   if(gridOp) gridOp.innerHTML=`
-    <div class="gestor-nav">${buildNavForGrid(allGestoresSorted.filter(([g])=>{const t=(PERSONAL_MAP[g.toLowerCase()]?.tipo)||'';return t==='OPERATIVO'||t==='';}))}</div>
-    ${panelInOp?'<div class="gestor-panel" id="gestor-panel"></div>':''}`;
+    <div class="gestor-nav">${buildNavForGrid(allGestoresSorted.filter(([g])=>{const t=(PERSONAL_MAP[g.toLowerCase()]?.tipo)||'';return t==='OPERATIVO'||t==='';}))}</div>`;
 
   if(gridPr) gridPr.innerHTML=`
-    <div class="gestor-nav">${buildNavForGrid(allGestoresSorted.filter(([g])=>(PERSONAL_MAP[g.toLowerCase()]?.tipo)==='PROYECTOS'))}</div>
-    ${!panelInOp?'<div class="gestor-panel" id="gestor-panel"></div>':''}`;
+    <div class="gestor-nav">${buildNavForGrid(allGestoresSorted.filter(([g])=>(PERSONAL_MAP[g.toLowerCase()]?.tipo)==='PROYECTOS'))}</div>`;
 
-  // Asegurar que el panel existe en alguno de los grids
-  if(!document.getElementById('gestor-panel')){
-    if(gridOp) gridOp.innerHTML+=`<div class="gestor-panel" id="gestor-panel"></div>`;
-  }
+  // Limpiar panel compartido
+  const panel=document.getElementById('gestor-panel');
+  if(panel) panel.innerHTML='';
 
   // Activar sub-tab del tipo del gestor activo si hay filtro
   if(_gSel && activeGestor){
@@ -3062,11 +3060,16 @@ function selectGestorPanel(idx){
   if(!_gestorData[idx]) return;
   const {g,d,detRows,uid}=_gestorData[idx];
   // Actualizar clase active/dimmed en todos los botones del nav
-  const selG=_gestorData[idx]?.g;
+  const selG=g;
   document.querySelectorAll('.gestor-nav-tab').forEach(el=>{
-    const isThisActive=selG&&el.textContent.trim().startsWith(selG);
-    el.classList.toggle('active', !!isThisActive);
+    const elG=el.querySelector('.nav-badge')?el.childNodes[2]?.textContent?.trim()||'':el.textContent.trim();
+    el.classList.toggle('active', el.textContent.includes(selG)&&!el.classList.contains('dimmed')||
+      (el.id===`gnav-g-${selG.replace(/[^a-z0-9]/gi,'_')}`));
   });
+  // Asegurar que la sub-tab correcta esté activa y el panel visible
+  const tipoG=PERSONAL_MAP[g.toLowerCase()]?.tipo||'OPERATIVO';
+  const subTab=tipoG==='PROYECTOS'?'proyectos':'operativo';
+  if(_cargaSubTab!==subTab) switchCargaSubTab(subTab);
   const tot=d.plan+d.det+d.rep+d.asig+(d.prueba||0)+(d.verif||0)+(d.asignada||0);
   const pp=tot?Math.round(d.plan/tot*100):0;
   const pd=tot?Math.round(d.det/tot*100):0;

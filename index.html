@@ -584,7 +584,7 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
     <!-- ── TENDENCIA FE_PREPLANIFICADA_DMA ── -->
     <div class="chart-card full" style="margin-bottom:20px">
       <div class="card-title"><span class="dot-sec" style="background:#34D399"></span>Tendencia de Preplanificación · Antigüedad de Registros</div>
-      <div class="card-sub">N° de registros por mes según FE_PREPLANIFICADA_DMA · <span style="color:var(--turquesa);opacity:.8">Clic para filtrar un mes · Doble clic para agregar/quitar de la selección · Clic en zona vacía para limpiar</span></div>
+      <div class="card-sub">N° de registros por mes según FE_PREPLANIFICADA_DMA · <span style="color:var(--turquesa);opacity:.8">Clic en una barra para filtrar · Arrastra sobre varias barras para selección múltiple · Clic en zona vacía para limpiar</span></div>
       <div style="position:relative;height:240px"><canvas id="ch-preplan-tend"></canvas></div>
     </div>
 
@@ -1530,32 +1530,111 @@ function renderTendPrePlan(){
     if(!canvas)return;
 
     // Remover listeners anteriores
-    if(canvas._preplanClickHandler)  canvas.removeEventListener('click',   canvas._preplanClickHandler);
-    if(canvas._preplanDblHandler)    canvas.removeEventListener('dblclick', canvas._preplanDblHandler);
+    ['click','mousedown','mousemove','mouseup','mouseleave'].forEach(ev=>{
+      if(canvas['_pp_'+ev]) canvas.removeEventListener(ev,canvas['_pp_'+ev]);
+    });
 
-    function getBarIndex(ev){
-      const chart=charts['ch-preplan-tend'];
-      if(!chart)return -1;
-      const pts=chart.getElementsAtEventForMode(ev,'nearest',{intersect:true},false);
-      return pts.length?pts[0].index:-1;
+    const chart=()=>charts['ch-preplan-tend'];
+
+    // Overlay para dibujar el rectángulo de selección
+    let overlay=document.getElementById('preplan-drag-overlay');
+    if(!overlay){
+      overlay=document.createElement('div');
+      overlay.id='preplan-drag-overlay';
+      overlay.style.cssText='position:absolute;pointer-events:none;border:2px solid #34D399;background:rgba(52,211,153,0.15);border-radius:3px;display:none;z-index:10';
+      canvas.parentElement.style.position='relative';
+      canvas.parentElement.appendChild(overlay);
     }
 
-    // Clic simple → selección exclusiva (o quitar si ya era el único)
-    canvas._preplanClickHandler=function(ev){
-      const idx=getBarIndex(ev);
-      if(idx>=0) filterByClick('sf-preplan-mes',labels[idx],false);
-      else        filterByClick('sf-preplan-mes',null);
-    };
+    let dragStart=null, dragging=false, dragMoved=false;
 
-    // Doble clic → agregar/quitar de la selección múltiple
-    canvas._preplanDblHandler=function(ev){
-      ev.preventDefault();
-      const idx=getBarIndex(ev);
-      if(idx>=0) filterByClick('sf-preplan-mes',labels[idx],true);
-    };
+    function canvasX(ev){
+      return ev.clientX - canvas.getBoundingClientRect().left;
+    }
 
-    canvas.addEventListener('click',   canvas._preplanClickHandler);
-    canvas.addEventListener('dblclick', canvas._preplanDblHandler);
+    function getBarsInRange(x1, x2){
+      const ch=chart(); if(!ch) return [];
+      const meta=ch.getDatasetMeta(0);
+      const xMin=Math.min(x1,x2), xMax=Math.max(x1,x2);
+      const hit=[];
+      meta.data.forEach((bar,i)=>{
+        const bx=bar.x; // centro de la barra
+        if(bx>=xMin && bx<=xMax) hit.push(i);
+      });
+      return hit;
+    }
+
+    canvas['_pp_mousedown']=function(ev){
+      if(ev.button!==0) return;
+      dragStart={x:canvasX(ev), y:ev.clientY};
+      dragging=false; dragMoved=false;
+    };
+    canvas.addEventListener('mousedown', canvas['_pp_mousedown']);
+
+    canvas['_pp_mousemove']=function(ev){
+      if(!dragStart) return;
+      const dx=Math.abs(canvasX(ev)-dragStart.x);
+      if(dx>6){ dragging=true; dragMoved=true; }
+      if(!dragging) return;
+
+      // Dibujar overlay
+      const rect=canvas.getBoundingClientRect();
+      const x1=dragStart.x, x2=canvasX(ev);
+      overlay.style.display='block';
+      overlay.style.left  =Math.min(x1,x2)+'px';
+      overlay.style.top   ='0px';
+      overlay.style.width =Math.abs(x2-x1)+'px';
+      overlay.style.height=canvas.offsetHeight+'px';
+
+      // Resaltar barras dentro del rango en tiempo real
+      const ch=chart(); if(!ch) return;
+      const indices=getBarsInRange(x1,x2);
+      const ds=ch.data.datasets[0];
+      ds.backgroundColor=labels.map((_,i)=>
+        indices.includes(i)?'rgba(52,211,153,0.95)':'rgba(52,211,153,0.15)'
+      );
+      ds.borderColor=labels.map((_,i)=>
+        indices.includes(i)?'#34D399':'rgba(52,211,153,0.2)'
+      );
+      ch.update('none');
+    };
+    canvas.addEventListener('mousemove', canvas['_pp_mousemove']);
+
+    canvas['_pp_mouseup']=function(ev){
+      overlay.style.display='none';
+      if(!dragStart){ dragStart=null; return; }
+      const x2=canvasX(ev);
+
+      if(dragMoved){
+        // Selección por arrastre
+        const indices=getBarsInRange(dragStart.x, x2);
+        const ch=chart(); if(!ch){ dragStart=null; return; }
+        const sel=SF['sf-preplan-mes'];
+        if(!sel){ dragStart=null; return; }
+        if(indices.length){
+          sel.selected.clear();
+          indices.forEach(i=>sel.selected.add(labels[i]));
+          sfRenderChips('sf-preplan-mes');
+          sfRenderList('sf-preplan-mes','');
+          applyFilters();
+          renderAll();
+        }
+      } else {
+        // Clic simple
+        const ch=chart(); if(!ch){ dragStart=null; return; }
+        const pts=ch.getElementsAtEventForMode(ev,'nearest',{intersect:true},false);
+        if(pts.length) filterByClick('sf-preplan-mes',labels[pts[0].index],false);
+        else            filterByClick('sf-preplan-mes',null);
+      }
+      dragStart=null; dragging=false; dragMoved=false;
+    };
+    canvas.addEventListener('mouseup', canvas['_pp_mouseup']);
+
+    canvas['_pp_mouseleave']=function(){
+      if(dragging) overlay.style.display='none';
+      dragStart=null; dragging=false; dragMoved=false;
+    };
+    canvas.addEventListener('mouseleave', canvas['_pp_mouseleave']);
   })();
 }
 

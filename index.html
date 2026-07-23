@@ -186,10 +186,21 @@ tr:hover td{background:rgba(0,176,240,.06)}
 .motivos-badge{font-family:var(--font-cond);font-weight:800;font-size:13px;padding:3px 11px;border-radius:14px;color:#fff;min-width:24px;text-align:center}
 .motivos-badge.det{background:var(--magenta)}
 .motivos-badge.rep{background:var(--amarillo);color:#1B3A70}
-.motivos-list{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.motivo-item{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;align-items:flex-start;gap:10px}
-.motivo-item .num{font-family:var(--font-cond);font-weight:800;font-size:18px;line-height:1.2;min-width:26px;flex-shrink:0}
-.motivo-item .txt{font-size:11.5px;color:#cfe0f5;line-height:1.35;padding-top:2px}
+.motivos-list{display:flex;flex-direction:column;gap:4px}
+.motivo-item{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .15s,border-color .15s;user-select:none}.motivo-item:hover{background:rgba(255,255,255,.08);border-color:rgba(52,211,153,.3)}.motivo-item.motivo-active{background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.5)}
+.motivo-item .num{font-family:var(--font-cond);font-weight:800;font-size:16px;line-height:1;min-width:24px;flex-shrink:0}
+.motivo-item .txt{font-size:11.5px;color:#cfe0f5;line-height:1.35}
+.motivo-arrow{margin-left:auto;font-size:9px;color:var(--muted);transition:transform .2s;flex-shrink:0}
+.motivo-item.motivo-active .motivo-arrow{transform:rotate(180deg);color:var(--turquesa)}
+.motivo-detalle-wrap{border-radius:0 0 8px 8px;overflow:hidden;border:1px solid rgba(52,211,153,.25);border-top:none;background:rgba(0,5,20,.4);margin-top:-4px;margin-bottom:4px}
+.motivo-tbl-header{padding:6px 12px;font-size:11px;color:var(--muted);border-bottom:1px solid rgba(255,255,255,.06)}
+.motivo-tbl-empty{padding:10px 12px;font-size:11px;color:var(--muted)}
+.motivo-tbl-scroll{overflow-x:auto;max-height:240px;overflow-y:auto}
+.motivo-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.motivo-tbl thead th{position:sticky;top:0;background:#091830;padding:5px 10px;text-align:left;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:700;white-space:nowrap;border-bottom:1px solid rgba(255,255,255,.08)}
+.motivo-tbl tbody td{padding:5px 10px;border-bottom:1px solid rgba(255,255,255,.04);white-space:nowrap}
+.motivo-tbl tbody tr:last-child td{border-bottom:none}
+.motivo-tbl tbody tr:hover td{background:rgba(255,255,255,.04)}
 .motivos-col.det .motivo-item .num{color:var(--magenta)}
 .motivos-col.rep .motivo-item .num{color:var(--amarillo)}
 
@@ -220,7 +231,7 @@ footer{font-size:10px;color:var(--muted);text-align:center;padding:1rem 36px;let
   .charts-grid{grid-template-columns:1fr}
   .kpi-strip{grid-template-columns:repeat(2,1fr)}
   .motivos-grid{grid-template-columns:1fr}
-  .motivos-list{grid-template-columns:1fr}
+  /* .motivos-list already single-column */
 }
 
 /* ── FILTRO ESTADO PILLS ── */
@@ -1630,37 +1641,105 @@ function renderTendPrePlan(){
 }
 
 // Motivos de Detención y Replanificación — top causas, separadas por tipo de evento, solo con dato real
+let _motivoRowsCache={det:{},rep:{}};
+
 function renderMotivos(){
   const detMap={},repMap={};
+  const detRows={},repRows={};
   let detTotal=0,repTotal=0;
   filtered.forEach(r=>{
-    // Para Detenido: buscar en MOTIVO → MOTIVO_ULT_HIST
     if(esDet(r)){
-      const motivo=((r[C.MOTIVO]||'').trim()||
-                    (r[C.MOTIVO_HIST]||'').trim());
+      const motivo=((r[C.MOTIVO]||'').trim()||(r[C.MOTIVO_HIST]||'').trim());
       if(motivo&&motivo!=='-'){
         detMap[motivo]=(detMap[motivo]||0)+1;
+        if(!detRows[motivo])detRows[motivo]=[];
+        detRows[motivo].push(r);
         detTotal++;
       }
     }
-    // Para Replanificada: buscar en MOTIVO → ULT_OBS_REPLANIFICADA → MOTIVO_ULT_HIST
     if(esRep(r)){
-      const motivo=((r[C.MOTIVO]||'').trim()||
-                    (r[C.OBS_REPLAN]||'').trim()||
-                    (r[C.MOTIVO_HIST]||'').trim());
+      const motivo=((r[C.MOTIVO]||'').trim()||(r[C.OBS_REPLAN]||'').trim()||(r[C.MOTIVO_HIST]||'').trim());
       if(motivo&&motivo!=='-'){
         repMap[motivo]=(repMap[motivo]||0)+1;
+        if(!repRows[motivo])repRows[motivo]=[];
+        repRows[motivo].push(r);
         repTotal++;
       }
     }
   });
+  _motivoRowsCache={det:detRows,rep:repRows};
+
   const detSorted=Object.entries(detMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
   const repSorted=Object.entries(repMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
   document.getElementById('mot-det-total').textContent=detTotal;
   document.getElementById('mot-rep-total').textContent=repTotal;
-  const render=(arr)=>arr.map(([m,c])=>`<div class="motivo-item"><span class="num">${c}</span><span class="txt">${esc(m)}</span></div>`).join('')||'<div class="empty" style="padding:10px;grid-column:1/-1">Sin motivos registrados</div>';
-  document.getElementById('mot-det-list').innerHTML=render(detSorted);
-  document.getElementById('mot-rep-list').innerHTML=render(repSorted);
+
+  const render=(arr,tipo)=>arr.map(([m,c],i)=>{
+    const key=encodeURIComponent(m);
+    return`<div class="motivo-item" onclick="showMotivoDetalle('${tipo}','${key}',this)" style="cursor:pointer">
+      <span class="num">${c}</span>
+      <span class="txt">${esc(m)}</span>
+      <span class="motivo-arrow">▼</span>
+    </div>
+    <div class="motivo-detalle-wrap" id="md-${tipo}-${i}" style="display:none"></div>`;
+  }).join('')||'<div class="empty" style="padding:10px">Sin motivos registrados</div>';
+
+  document.getElementById('mot-det-list').innerHTML=render(detSorted,'det');
+  document.getElementById('mot-rep-list').innerHTML=render(repSorted,'rep');
+}
+
+function showMotivoDetalle(tipo,keyEncoded,itemEl){
+  const motivo=decodeURIComponent(keyEncoded);
+  // Encontrar el wrapper de detalle siguiente al item
+  const wrap=itemEl.nextElementSibling;
+  if(!wrap||!wrap.classList.contains('motivo-detalle-wrap'))return;
+
+  // Toggle
+  const isOpen=wrap.style.display!=='none';
+  // Cerrar todos los otros del mismo tipo primero
+  document.querySelectorAll('.motivo-detalle-wrap').forEach(w=>{ w.style.display='none'; });
+  document.querySelectorAll('.motivo-item').forEach(el=>el.classList.remove('motivo-active'));
+
+  if(isOpen){ return; } // era el mismo → cerrar
+
+  itemEl.classList.add('motivo-active');
+  wrap.style.display='block';
+
+  const rows=(_motivoRowsCache[tipo]||{})[motivo]||[];
+  if(!rows.length){ wrap.innerHTML='<div class="motivo-tbl-empty">Sin registros</div>'; return; }
+
+  wrap.innerHTML=`
+    <div class="motivo-tbl-header">
+      <span>${rows.length} registro${rows.length!==1?'s':''} · <b style="color:${tipo==='det'?'#FF44B0':'#FFA700'}">${motivo}</b></span>
+    </div>
+    <div class="motivo-tbl-scroll">
+      <table class="motivo-tbl">
+        <thead><tr>
+          <th>#</th>
+          <th>Razón Social</th>
+          <th>Login</th>
+          <th>Gestor</th>
+          <th>Fec. Solicitud</th>
+          <th>FE Últ Plan</th>
+          <th>Días sin gestión</th>
+        </tr></thead>
+        <tbody>
+          ${rows.map((r,i)=>{
+            const dias=diasDesde(r[C.FE_PLAN]);
+            const sc=dias>7?'#FF44B0':dias>3?'#FFA700':'#34D399';
+            return`<tr>
+              <td style="color:var(--muted);font-family:var(--font-cond)">${i+1}</td>
+              <td style="font-weight:600;color:#e8f0ff;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r[C.CLIENTE])}">${r[C.CLIENTE]||'—'}</td>
+              <td style="color:var(--azul-c);font-weight:600">${r[C.LOGIN]||'—'}</td>
+              <td style="color:var(--turquesa)">${r[C.GESTOR]||'—'}</td>
+              <td style="color:var(--muted);font-size:11px">${fmtDate(r[C.FE_PREPLANIFICADA_DMA])}</td>
+              <td style="color:#e8f0ff;font-size:11px">${fmtDate(r[C.FE_PLAN])}</td>
+              <td><span style="color:${sc};font-weight:700;font-family:var(--font-cond)">${dias!==null?dias+'d':'—'}</span></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
 }
 
 // Top Clientes por RAZON_SOCIAL_CLIENTE
@@ -2501,13 +2580,6 @@ function buildAnalisisHTML(g, d, detRows){
     </div>`;
   }).join('');
 
-  const diasArr=detRows.map(r=>diasDesde(r[C.FE_PLAN])||0).filter(d=>d>=0);
-  const promDias=diasArr.length?Math.round(diasArr.reduce((a,b)=>a+b,0)/diasArr.length):0;
-  const maxDias=diasArr.length?Math.max(...diasArr):0;
-  const criticos=detRows.filter(r=>(diasDesde(r[C.FE_PLAN])||0)>7).length;
-  const clientes=new Set(detRows.map(r=>r[C.CLIENTE])).size;
-  const kc=(v,t1,t2)=>v>t2?'#FF44B0':v>t1?'#FFA700':'#34D399';
-
   return`<div class="gc-analisis-grid">
     <div class="gc-donut-wrap">
       <div class="gc-donut-title">Distribución Estados</div>
@@ -2518,15 +2590,7 @@ function buildAnalisisHTML(g, d, detRows){
       <div class="gc-alert-title">🔴 Top 5 · Mayor Antigüedad</div>
       ${alertRows||'<div style="color:#666;font-size:12px">Sin alertas críticas</div>'}
     </div>
-    <div class="gc-kpi-panel">
-      <div class="gc-kpi-title">📊 Indicadores de Gestión</div>
-      <div class="gc-kpi-grid">
-        <div class="gc-kpi-box"><div class="gc-kpi-val" style="color:${kc(promDias,3,7)}">${promDias}</div><div class="gc-kpi-lbl">Días prom.</div></div>
-        <div class="gc-kpi-box"><div class="gc-kpi-val" style="color:${kc(maxDias,7,14)}">${maxDias}</div><div class="gc-kpi-lbl">Días máx.</div></div>
-        <div class="gc-kpi-box"><div class="gc-kpi-val" style="color:${criticos>5?'#FF44B0':criticos>2?'#FFA700':'#34D399'}">${criticos}</div><div class="gc-kpi-lbl">Críticos +7d</div></div>
-        <div class="gc-kpi-box"><div class="gc-kpi-val" style="color:#00B0F0">${clientes}</div><div class="gc-kpi-lbl">Clientes únicos</div></div>
-      </div>
-    </div>
+
   </div>`;
 }
 

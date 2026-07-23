@@ -1374,15 +1374,6 @@ function populateSel(sfId,vals,desc=false,sortFn=null){
 }
 
 function applyFilters(){
-  // Si el filtro de gestor fue limpiado externamente, quitar el activo visual del nav
-  const sfG=SF['sf-gestor'];
-  if(sfG&&sfG.selected.size===0){
-    _gestorData.forEach((_,i)=>document.getElementById('gnav-'+i)?.classList.remove('active'));
-  } else if(sfG&&sfG.selected.size===1){
-    // Resaltar el gestor que coincide con el filtro
-    const gSel=[...sfG.selected][0];
-    _gestorData.forEach(({g},i)=>document.getElementById('gnav-'+i)?.classList.toggle('active',g===gSel));
-  }
   const grp=sfGetVals('sf-grupo');
   const tg =sfGetVals('sf-tipo-gestion');
   const g  =sfGetVals('sf-gestor');
@@ -1523,6 +1514,9 @@ function renderGestores(){
 
   const grid=document.getElementById('gestores-grid');
   if(!rows.length){grid.innerHTML='<div class="empty">Sin datos con carga activa</div>';return;}
+  // Sync visual del nav con el filtro sf-gestor (sin llamar a applyFilters)
+  const _sfG=SF['sf-gestor'];
+  const _gSel=_sfG&&_sfG.selected.size===1?[..._sfG.selected][0]:null;
 
   // Construir _gestorData con detRows pre-calculados
   _gestorData=rows.map(([g,d])=>{
@@ -1553,8 +1547,9 @@ function renderGestores(){
     <div class="gestor-nav">${navHTML}</div>
     <div class="gestor-panel" id="gestor-panel"></div>`;
 
-  // Mostrar el primero por defecto
-  if(_gestorData.length>0) selectGestor(0);
+  // Mostrar el primero por defecto (si no hay filtro de gestor activo)
+  const _sfG2=SF['sf-gestor'];
+  if(!_gSel && _gestorData.length>0) selectGestorPanel(0);
 }
 
 // ── ALERTAS ────────────────────────────────────────────────────────────
@@ -2914,31 +2909,25 @@ function gcToggleMot(uid3, tipo){
 }
 
 function selectGestor(idx){
-  const {g,d,detRows,uid}=_gestorData[idx];
-
-  // Sincronizar con el filtro sf-gestor
+  const {g}=_gestorData[idx];
   const sfG=SF['sf-gestor'];
   const yaActivo=sfG&&sfG.selected.size===1&&sfG.selected.has(g);
+
   if(sfG){
-    if(yaActivo){
-      // Clic en el mismo gestor activo → deseleccionar y volver a "Todos"
-      sfG.selected.clear();
-    } else {
-      sfG.selected.clear();
-      sfG.selected.add(g);
-    }
+    sfG.selected.clear();
+    if(!yaActivo) sfG.selected.add(g);
     sfRenderChips('sf-gestor');
     sfRenderList('sf-gestor','');
     applyFilters();
     renderAll();
-    // Si deseleccionó, limpiar panel
-    if(yaActivo){
-      document.getElementById('gestor-panel').innerHTML='<div class="empty" style="padding:32px;text-align:center">Selecciona un gestor para ver su detalle</div>';
-      _gestorData.forEach((_,i)=>document.getElementById('gnav-'+i)?.classList.remove('active'));
-      return;
-    }
+    // renderAll → renderGestores reconstruye el nav y activa el gestor correcto
+    return;
   }
+  // Fallback si no hay SF
+  selectGestorPanel(idx);
+}
 
+function selectGestorPanel(idx){
   _gestorData.forEach((_,i)=>{
     document.getElementById('gnav-'+i)?.classList.toggle('active', i===idx);
   });

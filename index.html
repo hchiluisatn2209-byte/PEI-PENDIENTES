@@ -2575,12 +2575,13 @@ function buildAnalisisHTML(g, d, detRows){
     {lbl:'Detenido',val:d.det,color:'#FF44B0'},
     {lbl:'Replanificada',val:d.rep,color:'#FFA700'},
     {lbl:'AsignadoTarea',val:d.asig,color:'#6EBEEB'},
-  ].filter(x=>x.val>0).map(x=>`
-    <div class="gc-donut-legend-item" style="cursor:pointer" onclick="gestorEstadoFilter('${g}','${x.lbl.replace(/'/g,\"\\'\")}')">
+  ].filter(x=>x.val>0).map(x=>{
+    return`<div class="gc-donut-legend-item" style="cursor:pointer" onclick="gestorEstadoFilter(this.dataset.g,this.dataset.e,true)" data-g="${uid}" data-e="${x.lbl}">
       <div class="gc-donut-legend-dot" style="background:${x.color}"></div>
       <span>${x.lbl}</span>
       <span class="gc-donut-legend-pct" style="color:${x.color}">${tot?Math.round(x.val/tot*100):0}%</span>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
   const topAlerts=[...detRows]
     .map(r=>({
@@ -2764,17 +2765,17 @@ function selectGestor(idx){
         <span class="gc-badge ${alertCls}">${alertTxt}</span>
       </div>
     </div>
-    <div class="gc-bar">
-      ${d.plan?`<div class="gc-seg" style="width:${pp}%;background:#00B0F0;cursor:pointer" title="Filtrar Planificada" onclick="gestorEstadoFilter('${g}','Planificada')"></div>`:''}
-      ${d.det? `<div class="gc-seg" style="width:${pd}%;background:#FF44B0;cursor:pointer" title="Filtrar Detenido"    onclick="gestorEstadoFilter('${g}','Detenido')"></div>`:''}
-      ${d.rep? `<div class="gc-seg" style="width:${pr}%;background:#FFA700;cursor:pointer" title="Filtrar Replanificada" onclick="gestorEstadoFilter('${g}','Replanificada')"></div>`:''}
-      ${d.asig?`<div class="gc-seg" style="width:${pa}%;background:#6EBEEB;cursor:pointer" title="Filtrar AsignadoTarea" onclick="gestorEstadoFilter('${g}','AsignadoTarea')"></div>`:''}
+    <div class="gc-bar" id="gc-bar-${uid}">
+      ${d.plan?`<div class="gc-seg" style="width:${pp}%;background:#00B0F0;cursor:pointer" title="Filtrar Planificada" data-g="${uid}" data-e="Planificada" onclick="gestorEstadoFilter(this.dataset.g,this.dataset.e,true)"></div>`:''}
+      ${d.det? `<div class="gc-seg" style="width:${pd}%;background:#FF44B0;cursor:pointer" title="Filtrar Detenido"    data-g="${uid}" data-e="Detenido"    onclick="gestorEstadoFilter(this.dataset.g,this.dataset.e,true)"></div>`:''}
+      ${d.rep? `<div class="gc-seg" style="width:${pr}%;background:#FFA700;cursor:pointer" title="Filtrar Replanificada" data-g="${uid}" data-e="Replanificada" onclick="gestorEstadoFilter(this.dataset.g,this.dataset.e,true)"></div>`:''}
+      ${d.asig?`<div class="gc-seg" style="width:${pa}%;background:#6EBEEB;cursor:pointer" title="Filtrar AsignadoTarea" data-g="${uid}" data-e="AsignadoTarea" onclick="gestorEstadoFilter(this.dataset.g,this.dataset.e,true)"></div>`:''}
     </div>
     <div class="gc-estados">
-      ${d.plan?`<div class="gc-est" style="cursor:pointer" onclick="gestorEstadoFilter('${g}','Planificada')"><span class="gc-est-dot" style="background:#00B0F0"></span><span class="gc-est-n" style="color:#00B0F0">${d.plan}</span> Planificada</div>`:''}
-      ${d.det? `<div class="gc-est" style="cursor:pointer" onclick="gestorEstadoFilter('${g}','Detenido')"><span class="gc-est-dot" style="background:#FF44B0"></span><span class="gc-est-n" style="color:#FF44B0">${d.det}</span> Detenido</div>`:''}
-      ${d.rep? `<div class="gc-est" style="cursor:pointer" onclick="gestorEstadoFilter('${g}','Replanificada')"><span class="gc-est-dot" style="background:#FFA700"></span><span class="gc-est-n" style="color:#FFA700">${d.rep}</span> Replanificada</div>`:''}
-      ${d.asig?`<div class="gc-est" style="cursor:pointer" onclick="gestorEstadoFilter('${g}','AsignadoTarea')"><span class="gc-est-dot" style="background:#6EBEEB"></span><span class="gc-est-n" style="color:#6EBEEB">${d.asig}</span> AsignadoTarea</div>`:''}
+      ${d.plan?`<div class="gc-est" style="cursor:pointer" data-g="${uid}" data-e="Planificada"   onclick="gestorEstadoFilter(this.dataset.g,this.dataset.e,true)"><span class="gc-est-dot" style="background:#00B0F0"></span><span class="gc-est-n" style="color:#00B0F0">${d.plan}</span> Planificada</div>`:''}
+      ${d.det? `<div class="gc-est" style="cursor:pointer" data-g="${uid}" data-e="Detenido"      onclick="gestorEstadoFilter(this.dataset.g,this.dataset.e,true)"><span class="gc-est-dot" style="background:#FF44B0"></span><span class="gc-est-n" style="color:#FF44B0">${d.det}</span> Detenido</div>`:''}
+      ${d.rep? `<div class="gc-est" style="cursor:pointer" data-g="${uid}" data-e="Replanificada" onclick="gestorEstadoFilter(this.dataset.g,this.dataset.e,true)"><span class="gc-est-dot" style="background:#FFA700"></span><span class="gc-est-n" style="color:#FFA700">${d.rep}</span> Replanificada</div>`:''}
+      ${d.asig?`<div class="gc-est" style="cursor:pointer" data-g="${uid}" data-e="AsignadoTarea" onclick="gestorEstadoFilter(this.dataset.g,this.dataset.e,true)"><span class="gc-est-dot" style="background:#6EBEEB"></span><span class="gc-est-n" style="color:#6EBEEB">${d.asig}</span> AsignadoTarea</div>`:''}
     </div>
     <div class="gp-tabs">
       <div class="gp-tab active" id="gpt-analisis" onclick="switchGpTab('analisis')">📊 Análisis</div>
@@ -2844,14 +2845,20 @@ function kpiCardFilter(estado){
 }
 
 // Clic en barra/leyenda/donut del panel de un gestor → filtra gestor + estado
-function gestorEstadoFilter(gestor, estado){
+function gestorEstadoFilter(gestorOrUid, estado, useUid=false){
   const sfG=SF['sf-gestor'], sfE=SF['sf-estado'];
   if(!sfG||!sfE)return;
+
+  // Resolve uid → gestor name if needed
+  let gestor=gestorOrUid;
+  if(useUid){
+    const found=_gestorData.find(gd=>gd.uid===gestorOrUid);
+    if(found) gestor=found.g;
+  }
 
   const yaGestor=sfG.selected.size===1&&sfG.selected.has(gestor);
   const yaEstado=sfE.selected.size===1&&sfE.selected.has(estado);
 
-  // Toggle: si ya estaba exactamente gestor+estado → limpiar ambos
   if(yaGestor&&yaEstado){
     sfG.selected.clear();
     sfE.selected.clear();

@@ -1041,7 +1041,13 @@ const PERSONAL_MAP={
   "ansanchez":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"O&M","tipo":"PROYECTOS"},
   "cralarcon":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"O&M","tipo":"PROYECTOS"},
   "jlcastillot":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"O&M","tipo":"PROYECTOS"},
-  "jruiz":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Planificación","tipo":"PROYECTOS"}
+  "jruiz":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Planificación","tipo":"PROYECTOS"},
+  "dagallardo":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Planificación","tipo":"OPERATIVO"},
+  "gvelez":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Otros","tipo":"OTROS"},
+  "mdcamacho":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Otros","tipo":"OTROS"},
+  "cdflores":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Otros","tipo":"OTROS"},
+  "fbonifas":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Otros","tipo":"OTROS"},
+  "dmelo":{"grupo":"PROYECTOS CORPORATIVOS","equipo":"Otros","tipo":"OTROS"}
 };
 
 const PALETTE=['#00B0F0','#FF44B0','#FF6F42','#FFA700','#8B6FE8','#6EBEEB','#34D399','#FF9A44','#AA7FD0','#64B4F5'];
@@ -1549,7 +1555,7 @@ function renderGestores(){
     .sort((a,b)=>(b[1].plan+b[1].det+b[1].rep+b[1].asig+b[1].prueba+b[1].verif+(b[1].asignada||0))-(a[1].plan+a[1].det+a[1].rep+a[1].asig+a[1].prueba+a[1].verif+(a[1].asignada||0)));
 
   // Separar gestores por tipo de gestión
-  const rowsOp=rows.filter(([g])=>{const t=(g&&PERSONAL_MAP[g.toLowerCase()]?.tipo)||'';return t==='OPERATIVO'||t===''});
+  const rowsOp=rows.filter(([g])=>{const t=(g&&PERSONAL_MAP[g.toLowerCase()]?.tipo)||'';return t==='OPERATIVO'||(!t&&t!=='OTROS'&&t!=='PROYECTOS')});
   const rowsPr=rows.filter(([g])=>{const t=(g&&PERSONAL_MAP[g.toLowerCase()]?.tipo)||'';return t==='PROYECTOS'});
 
   const gridOp=document.getElementById('gestores-grid-operativo');
@@ -1653,10 +1659,11 @@ function renderGestores(){
 
   // Determinar tipo del gestor activo para sincronizar sub-tab
   const activeGestor=_gSel?(_gestorData.find(gd=>gd.g===_gSel)):_gestorData[0];
-  const activeTipo=activeGestor?(PERSONAL_MAP[(activeGestor.g||'').toLowerCase()]?.tipo||'OPERATIVO'):'OPERATIVO';
+  const activeTipoRaw=activeGestor?(PERSONAL_MAP[(activeGestor.g||'').toLowerCase()]?.tipo||'OPERATIVO'):'OPERATIVO';
+  const activeTipo=activeTipoRaw==='OTROS'?'OPERATIVO':activeTipoRaw;
 
   if(gridOp) gridOp.innerHTML=`
-    <div class="gestor-nav">${buildNavForGrid(allGestoresSorted.filter(([g])=>{const t=(PERSONAL_MAP[g.toLowerCase()]?.tipo)||'';return t==='OPERATIVO'||t==='';}))}</div>`;
+    <div class="gestor-nav">${buildNavForGrid(allGestoresSorted.filter(([g])=>{const t=(PERSONAL_MAP[g.toLowerCase()]?.tipo)||'';return t==='OPERATIVO'||(t===''&&t!=='OTROS');}))}</div>`;
 
   if(gridPr) gridPr.innerHTML=`
     <div class="gestor-nav">${buildNavForGrid(allGestoresSorted.filter(([g])=>(PERSONAL_MAP[g.toLowerCase()]?.tipo)==='PROYECTOS'))}</div>`;

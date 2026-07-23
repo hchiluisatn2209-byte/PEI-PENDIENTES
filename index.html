@@ -1536,7 +1536,8 @@ function renderGestores(){
   const navHTML=_gestorData.map(({g,d},i)=>{
     const tot=d.plan+d.det+d.rep+d.asig;
     const alertColor=d.maxDias>7?'#FF44B0':d.maxDias>3?'#FFA700':'#34D399';
-    return`<div class="gestor-nav-tab${i===0?' active':''}" id="gnav-${i}" onclick="selectGestor(${i})">
+    const isActive=_gSel?g===_gSel:i===0;
+    return`<div class="gestor-nav-tab${isActive?' active':''}" id="gnav-${i}" onclick="selectGestor(${i})">
       <div class="nav-alert" style="background:${alertColor}"></div>
       ${g}
       <span class="nav-badge">${tot}</span>
@@ -1547,9 +1548,14 @@ function renderGestores(){
     <div class="gestor-nav">${navHTML}</div>
     <div class="gestor-panel" id="gestor-panel"></div>`;
 
-  // Mostrar el primero por defecto (si no hay filtro de gestor activo)
-  const _sfG2=SF['sf-gestor'];
-  if(!_gSel && _gestorData.length>0) selectGestorPanel(0);
+  // Cargar panel del gestor activo
+  if(_gSel){
+    const idxSel=_gestorData.findIndex(gd=>gd.g===_gSel);
+    if(idxSel>=0) selectGestorPanel(idxSel);
+    else if(_gestorData.length>0) selectGestorPanel(0);
+  } else if(_gestorData.length>0){
+    selectGestorPanel(0);
+  }
 }
 
 // ── ALERTAS ────────────────────────────────────────────────────────────

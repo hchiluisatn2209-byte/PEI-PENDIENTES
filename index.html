@@ -433,16 +433,29 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 }
 .gestor-nav-tab:hover{border-color:rgba(0,176,240,.6);color:var(--azul-c);background:rgba(0,176,240,.12)}
 .gestor-nav-tab.active{
-  border-color:var(--azul-c);color:#fff;
-  background:linear-gradient(135deg,rgba(0,176,240,.3),rgba(0,181,203,.15));
-  box-shadow:0 0 12px rgba(0,176,240,.3);
+  border-color:var(--turquesa);color:#fff;
+  background:linear-gradient(135deg,rgba(0,176,240,.45),rgba(0,181,203,.25));
+  box-shadow:0 0 16px rgba(0,176,240,.45);
+  transform:scale(1.04);
+}
+.gestor-nav-tab.dimmed{
+  opacity:.35;
+  border-color:rgba(0,176,240,.1);
+  background:rgba(0,176,240,.02);
+  color:var(--muted);
+  pointer-events:auto;
+}
+.gestor-nav-tab.dimmed:hover{
+  opacity:.65;
+  border-color:rgba(0,176,240,.4);
+  background:rgba(0,176,240,.08);
 }
 .gestor-nav-tab .nav-badge{
   font-size:10px;font-weight:800;
   padding:1px 6px;border-radius:8px;
   background:rgba(255,255,255,.12);
 }
-.gestor-nav-tab.active .nav-badge{background:rgba(0,176,240,.4)}
+.gestor-nav-tab.active .nav-badge{background:rgba(0,176,240,.5);color:#fff}
 .gestor-nav-tab .nav-alert{
   width:8px;height:8px;border-radius:50%;flex-shrink:0;
 }
@@ -1532,12 +1545,48 @@ function renderGestores(){
     return {g,d,detRows,uid};
   });
 
-  // Nav tabs (pestañas de gestores)
-  const navHTML=_gestorData.map(({g,d},i)=>{
+  // Construir nav con TODOS los gestores de allData (no solo filtered)
+  // para que siempre aparezcan todos, dimming los que no corresponden al filtro
+  const allMap={};
+  allData.forEach(r=>{
+    const g=r[C.GESTOR]||'Sin gestor';
+    if(!allMap[g])allMap[g]={plan:0,det:0,rep:0,asig:0,prueba:0,verif:0,asignada:0,maxDias:0};
+    if(esPlan(r))allMap[g].plan++;
+    if(esDet(r)) allMap[g].det++;
+    if(esRep(r)) allMap[g].rep++;
+    if(esAsig(r))allMap[g].asig++;
+    if(esPrueba(r))allMap[g].prueba++;
+    if(esVerif(r)) allMap[g].verif++;
+    if(esAsignada(r))allMap[g].asignada++;
+    const dd=diasDesde(r[C.FE_PLAN]);
+    if(dd!==null&&dd>allMap[g].maxDias)allMap[g].maxDias=dd;
+  });
+  // Gestores que sí aparecen en filtered (tienen carga activa con filtros aplicados)
+  const filteredGestores=new Set(_gestorData.map(gd=>gd.g));
+
+  // Ordenar: primero los del filtro, luego el resto
+  const allGestoresSorted=Object.entries(allMap)
+    .filter(([,d])=>d.plan+d.det+d.rep+d.asig+d.prueba+d.verif+d.asignada>0)
+    .sort((a,b)=>{
+      const aIn=filteredGestores.has(a[0]), bIn=filteredGestores.has(b[0]);
+      if(aIn!==bIn) return aIn?-1:1;
+      return(b[1].plan+b[1].det+b[1].rep+b[1].asig)-(a[1].plan+a[1].det+a[1].rep+a[1].asig);
+    });
+
+  // Construir mapa de índice en _gestorData para cada gestor
+  const gestorDataIdx={};
+  _gestorData.forEach((gd,i)=>gestorDataIdx[gd.g]=i);
+
+  const navHTML=allGestoresSorted.map(([g,d])=>{
     const tot=d.plan+d.det+d.rep+d.asig;
     const alertColor=d.maxDias>7?'#FF44B0':d.maxDias>3?'#FFA700':'#34D399';
-    const isActive=_gSel?g===_gSel:i===0;
-    return`<div class="gestor-nav-tab${isActive?' active':''}" id="gnav-${i}" onclick="selectGestor(${i})">
+    const inFilter=filteredGestores.has(g);
+    const isActive=_gSel?g===_gSel:(!_gSel&&inFilter&&Object.keys(gestorDataIdx)[0]===g);
+    const idxInData=gestorDataIdx[g]??-1;
+    const dimmed=!inFilter;
+    const cls=`gestor-nav-tab${isActive?' active':''}${dimmed?' dimmed':''}`;
+    const onclick=idxInData>=0?`selectGestor(${idxInData})`:`''`;
+    return`<div class="${cls}" id="gnav-g-${g.replace(/[^a-z0-9]/gi,'_')}" onclick="${onclick}" style="${dimmed?'cursor:not-allowed':''}">
       <div class="nav-alert" style="background:${alertColor}"></div>
       ${g}
       <span class="nav-badge">${tot}</span>
@@ -2936,8 +2985,11 @@ function selectGestor(idx){
 function selectGestorPanel(idx){
   if(!_gestorData[idx]) return;
   const {g,d,detRows,uid}=_gestorData[idx];
-  _gestorData.forEach((_,i)=>{
-    document.getElementById('gnav-'+i)?.classList.toggle('active', i===idx);
+  // Actualizar clase active/dimmed en todos los botones del nav
+  const selG=_gestorData[idx]?.g;
+  document.querySelectorAll('.gestor-nav-tab').forEach(el=>{
+    const isThisActive=selG&&el.textContent.trim().startsWith(selG);
+    el.classList.toggle('active', !!isThisActive);
   });
   const tot=d.plan+d.det+d.rep+d.asig+(d.prueba||0)+(d.verif||0)+(d.asignada||0);
   const pp=tot?Math.round(d.plan/tot*100):0;

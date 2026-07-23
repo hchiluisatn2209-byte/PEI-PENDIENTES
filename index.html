@@ -2928,6 +2928,8 @@ function selectGestor(idx){
 }
 
 function selectGestorPanel(idx){
+  if(!_gestorData[idx]) return;
+  const {g,d,detRows,uid}=_gestorData[idx];
   _gestorData.forEach((_,i)=>{
     document.getElementById('gnav-'+i)?.classList.toggle('active', i===idx);
   });

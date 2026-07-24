@@ -814,6 +814,10 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
           <div class="card-title" style="margin:0 0 2px"><span class="dot-sec" style="background:#34D399"></span>Resumen por Tipo de Gestión</div>
           <div style="font-size:11px;color:var(--muted)">Carga activa segmentada por tipo · Plan+Det+Replan+PrePlan</div>
         </div>
+        <button onclick="exportarResumenTipoExcel()" style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1.5px solid rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#34D399;font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exportar Excel
+        </button>
       </div>
       <table>
         <thead><tr>
@@ -929,8 +933,7 @@ const KNOWN_SHEETS = [
   //  {fecha:'07-07-26',gid:494955224},
   //  {fecha:'08-07-26',gid:1901801479},
   //  {fecha:'17-07-26',gid:1731121928},
- //   {fecha:'23-07-26',gid:306558480},
-      {fecha:'24-07-26',gid:1561852760},
+    {fecha:'23-07-26',gid:306558480},
 ];
 
 const C={
@@ -2308,6 +2311,56 @@ function renderResumen(){
 
   // Resumen por TIPO_GESTIÓN
   renderResumenPorTipo();
+}
+
+function exportarResumenTipoExcel(){
+  // Campos del CSV según la estructura requerida
+  const COLS = [
+    {label:'FE_PREPLANIFICADA_DMA',  key:C.FE_PREPLANIFICADA_DMA},
+    {label:'NOMBRE_USR_ULT_PLAN',    key:C.GESTOR},
+    {label:'TIPO_EMPRESA',           key:C.EMPRESA},
+    {label:'CLIENTE',                key:C.CLIENTE},
+    {label:'LOGIN',                  key:C.LOGIN},
+    {label:'ESTADO_SERVICIO',        key:C.EST},
+    {label:'PRODUCTO',               key:C.PRODUCTO},
+    {label:'TIPO_ORDEN',             key:C.TIPO_ORDEN},
+    {label:'TECNICA_SUCURSAL',       key:C.SUCURSAL},
+    {label:'FE_ULT_PLANIFICADA',     key:C.FE_PLAN},
+    {label:'OBS_ULT_PLAN',           key:C.OBS_PLAN},
+    {label:'MOTIVO',                 key:C.MOTIVO},
+    {label:'ULT_OBS_REPLANIFICADA',  key:C.OBS_REPLAN},
+    {label:'ESTADO_CONTRATO',        key:C.CONTRATO},
+    {label:'VENDEDOR',               key:C.VENDEDOR},
+  ];
+
+  const SEP = ';';
+  const esc = v => '"' + String(v||'').replace(/"/g,'""') + '"';
+  const today = new Date();
+  const corte = String(today.getDate()).padStart(2,'0') + '-' +
+                String(today.getMonth()+1).padStart(2,'0') + '-' +
+                String(today.getFullYear()).slice(-2);
+
+  // Usar filtered (respeta los filtros activos)
+  const rows = filtered.filter(tieneCarga);
+
+  if(!rows.length){
+    alert('No hay registros con carga activa para exportar.');
+    return;
+  }
+
+  const lines = ['sep=;', COLS.map(c=>esc(c.label)).join(SEP)];
+  rows.forEach(r=>{
+    lines.push(COLS.map(c=>esc(r[c.key]||'')).join(SEP));
+  });
+
+  const bom  = '﻿';
+  const blob = new Blob([bom + lines.join('
+')], {type:'text/csv;charset=utf-8'});
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = `ordenes_gestor_${corte}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 
 function renderResumenPorTipo(){

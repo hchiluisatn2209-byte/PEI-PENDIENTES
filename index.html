@@ -2353,9 +2353,8 @@ function exportarResumenTipoExcel(){
     lines.push(COLS.map(c=>esc(r[c.key]||'')).join(SEP));
   });
 
-  const bom  = '﻿';
-  const blob = new Blob([bom + lines.join('
-')], {type:'text/csv;charset=utf-8'});
+  const bom  = '\uFEFF';
+  const blob = new Blob([bom + lines.join('\n')], {type:'text/csv;charset=utf-8'});
   const a    = document.createElement('a');
   a.href     = URL.createObjectURL(blob);
   a.download = `ordenes_gestor_${corte}.csv`;

@@ -3627,10 +3627,12 @@ async function fetchSheetTareas(s) {
   let page = 0, hasMore = true;
 
   while(hasMore) {
-    const url = `${APPS_SCRIPT_URL}?gid=${s.gid}&page=${page}&pageSize=${PAGE_SIZE}`;
-    // 3 reintentos con timeout de 120s cada uno
+    // Enviamos tanto gid como sheetName para máxima compatibilidad con el Apps Script
+    const nameEnc = encodeURIComponent(s.nombre||'');
+    const url = `${APPS_SCRIPT_URL}?gid=${s.gid}&sheetName=${nameEnc}&page=${page}&pageSize=${PAGE_SIZE}`;
     let txt = null;
     let lastErr = null;
+
     for(let attempt = 0; attempt < 3; attempt++){
       const ctrl = new AbortController();
       const timer = setTimeout(() => ctrl.abort(), 120000);
@@ -3645,20 +3647,26 @@ async function fetchSheetTareas(s) {
         clearTimeout(timer);
         lastErr = e;
         console.warn(`[Tareas] Intento ${attempt+1}/3 falló:`, e.message);
-        if(attempt < 2) await new Promise(r => setTimeout(r, 2000 * (attempt + 1)));
+        if(attempt < 2) await new Promise(r => setTimeout(r, 3000 * (attempt + 1)));
       }
     }
     if(lastErr) throw lastErr;
     if(!txt || txt.trim().length < 10) break;
 
+    // Detectar respuesta HTML (error de Google / Apps Script)
+    if(txt.trim().startsWith('<!') || txt.trim().startsWith('<html')) {
+      console.error('[Tareas] El Apps Script devolvió HTML en lugar de datos. Respuesta:', txt.slice(0,300));
+      throw new Error('El Apps Script devolvió HTML — posiblemente el GID o nombre de hoja no está autorizado en el script. Revisa la consola (F12).');
+    }
+
     let rows = [], hm = false;
     if(txt.trim().startsWith('{')) {
       const data = JSON.parse(txt);
-      if(data.error) throw new Error(data.error);
+      if(data.error) throw new Error('Apps Script error: ' + data.error);
       rows = (data.rows||[]).map(r => ({...r, _tarea_fecha:s.fecha, _tarea_gid:s.gid}));
       hm = !!data.hasMore;
     } else {
-      if(txt.startsWith('Error:')) throw new Error(txt.slice(0, 120));
+      if(txt.startsWith('Error:')) throw new Error(txt.slice(0, 200));
       const metaLine = txt.split('\n').find(l => l.startsWith('__META__'));
       hm = metaLine ? metaLine.split(',')[2] === '1' : false;
       rows = parseCSV(txt).map(r => ({...r, _tarea_fecha:s.fecha, _tarea_gid:s.gid}));
@@ -3727,10 +3735,45 @@ async function loadTareas(){
       allTareas.push(...rows);
     } catch(e) {
       console.warn('[Tareas] Error cargando hoja', s.nombre, e);
+      // Mostrar error visible en la UI
+      const ph = document.getElementById('tareas-analisis-placeholder');
+      if(ph) ph.innerHTML = `
+        <div style="padding:30px;text-align:center">
+          <div style="font-size:28px;margin-bottom:10px">⚠️</div>
+          <div style="color:#FF6F42;font-size:14px;font-weight:700;margin-bottom:8px">Error cargando tareas</div>
+          <div style="color:var(--muted);font-size:12px;max-width:500px;margin:0 auto;line-height:1.6">${e.message}</div>
+          <div style="margin-top:14px;color:var(--muted);font-size:11px">
+            💡 <b style="color:var(--turquesa)">Posible causa:</b> El Apps Script no tiene acceso a la hoja
+            <code style="background:rgba(255,255,255,.08);padding:2px 6px;border-radius:4px">${s.nombre}</code><br>
+            Verifica que el GID <code style="background:rgba(255,255,255,.08);padding:2px 6px;border-radius:4px">${s.gid}</code>
+            está en el mismo Spreadsheet que las hojas OTS.
+          </div>
+          <button onclick="loadTareas()" style="margin-top:16px;padding:8px 20px;border-radius:20px;border:1.5px solid rgba(0,176,240,.4);background:rgba(0,176,240,.1);color:var(--turquesa);font-family:var(--font);font-size:12px;cursor:pointer">
+            🔄 Reintentar
+          </button>
+        </div>`;
     }
   }
 
   console.log('[Tareas] Total tareas cargadas:', allTareas.length);
+
+  if(!allTareas.length){
+    // Diagnóstico: hacer un fetch de prueba con timeout corto para ver qué devuelve el script
+    console.log('[Tareas] Sin datos — ejecutando diagnóstico...');
+    try {
+      const s0 = KNOWN_SHEETS_TAREAS[0];
+      const nameEnc = encodeURIComponent(s0?.nombre||'');
+      const testUrl = `${APPS_SCRIPT_URL}?gid=${s0?.gid}&sheetName=${nameEnc}&page=0&pageSize=5`;
+      const ctrl = new AbortController();
+      const t2 = setTimeout(()=>ctrl.abort(), 15000);
+      const r2 = await fetch(testUrl, {cache:'no-cache', redirect:'follow', signal:ctrl.signal});
+      clearTimeout(t2);
+      const rawTxt = await r2.text();
+      console.log('[Tareas][DIAG] Status:', r2.status, '| Primeros 400 chars:', rawTxt.slice(0,400));
+    } catch(de){
+      console.warn('[Tareas][DIAG] fetch de diagnóstico falló:', de.message);
+    }
+  }
   filteredTareas = [...allTareas];
   renderKPIsTareas();
   renderTareasAnalisis();

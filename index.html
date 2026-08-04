@@ -752,9 +752,17 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
       <div class="carga-subtab" id="cst-proyectos" onclick="switchCargaSubTab('proyectos')">
         📐 Carga OTS Proyectos <span class="st-badge" id="cst-badge-proyectos">0</span>
       </div>
+      <div class="carga-subtab" id="cst-tareas-operativo" onclick="switchCargaSubTab('tareas-operativo')">
+        🗂 Carga Tareas Operativo <span class="st-badge" id="cst-badge-tareas-operativo">0</span>
+      </div>
+      <div class="carga-subtab" id="cst-tareas-proyectos" onclick="switchCargaSubTab('tareas-proyectos')">
+        📋 Carga Tareas Proyectos <span class="st-badge" id="cst-badge-tareas-proyectos">0</span>
+      </div>
     </div>
     <div id="gestores-grid-operativo"><div class="empty">Cargando...</div></div>
     <div id="gestores-grid-proyectos" style="display:none"><div class="empty">Cargando...</div></div>
+    <div id="gestores-grid-tareas-operativo" style="display:none"><div class="empty">Cargando tareas...</div></div>
+    <div id="gestores-grid-tareas-proyectos" style="display:none"><div class="empty">Cargando tareas...</div></div>
     <!-- Panel compartido de análisis/detalle del gestor seleccionado -->
     <div class="gestor-panel" id="gestor-panel"></div>
     <!-- alias para compatibilidad -->
@@ -930,17 +938,48 @@ const KNOWN_SHEETS = [
  // {fecha:'29-06-26',gid:329450959},
  // {fecha:'30-06-26',gid:714057615},
   //{fecha:'01-07-26',gid:1271470964},
-  //{fecha:'07-07-26',gid:494955224},
-  //{fecha:'08-07-26',gid:1901801479},
-  //{fecha:'17-07-26',gid:1731121928},
-  //{fecha:'23-07-26',gid:306558480},
-  //{fecha:'27-07-26',gid:2050300798},
-  // {fecha:'28-07-26',gid:2027647111},
-  // {fecha:'29-07-26',gid:396414710},
- //  {fecha:'30-07-26',gid:1400249219},
- //  {fecha:'31-07-26',gid:772663114},  
-     {fecha:'04-08-26',gid:816732549},  
-  ];
+  //  {fecha:'07-07-26',gid:494955224},
+  //  {fecha:'08-07-26',gid:1901801479},
+  //  {fecha:'17-07-26',gid:1731121928},
+    {fecha:'23-07-26',gid:306558480},
+];
+
+// ── HOJAS DE TAREAS ────────────────────────────────────────────────────
+// Hoja: QS: TAREAS PENDIENTES PEI (04-08-2026)
+// Para obtener el GID: abre la hoja en Sheets y mira el #gid= en la URL
+const KNOWN_SHEETS_TAREAS = [
+  {fecha:'04-08-26', gid: 0, nombre:'QS: TAREAS PENDIENTES PEI (04-08-2026)'},
+  // Agrega más hojas de tareas aquí con su GID correspondiente
+];
+
+// Columnas de la hoja de TAREAS
+const CT = {
+  NOMBRE_PROCESO:   'NOMBRE_PROCESO',
+  NOMBRE_TAREA:     'NOMBRE_TAREA',
+  ID_TAREA:         'ID_TAREA',
+  ESTADO_TAREA:     'ESTADO_TAREA',
+  JURISDICCION:     'JURISDICCION_LOGIN_TAREA',
+  ANNO:             'AÑO.ULT.ESTADO',
+  MES:              'MES.ULT.ESTADO',
+  GESTOR:           'ULT USUARIO ASIGNADO',
+  // internas (calculadas)
+  GRUPO:            '_tarea_grupo',
+  TIPO_GESTION:     '_tarea_tipo_gestion',
+};
+
+// Colores por estado de tarea
+const TAREA_EST_COL = {
+  'Pendiente':       '#FFA700',
+  'En Proceso':      '#00B0F0',
+  'Completada':      '#34D399',
+  'Cancelada':       '#FF44B0',
+  'Bloqueada':       '#FF6F42',
+  'En Revisión':     '#8B6FE8',
+  'Asignada':        '#6EBEEB',
+};
+
+// Estado de datos de tareas
+let allTareas = [], filteredTareas = [], _tareaMapCache = {};
 
 const C={
   GESTOR:'NOMBRE_USR_ULT_PLAN',
@@ -2928,6 +2967,9 @@ async function loadAll(){
   }
 
   setProgress(0,0);
+
+  // Cargar tareas en paralelo (no bloquea el dashboard principal)
+  loadTareas().catch(e=>console.warn('loadTareas error:',e));
 }
 
 // ── INICIO ─────────────────────────────────────────────────────────────
@@ -3264,11 +3306,13 @@ let _cargaSubTab = 'operativo';
 
 function switchCargaSubTab(tipo){
   _cargaSubTab = tipo;
-  ['operativo','proyectos'].forEach(t=>{
+  ['operativo','proyectos','tareas-operativo','tareas-proyectos'].forEach(t=>{
     document.getElementById('cst-'+t)?.classList.toggle('active', t===tipo);
     const grid=document.getElementById('gestores-grid-'+t);
     if(grid) grid.style.display = t===tipo ? '' : 'none';
   });
+  // Si cambia a una pestaña de tareas, re-renderizar tareas
+  if(tipo==='tareas-operativo'||tipo==='tareas-proyectos') renderGestoresTareas();
 }
 
 // Seleccionar gestor por nombre (cuando está fuera del filtered actual)
@@ -3317,6 +3361,344 @@ function toggleTheme(){
 })();
 
 
+
+// ══════════════════════════════════════════════════════════════════════
+// ── MÓDULO TAREAS ──────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════
+
+// Carga de la hoja de tareas desde Apps Script
+async function loadTareas(){
+  if(!APPS_SCRIPT_URL) return;
+  if(!KNOWN_SHEETS_TAREAS.length) return;
+
+  allTareas = [];
+  for(const s of KNOWN_SHEETS_TAREAS){
+    try {
+      // Si el GID es 0 (placeholder), omitir
+      if(s.gid === 0){
+        console.warn('Tareas: GID no configurado para hoja', s.nombre);
+        continue;
+      }
+      const rows = await fetchSheet(s);
+      rows.forEach(row => {
+        // Enriquecer con grupo/tipo_gestion desde PERSONAL_MAP usando el gestor de tareas
+        const g = (row[CT.GESTOR]||'').trim();
+        const pm = PERSONAL_MAP[g.toLowerCase()] || {};
+        row._tarea_grupo        = pm.grupo  || 'OTROS';
+        row._tarea_tipo_gestion = pm.tipo   || 'OTROS';
+        row._tarea_fecha        = s.fecha;
+      });
+      allTareas.push(...rows);
+    } catch(e) {
+      console.warn('Error cargando hoja tareas', s.nombre, e);
+    }
+  }
+  filteredTareas = [...allTareas];
+  renderGestoresTareas();
+}
+
+// Función helper para obtener el estado de una tarea
+function getTareaEst(r){ return (r[CT.ESTADO_TAREA]||'').trim(); }
+
+// Colores de estado de tarea (devuelve color dado el estado)
+function colorTareaEst(est){
+  return TAREA_EST_COL[est] || '#9BBCD8';
+}
+
+// Pill HTML para estados de tarea
+function pillTarea(est){
+  const col = colorTareaEst(est);
+  return `<span style="display:inline-block;font-size:11px;padding:2px 9px;border-radius:99px;font-weight:700;
+    white-space:nowrap;font-family:var(--font-cond);letter-spacing:.3px;
+    background:${col}22;color:${col};border:1px solid ${col}55">${est||'—'}</span>`;
+}
+
+// Render de la grilla de gestores de Tareas
+let _tareaIdCounter = 0;
+let _tareaGestorData = [];
+
+function renderGestoresTareas(){
+  _tareaIdCounter = 0;
+
+  // Si no hay tareas cargadas aún, mostrar mensaje
+  if(!allTareas.length){
+    ['tareas-operativo','tareas-proyectos'].forEach(t=>{
+      const g=document.getElementById('gestores-grid-'+t);
+      if(g) g.innerHTML=`<div style="padding:20px 0;text-align:center;color:var(--muted);font-size:13px">
+        ℹ Para activar esta sección, configura el GID de la hoja <b style="color:var(--turquesa)">QS: TAREAS PENDIENTES PEI</b> en <code>KNOWN_SHEETS_TAREAS</code>.
+      </div>`;
+    });
+    return;
+  }
+
+  // Agrupar por gestor (ULT USUARIO ASIGNADO)
+  const map = {};
+  filteredTareas.forEach(r => {
+    const g = (r[CT.GESTOR]||'Sin gestor').trim();
+    if(!map[g]) map[g] = { estados:{}, procesos: new Set(), rows:[] };
+    const est = getTareaEst(r);
+    map[g].estados[est] = (map[g].estados[est]||0) + 1;
+    if(r[CT.NOMBRE_PROCESO]) map[g].procesos.add(r[CT.NOMBRE_PROCESO]);
+    map[g].rows.push(r);
+  });
+
+  // Calcular total por gestor (todas las tareas, no solo con carga)
+  const rows = Object.entries(map)
+    .map(([g,d])=>({g,d,tot:d.rows.length}))
+    .sort((a,b)=>b.tot-a.tot);
+
+  // Separar por tipo gestión
+  const rowsOp = rows.filter(({g})=>{ const t=(PERSONAL_MAP[g.toLowerCase()]||{}).tipo||''; return t==='OPERATIVO'||(!t&&t!=='PROYECTOS'&&t!=='OTROS'); });
+  const rowsPr = rows.filter(({g})=>{ const t=(PERSONAL_MAP[g.toLowerCase()]||{}).tipo||''; return t==='PROYECTOS'; });
+
+  // Actualizar badges de sub-tab
+  const bOp = document.getElementById('cst-badge-tareas-operativo');
+  const bPr = document.getElementById('cst-badge-tareas-proyectos');
+  if(bOp) bOp.textContent = rowsOp.reduce((s,{tot})=>s+tot,0);
+  if(bPr) bPr.textContent = rowsPr.reduce((s,{tot})=>s+tot,0);
+
+  _tareaGestorData = rows;
+
+  // Construir HTML para cada grilla
+  function buildTareasGrid(rList, tipo){
+    if(!rList.length) return '<div class="empty">Sin datos de tareas</div>';
+    return rList.map(({g,d,tot},idx)=>{
+      const uid = ++_tareaIdCounter;
+      const estEntries = Object.entries(d.estados).sort((a,b)=>b[1]-a[1]);
+      const totalEstados = estEntries.reduce((s,[,v])=>s+v,0);
+
+      // Mini barra de estados
+      const barSegs = estEntries.map(([est,cnt])=>{
+        const pct = totalEstados ? Math.round(cnt/totalEstados*100) : 0;
+        const col = colorTareaEst(est);
+        return `<div class="gc-seg" style="width:${pct}%;background:${col}" title="${est}:${cnt}"></div>`;
+      }).join('');
+
+      // Pills de estado
+      const estPills = estEntries.map(([est,cnt])=>`
+        <div class="gc-est">
+          <span class="gc-est-dot" style="background:${colorTareaEst(est)}"></span>
+          <span class="gc-est-n" style="color:${colorTareaEst(est)}">${cnt}</span>
+          ${est}
+        </div>`).join('');
+
+      return `<div class="gestor-card" id="tarea-card-${uid}">
+        <div class="gc-header">
+          <div class="gc-name" style="cursor:pointer" onclick="selectTareaGestor(${idx},'${tipo}')">👤 ${g}</div>
+          <div class="gc-badges">
+            <span class="gc-badge gb-total">${tot} tareas · ${d.procesos.size} proceso${d.procesos.size!==1?'s':''}</span>
+          </div>
+        </div>
+        <div class="gc-bar">${barSegs}</div>
+        <div class="gc-estados">${estPills}</div>
+        <div class="gp-tabs" style="margin-top:10px">
+          <div class="gp-tab active" id="tgpt-${uid}-analisis" onclick="switchTareaGpTab(${uid},'analisis')">📊 Análisis</div>
+          <div class="gp-tab" id="tgpt-${uid}-detalle" onclick="switchTareaGpTab(${uid},'detalle')">📋 Detalle · ${tot}</div>
+          <div style="flex:1"></div>
+          <button onclick="exportarTareasGestor('${encodeURIComponent(g)}')"
+            style="display:flex;align-items:center;gap:5px;padding:4px 12px;border-radius:16px;
+                   border:1.5px solid rgba(52,211,153,.4);background:rgba(52,211,153,.1);
+                   color:#34D399;font-family:var(--font);font-size:11px;font-weight:600;
+                   cursor:pointer;white-space:nowrap;margin-bottom:2px">
+            ⬇ Excel
+          </button>
+        </div>
+        <div class="gp-panel active" id="tgpp-${uid}-analisis">
+          ${buildAnalisisHTMLTareas(g, d, d.rows, uid)}
+        </div>
+        <div class="gp-panel" id="tgpp-${uid}-detalle">
+          <div class="gc-detail">
+            <table><thead><tr>
+              <th>#</th><th>Proceso</th><th>Tarea</th><th>ID Tarea</th>
+              <th>Estado</th><th>Jurisdicción</th><th>Año</th><th>Mes</th>
+            </tr></thead>
+            <tbody>
+              ${d.rows.map((r,i)=>`<tr>
+                <td class="td-num">${i+1}</td>
+                <td class="td-muted" data-tip="${esc(r[CT.NOMBRE_PROCESO])}" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r[CT.NOMBRE_PROCESO]||'—'}</td>
+                <td class="td-client" data-tip="${esc(r[CT.NOMBRE_TAREA])}">${r[CT.NOMBRE_TAREA]||'—'}</td>
+                <td class="td-num" style="color:var(--azul-c)">${r[CT.ID_TAREA]||'—'}</td>
+                <td>${pillTarea(getTareaEst(r))}</td>
+                <td class="td-muted">${r[CT.JURISDICCION]||'—'}</td>
+                <td class="td-num">${r[CT.ANNO]||'—'}</td>
+                <td class="td-muted">${r[CT.MES]||'—'}</td>
+              </tr>`).join('')||'<tr><td colspan="8" class="empty">Sin tareas</td></tr>'}
+            </tbody></table>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  const gridOp = document.getElementById('gestores-grid-tareas-operativo');
+  const gridPr = document.getElementById('gestores-grid-tareas-proyectos');
+  if(gridOp) gridOp.innerHTML = buildTareasGrid(rowsOp, 'operativo');
+  if(gridPr) gridPr.innerHTML = buildTareasGrid(rowsPr, 'proyectos');
+}
+
+// Toggle entre Análisis y Detalle dentro de la card de tareas
+function switchTareaGpTab(uid, tab){
+  ['analisis','detalle'].forEach(t=>{
+    document.getElementById('tgpt-'+uid+'-'+t)?.classList.toggle('active', t===tab);
+    document.getElementById('tgpp-'+uid+'-'+t)?.classList.toggle('active', t===tab);
+  });
+}
+
+// Seleccionar gestor de tareas (reservado para expansión futura)
+function selectTareaGestor(idx, tipo){ /* futuro: scroll a card o filtrar */ }
+
+// Exportar tareas de un gestor a CSV
+function exportarTareasGestor(encoded){
+  const g = decodeURIComponent(encoded);
+  const rows = filteredTareas.filter(r=>(r[CT.GESTOR]||'').trim()===g);
+  if(!rows.length){ alert('Sin tareas para exportar.'); return; }
+  const headers = ['GESTOR','NOMBRE_PROCESO','NOMBRE_TAREA','ID_TAREA','ESTADO_TAREA','JURISDICCION_LOGIN_TAREA','AÑO.ULT.ESTADO','MES.ULT.ESTADO'];
+  const keys    = [CT.GESTOR, CT.NOMBRE_PROCESO, CT.NOMBRE_TAREA, CT.ID_TAREA, CT.ESTADO_TAREA, CT.JURISDICCION, CT.ANNO, CT.MES];
+  const sep = ';';
+  const esc2 = v => '"'+String(v||'').replace(/"/g,'""')+'"';
+  const lines = ['sep=;', headers.map(esc2).join(sep)];
+  rows.forEach(r => lines.push(keys.map(k=>esc2(r[k]||'')).join(sep)));
+  const blob = new Blob(['\uFEFF'+lines.join('\n')], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `tareas_${g.replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+// Panel de Análisis de Tareas por Gestor (similar a buildAnalisisHTML de OTS)
+function buildAnalisisHTMLTareas(g, d, rows, uid){
+  const estEntries = Object.entries(d.estados).sort((a,b)=>b[1]-a[1]);
+  const tot = rows.length;
+  if(!tot) return '<div class="empty" style="padding:20px">Sin tareas</div>';
+
+  // Donut SVG de estados
+  const cx=65, cy=65, r=50, sw=18, circ=2*Math.PI*r;
+  let offset=0, arcs='';
+  estEntries.forEach(([est,cnt])=>{
+    const col = colorTareaEst(est);
+    const dash = (cnt/tot)*circ;
+    arcs += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="${sw}"
+      stroke-dasharray="${dash} ${circ}" stroke-dashoffset="${-offset}" transform="rotate(-90 ${cx} ${cy})"/>`;
+    offset += dash;
+  });
+  const donutSvg = `<svg width="130" height="130" style="display:block">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${sw}"/>
+    ${arcs}
+    <text x="${cx}" y="${cy-6}" text-anchor="middle" fill="#e8f0ff" font-size="20" font-weight="800" font-family="Barlow Condensed,sans-serif">${tot}</text>
+    <text x="${cx}" y="${cy+12}" text-anchor="middle" fill="#8899aa" font-size="10">tareas</text>
+  </svg>`;
+
+  // Leyenda del donut
+  const legend = estEntries.map(([est,cnt])=>`
+    <div class="gc-donut-legend-item">
+      <div class="gc-donut-legend-dot" style="background:${colorTareaEst(est)}"></div>
+      <span>${est}</span>
+      <span class="gc-donut-legend-pct" style="color:${colorTareaEst(est)}">${tot?Math.round(cnt/tot*100):0}%</span>
+    </div>`).join('');
+
+  // Top 5 tareas más antiguas (por año+mes del último estado)
+  const rowsConFecha = rows.filter(r=>r[CT.ANNO]&&r[CT.MES]).sort((a,b)=>{
+    const ya=+(a[CT.ANNO]||0), yb=+(b[CT.ANNO]||0);
+    if(ya!==yb) return ya-yb;
+    // Comparar mes como texto (ene, feb... o numérico)
+    return String(a[CT.MES]).localeCompare(String(b[CT.MES]));
+  });
+  const top5 = rowsConFecha.slice(0,5);
+
+  const alertRows = top5.map(r=>{
+    const est = getTareaEst(r);
+    const col = colorTareaEst(est);
+    return `<div class="gc-alert-row">
+      <div class="gc-alert-semaforo" style="background:${col}"></div>
+      <div class="gc-alert-info">
+        <div class="gc-alert-cliente">${r[CT.NOMBRE_TAREA]||r[CT.ID_TAREA]||'—'}</div>
+        <div class="gc-alert-login">📂 ${r[CT.NOMBRE_PROCESO]||'—'}</div>
+        <div class="gc-alert-motivo">🌐 ${r[CT.JURISDICCION]||'—'}</div>
+      </div>
+      <div class="gc-alert-right">
+        <div class="gc-alert-dias" style="color:${col};font-size:11px">${r[CT.ANNO]||'—'} ${r[CT.MES]||''}</div>
+        <div class="gc-alert-estado" style="color:${col}">${est}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Desglose por Jurisdicción (como los "motivos" de OTS)
+  const jurMap = {}, jurRows = {};
+  rows.forEach(r=>{
+    const j = (r[CT.JURISDICCION]||'Sin jurisdicción').trim();
+    jurMap[j] = (jurMap[j]||0) + 1;
+    if(!jurRows[j]) jurRows[j] = [];
+    jurRows[j].push(r);
+  });
+  const jurSorted = Object.entries(jurMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
+
+  const uid2 = uid+'_'+g.replace(/[^a-z0-9]/gi,'_');
+  const jurItems = jurSorted.map(([j,c],i)=>{
+    const uid3 = uid2+'_jur_'+i;
+    if(!window._gcTareaJurCache) window._gcTareaJurCache={};
+    window._gcTareaJurCache[uid3] = jurRows[j]||[];
+    return `<div class="gc-mot-item" id="gcmi-t-${uid3}" onclick="gcToggleTareaJur('${uid3}')">
+      <span class="gc-mot-num" style="color:#00B0F0">${c}</span>
+      <span class="gc-mot-txt" title="${esc(j)}">${esc(j)}</span>
+      <span class="gc-mot-arrow">▼</span>
+    </div>
+    <div class="gc-mot-detail" id="gcmd-t-${uid3}" style="display:none"></div>`;
+  }).join('') || '<div style="color:var(--muted);font-size:11px;padding:6px 0">Sin jurisdicciones</div>';
+
+  return `<div class="gc-analisis-grid">
+    <div class="gc-donut-wrap">
+      <div class="gc-donut-title">Distribución Estados</div>
+      ${donutSvg}
+      <div class="gc-donut-legend">${legend}</div>
+    </div>
+    <div class="gc-alert-panel">
+      <div class="gc-alert-title">📅 Top 5 · Más Antiguas</div>
+      ${alertRows||'<div style="color:#666;font-size:12px">Sin tareas con fecha</div>'}
+    </div>
+    <div class="gc-motivos-panel">
+      <div class="gc-motivos-title" style="color:#00B0F0">🌐 Desglose por Jurisdicción</div>
+      <div class="gc-motivos-sub" style="color:#9BBCD8">${jurSorted.length} jurisdicciones · ${tot} tareas totales</div>
+      ${jurItems}
+    </div>
+  </div>`;
+}
+
+// Toggle detalle de jurisdicción dentro del panel de análisis de tareas
+function gcToggleTareaJur(uid3){
+  const rows = (window._gcTareaJurCache||{})[uid3]||[];
+  const item  = document.getElementById('gcmi-t-'+uid3);
+  const detail= document.getElementById('gcmd-t-'+uid3);
+  if(!item||!detail) return;
+  const isOpen = detail.style.display!=='none';
+  // Cerrar todos en el mismo panel
+  item.closest('.gc-motivos-panel').querySelectorAll('.gc-mot-detail').forEach(d=>d.style.display='none');
+  item.closest('.gc-motivos-panel').querySelectorAll('.gc-mot-item').forEach(el=>el.classList.remove('gc-mot-active'));
+  if(isOpen) return;
+  item.classList.add('gc-mot-active');
+  detail.style.display='block';
+  if(!rows.length){ detail.innerHTML='<div class="gc-mot-detail-hdr">Sin registros</div>'; return; }
+  detail.innerHTML=`
+    <div class="gc-mot-detail-hdr">${rows.length} tarea${rows.length!==1?'s':''}</div>
+    <div class="gc-mot-scroll">
+      <table class="gc-mot-tbl">
+        <thead><tr>
+          <th>#</th><th>Proceso</th><th>Tarea</th><th>Estado</th><th>Año</th><th>Mes</th>
+        </tr></thead>
+        <tbody>${rows.map((r,i)=>{
+          const est=getTareaEst(r);
+          const col=colorTareaEst(est);
+          return `<tr>
+            <td style="color:var(--muted);font-family:var(--font-cond)">${i+1}</td>
+            <td style="color:#9BBCD8;font-size:11px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r[CT.NOMBRE_PROCESO])}">${r[CT.NOMBRE_PROCESO]||'—'}</td>
+            <td style="font-weight:600;color:#e8f0ff;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r[CT.NOMBRE_TAREA])}">${r[CT.NOMBRE_TAREA]||r[CT.ID_TAREA]||'—'}</td>
+            <td><span style="color:${col};font-weight:700;font-family:var(--font-cond);font-size:11px">${est||'—'}</span></td>
+            <td style="color:var(--muted);font-size:11px">${r[CT.ANNO]||'—'}</td>
+            <td style="color:var(--muted);font-size:11px">${r[CT.MES]||'—'}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>
+    </div>`;
+}
 
 // ── RASTREADOR DE TECLAS MODIFICADORAS (Ctrl/Shift/Meta) ──────────────
 // Chart.js 4.x no siempre expone e.native correctamente en onClick,

@@ -3584,57 +3584,50 @@ function toggleTheme(){
 // ── MÓDULO TAREAS ──────────────────────────────────────────────────────
 // ══════════════════════════════════════════════════════════════════════
 
-// Fetch exclusivo para tareas — sin los filtros OTS (CLIENTE/GESTOR OTS)
+// Fetch exclusivo para tareas — sin los filtros OTS, con retry y timeout extendido
 async function fetchSheetTareas(s) {
   if(!APPS_SCRIPT_URL) throw new Error('Sin APPS_SCRIPT_URL');
   const allRows = [];
   let page = 0, hasMore = true;
+
   while(hasMore) {
     const url = `${APPS_SCRIPT_URL}?gid=${s.gid}&page=${page}&pageSize=${PAGE_SIZE}`;
-    // Intentar hasta 3 veces con timeout de 120s cada vez
-    let lastErr;
+    // 3 reintentos con timeout de 120s cada uno
     let txt = null;
-    for(let attempt=0; attempt<3; attempt++){
+    let lastErr = null;
+    for(let attempt = 0; attempt < 3; attempt++){
       const ctrl = new AbortController();
-      const timer = setTimeout(()=>ctrl.abort(), 120000);
+      const timer = setTimeout(() => ctrl.abort(), 120000);
       try {
         const resp = await fetch(url, {cache:'no-cache', redirect:'follow', signal:ctrl.signal});
         clearTimeout(timer);
-        if(!resp.ok) throw new Error('HTTP '+resp.status);
+        if(!resp.ok) throw new Error('HTTP ' + resp.status);
         txt = await resp.text();
         lastErr = null;
         break;
-      } catch(e){
+      } catch(e) {
         clearTimeout(timer);
         lastErr = e;
         console.warn(`[Tareas] Intento ${attempt+1}/3 falló:`, e.message);
-        if(attempt<2) await new Promise(r=>setTimeout(r, 2000*(attempt+1)));
+        if(attempt < 2) await new Promise(r => setTimeout(r, 2000 * (attempt + 1)));
       }
     }
     if(lastErr) throw lastErr;
     if(!txt || txt.trim().length < 10) break;
-    try {
-      const resp = await fetch(url, {cache:'no-cache', redirect:'follow', signal:ctrl.signal});
-      clearTimeout(timer);
-      if(!resp.ok) throw new Error('HTTP '+resp.status);
-      const txt = await resp.text();
-      if(!txt || txt.trim().length < 10) break;
 
-    let rows=[], hm=false;
-    if(txt.trim().startsWith('{')){
+    let rows = [], hm = false;
+    if(txt.trim().startsWith('{')) {
       const data = JSON.parse(txt);
       if(data.error) throw new Error(data.error);
-      rows = (data.rows||[]).map(r=>({...r, _tarea_fecha:s.fecha, _tarea_gid:s.gid}));
+      rows = (data.rows||[]).map(r => ({...r, _tarea_fecha:s.fecha, _tarea_gid:s.gid}));
       hm = !!data.hasMore;
     } else {
-      if(txt.startsWith('Error:')) throw new Error(txt.slice(0,120));
-      const metaLine = txt.split('\n').find(l=>l.startsWith('__META__'));
-      hm = metaLine ? metaLine.split(',')[2]==='1' : false;
-      rows = parseCSV(txt).map(r=>({...r, _tarea_fecha:s.fecha, _tarea_gid:s.gid}));
+      if(txt.startsWith('Error:')) throw new Error(txt.slice(0, 120));
+      const metaLine = txt.split('\n').find(l => l.startsWith('__META__'));
+      hm = metaLine ? metaLine.split(',')[2] === '1' : false;
+      rows = parseCSV(txt).map(r => ({...r, _tarea_fecha:s.fecha, _tarea_gid:s.gid}));
     }
-
-    // Filtrar filas completamente vacías
-    rows = rows.filter(r=>Object.values(r).some(v=>v&&String(v).trim()));
+    rows = rows.filter(r => Object.values(r).some(v => v && String(v).trim()));
     allRows.push(...rows);
     hasMore = hm;
     page++;

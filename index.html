@@ -1502,13 +1502,23 @@ function switchMainTab(t){
       // Mostrar spinner y disparar carga
       const ph=document.getElementById('tareas-analisis-placeholder');
       const ct=document.getElementById('tareas-analisis-content');
-      if(ph) ph.style.display='';
+      if(ph){ ph.style.display=''; ph.innerHTML=`
+        <div style="padding:40px;text-align:center;color:var(--muted)">
+          <div style="font-size:32px;margin-bottom:12px">⏳</div>
+          <div style="font-size:14px">Cargando tareas desde Google Sheets…</div>
+          <div style="font-size:11px;margin-top:6px">Espera unos segundos</div>
+        </div>`; }
       if(ct) ct.style.display='none';
       loadTareas().catch(e=>console.warn('[Tareas] Error:', e));
     } else {
+      // Datos ya cargados — renderizar ahora que el div es visible
       renderKPIsTareas();
-      renderTareasAnalisis();
-      renderGestoresTareasNew();
+      // Pequeño delay para que el browser pinte el div antes de crear los Canvas
+      setTimeout(()=>{
+        renderTareasAnalisis();
+        renderGestoresTareasNew();
+        window._tareasPendienteRender = false;
+      }, 50);
     }
   }
 }
@@ -3751,9 +3761,23 @@ async function loadTareas(){
 
   console.log('[Tareas] Total tareas cargadas:', allTareas.length);
   filteredTareas = [...allTareas];
+
+  // Actualizar KPIs (funcionan aunque el div esté oculto)
   renderKPIsTareas();
-  renderTareasAnalisis();
-  renderGestoresTareasNew();
+
+  // Solo renderizar gráficos y grillas si la tab Tareas está visible
+  // (Canvas charts fallan silenciosamente si el contenedor es display:none)
+  if(_mainTab === 'tareas'){
+    renderKPIsTareas();
+    // Delay para que el browser termine de pintar antes de inicializar Canvas
+    setTimeout(()=>{
+      renderTareasAnalisis();
+      renderGestoresTareasNew();
+    }, 80);
+  } else {
+    // Marcar pendiente para cuando el usuario abra la tab
+    window._tareasPendienteRender = true;
+  }
 }
 
 // ── KPIs TAREAS ────────────────────────────────────────────────────────

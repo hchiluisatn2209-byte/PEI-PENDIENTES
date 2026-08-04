@@ -1493,13 +1493,23 @@ let _tareasCargaSubTab = 'operativo';
 function switchMainTab(t){
   _mainTab = t;
   ['ordenes','tareas'].forEach(s=>{
-    document.getElementById('main-'+s).style.display = s===t?'':'none';
+    const el=document.getElementById('main-'+s);
+    if(el) el.style.display = s===t?'':'none';
     document.getElementById('main-tab-'+s)?.classList.toggle('active', s===t);
   });
   if(t==='tareas'){
-    // Cargar tareas si aún no hay datos
-    if(!allTareas.length) loadTareas().catch(e=>console.warn(e));
-    else { renderGestoresTareasNew(); renderTareasAnalisis(); }
+    if(!allTareas.length){
+      // Mostrar spinner y disparar carga
+      const ph=document.getElementById('tareas-analisis-placeholder');
+      const ct=document.getElementById('tareas-analisis-content');
+      if(ph) ph.style.display='';
+      if(ct) ct.style.display='none';
+      loadTareas().catch(e=>console.warn('[Tareas] Error:', e));
+    } else {
+      renderKPIsTareas();
+      renderTareasAnalisis();
+      renderGestoresTareasNew();
+    }
   }
 }
 
@@ -3187,13 +3197,39 @@ async function loadAll(){
   }
 
   setProgress(0,0);
-
-  // Cargar tareas en paralelo (no bloquea el dashboard principal)
-  loadTareas().catch(e=>console.warn('loadTareas error:',e));
+  // Tareas se cargan solo cuando el usuario abre esa tab (ver switchMainTab)
 }
 
 // ── INICIO ─────────────────────────────────────────────────────────────
 initFilters();
+
+// Inicializar navegación: Órdenes activo, sub-tab Análisis visible
+(function initNav(){
+  // Mostrar sección Órdenes, ocultar Tareas
+  const mO=document.getElementById('main-ordenes');
+  const mT=document.getElementById('main-tareas');
+  if(mO) mO.style.display='';
+  if(mT) mT.style.display='none';
+
+  // Activar sub-tab Análisis en Órdenes (mostrar tab-analisis, ocultar tab-carga)
+  const tA=document.getElementById('tab-analisis');
+  const tC=document.getElementById('tab-carga');
+  if(tA) tA.style.display='';
+  if(tC) tC.style.display='none';
+
+  // Botones sub-tab Órdenes: Análisis activo
+  const bA=document.getElementById('ord-subtab-analisis');
+  const bC=document.getElementById('ord-subtab-carga');
+  if(bA){ bA.style.background='rgba(0,176,240,.18)'; bA.style.color='var(--turquesa)'; }
+  if(bC){ bC.style.background='transparent';          bC.style.color='var(--muted)'; }
+
+  // Tareas: sub-tab Análisis activo (aunque está oculto)
+  const ttA=document.getElementById('tab-tareas-analisis');
+  const ttC=document.getElementById('tab-tareas-carga');
+  if(ttA) ttA.style.display='';
+  if(ttC) ttC.style.display='none';
+})();
+
 loadAll();
 
 // ── GESTOR NAVIGATOR ──────────────────────────────────────────────────────

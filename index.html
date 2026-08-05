@@ -661,37 +661,21 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
   </div>
 </div>
 
-<!-- TABS PRINCIPALES -->
+<!-- TABS -->
 <div class="tabs-bar">
-  <div class="tab active" id="main-tab-ordenes" onclick="switchMainTab('ordenes')">📦 Órdenes</div>
-  <div class="tab" id="main-tab-tareas" onclick="switchMainTab('tareas')">🗂 Tareas</div>
+  <div class="tab active" onclick="switchTab('analisis')">Análisis General</div>
+  <div class="tab" onclick="switchTab('carga')">Carga por Gestor</div>
 </div>
 
 <main>
-  <!-- ══ SECCIÓN ÓRDENES ══ -->
-  <div id="main-ordenes">
-
-  <!-- KPIs STICKY ÓRDENES -->
+  <!-- KPIs STICKY -->
   <div class="kpi-sticky-wrap">
     <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
-      <span><span class="dot-sec"></span>Indicadores Clave · Órdenes de Trabajo (OTS)</span>
-      <div style="display:flex;gap:8px;align-items:center">
-        <!-- Sub-tabs Órdenes -->
-        <div style="display:flex;gap:0;border:1.5px solid rgba(0,176,240,.25);border-radius:20px;overflow:hidden">
-          <button id="ord-subtab-analisis" onclick="switchOrdSubTab('analisis')"
-            style="padding:5px 16px;border:none;background:rgba(0,176,240,.18);color:var(--turquesa);font-family:var(--font-cond);font-weight:700;font-size:11px;letter-spacing:1px;cursor:pointer;transition:all .18s">
-            📊 ANÁLISIS
-          </button>
-          <button id="ord-subtab-carga" onclick="switchOrdSubTab('carga')"
-            style="padding:5px 16px;border:none;background:transparent;color:var(--muted);font-family:var(--font-cond);font-weight:700;font-size:11px;letter-spacing:1px;cursor:pointer;transition:all .18s">
-            👥 CARGA POR GESTOR
-          </button>
-        </div>
-        <button class="btn-export-kpi" onclick="exportKpiExcel()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Exportar Excel
-        </button>
-      </div>
+      <span><span class="dot-sec"></span>Indicadores Clave · Estado Servicio</span>
+      <button class="btn-export-kpi" onclick="exportKpiExcel()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar Excel
+      </button>
     </div>
   <div class="kpi-strip">
     <div class="kpi-card" style="--ak:var(--turquesa)">
@@ -754,7 +738,7 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 
   <div style="padding-top:22px">
 
-  <!-- ORD SUB-TAB CARGA -->
+  <!-- TAB CARGA -->
   <div id="tab-carga" style="display:none">
     <div class="section-title"><span class="dot-sec"></span>Carga por Gestor · Desglose de Estados</div>
     <div id="nota-corte" style="display:none;margin-bottom:10px;padding:8px 16px;background:rgba(0,176,240,.07);border:1px solid rgba(0,176,240,.2);border-radius:8px;font-size:13px;color:var(--azul-c)">
@@ -763,14 +747,26 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
     <!-- Sub-pestañas por tipo de gestión -->
     <div class="carga-subtabs">
       <div class="carga-subtab active" id="cst-operativo" onclick="switchCargaSubTab('operativo')">
-        🔧 Carga OTS Operativo <span class="st-badge" id="cst-badge-operativo">0</span>
+        🔧 OTS Operativo <span class="st-badge" id="cst-badge-operativo">0</span>
       </div>
       <div class="carga-subtab" id="cst-proyectos" onclick="switchCargaSubTab('proyectos')">
-        📐 Carga OTS Proyectos <span class="st-badge" id="cst-badge-proyectos">0</span>
+        📐 OTS Proyectos <span class="st-badge" id="cst-badge-proyectos">0</span>
+      </div>
+      <div class="carga-subtab" id="cst-tareas-op" onclick="switchCargaSubTab('tareas-op')">
+        🗂 Tareas Operativo <span class="st-badge" id="cst-badge-tareas-op" style="background:rgba(255,167,0,.2);color:#FFA700">0</span>
+      </div>
+      <div class="carga-subtab" id="cst-tareas-pr" onclick="switchCargaSubTab('tareas-pr')">
+        📋 Tareas Proyectos <span class="st-badge" id="cst-badge-tareas-pr" style="background:rgba(255,167,0,.2);color:#FFA700">0</span>
       </div>
     </div>
     <div id="gestores-grid-operativo"><div class="empty">Cargando...</div></div>
     <div id="gestores-grid-proyectos" style="display:none"><div class="empty">Cargando...</div></div>
+    <div id="gestores-grid-tareas-op" style="display:none">
+      <div style="padding:20px;text-align:center;color:var(--muted)">⏳ Cargando tareas…</div>
+    </div>
+    <div id="gestores-grid-tareas-pr" style="display:none">
+      <div style="padding:20px;text-align:center;color:var(--muted)">⏳ Cargando tareas…</div>
+    </div>
     <!-- Panel compartido de análisis/detalle del gestor seleccionado -->
     <div class="gestor-panel" id="gestor-panel"></div>
     <!-- alias para compatibilidad -->
@@ -819,7 +815,7 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 
 
 
-  <!-- ORD SUB-TAB ANALISIS -->
+  <!-- TAB ANALISIS -->
   <div id="tab-analisis">
     <div class="section-title"><span class="dot-sec"></span>Análisis General</div>
 
@@ -924,157 +920,20 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
       </table>
     </div>
     </div><!-- /padding-top -->
-  </div><!-- /main-ordenes -->
 
-  <!-- ══ SECCIÓN TAREAS ══ -->
-  <div id="main-tareas" style="display:none">
-
-    <!-- KPIs STICKY TAREAS -->
-    <div class="kpi-sticky-wrap">
-      <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
-        <span><span class="dot-sec" style="background:var(--amarillo)"></span>Indicadores Clave · Tareas Pendientes PEI</span>
-        <div style="display:flex;gap:8px;align-items:center">
-          <!-- Sub-tabs Tareas -->
-          <div style="display:flex;gap:0;border:1.5px solid rgba(255,167,0,.3);border-radius:20px;overflow:hidden">
-            <button id="tar-subtab-analisis" onclick="switchTarSubTab('analisis')"
-              style="padding:5px 16px;border:none;background:rgba(255,167,0,.18);color:var(--amarillo);font-family:var(--font-cond);font-weight:700;font-size:11px;letter-spacing:1px;cursor:pointer;transition:all .18s">
-              📊 ANÁLISIS
-            </button>
-            <button id="tar-subtab-carga" onclick="switchTarSubTab('carga')"
-              style="padding:5px 16px;border:none;background:transparent;color:var(--muted);font-family:var(--font-cond);font-weight:700;font-size:11px;letter-spacing:1px;cursor:pointer;transition:all .18s">
-              👥 CARGA POR GESTOR
-            </button>
-          </div>
-          <button onclick="exportarTareasExcel()"
-            style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1.5px solid rgba(255,167,0,.4);background:rgba(255,167,0,.1);color:var(--amarillo);font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Exportar Excel
-          </button>
+    <!-- ══ ANÁLISIS TAREAS ══ -->
+    <div id="tareas-analisis-wrap" style="margin-top:28px">
+      <div class="section-title" style="color:#FFA700">
+        <span class="dot-sec" style="background:#FFA700"></span>
+        Análisis Tareas Pendientes PEI
+        <span id="tareas-badge-total" style="font-family:var(--font-cond);font-size:11px;background:rgba(255,167,0,.15);color:#FFA700;border:1px solid rgba(255,167,0,.3);padding:2px 10px;border-radius:20px;margin-left:8px"></span>
+      </div>
+      <div id="tareas-analisis-body">
+        <div style="text-align:center;padding:30px;color:var(--muted)">
+          Ve a <b style="color:var(--turquesa)">Carga por Gestor → Tareas Operativo</b> para activar la carga de tareas.
         </div>
       </div>
-      <!-- KPI strip Tareas -->
-      <div class="kpi-strip">
-        <div class="kpi-card" style="--ak:var(--amarillo)">
-          <div class="kpi-lbl">Total Tareas</div>
-          <div class="kpi-val" id="kt-total">—</div>
-          <div class="kpi-sub" id="kt-total-s">registros cargados</div>
-        </div>
-        <div class="kpi-card" style="--ak:var(--turquesa)">
-          <div class="kpi-lbl">En Proceso</div>
-          <div class="kpi-val" id="kt-proceso">—</div>
-          <div class="kpi-sub" id="kt-proceso-s">en ejecución</div>
-        </div>
-        <div class="kpi-card" style="--ak:#FFA700">
-          <div class="kpi-lbl">Pendiente</div>
-          <div class="kpi-val" id="kt-pendiente">—</div>
-          <div class="kpi-sub" id="kt-pendiente-s">por iniciar</div>
-        </div>
-        <div class="kpi-card" style="--ak:#34D399">
-          <div class="kpi-lbl">Completada</div>
-          <div class="kpi-val" id="kt-completada">—</div>
-          <div class="kpi-sub" id="kt-completada-s">finalizadas</div>
-        </div>
-        <div class="kpi-card" style="--ak:#FF44B0">
-          <div class="kpi-lbl">Cancelada</div>
-          <div class="kpi-val" id="kt-cancelada">—</div>
-          <div class="kpi-sub">canceladas</div>
-        </div>
-        <div class="kpi-card" style="--ak:#FF6F42">
-          <div class="kpi-lbl">Bloqueada</div>
-          <div class="kpi-val" id="kt-bloqueada">—</div>
-          <div class="kpi-sub">impedimentos</div>
-        </div>
-        <div class="kpi-card" style="--ak:#8B6FE8">
-          <div class="kpi-lbl">En Revisión</div>
-          <div class="kpi-val" id="kt-revision">—</div>
-          <div class="kpi-sub">bajo revisión</div>
-        </div>
-        <div class="kpi-card" style="--ak:#6EBEEB">
-          <div class="kpi-lbl">Asignada</div>
-          <div class="kpi-val" id="kt-asignada">—</div>
-          <div class="kpi-sub">pendiente inicio</div>
-        </div>
-        <div class="kpi-card" style="--ak:var(--azul-c)">
-          <div class="kpi-lbl">Gestores</div>
-          <div class="kpi-val" id="kt-gestores">—</div>
-          <div class="kpi-sub">con tareas asignadas</div>
-        </div>
-        <div class="kpi-card" style="--ak:var(--naranja)">
-          <div class="kpi-lbl">Procesos</div>
-          <div class="kpi-val" id="kt-procesos">—</div>
-          <div class="kpi-sub">procesos distintos</div>
-        </div>
-        <div class="kpi-card" style="--ak:#34D399">
-          <div class="kpi-lbl">Jurisdicciones</div>
-          <div class="kpi-val" id="kt-jurisdicciones">—</div>
-          <div class="kpi-sub">jurisdicciones activas</div>
-        </div>
-      </div>
-    </div><!-- /kpi-sticky-wrap tareas -->
-
-    <div style="padding-top:22px">
-
-      <!-- TAREAS SUB-TAB ANÁLISIS -->
-      <div id="tab-tareas-analisis">
-        <div class="section-title"><span class="dot-sec" style="background:var(--amarillo)"></span>Análisis General · Tareas Pendientes PEI</div>
-        <div id="tareas-analisis-placeholder" style="text-align:center;padding:40px;color:var(--muted)">
-          <div style="font-size:32px;margin-bottom:12px">⏳</div>
-          <div style="font-size:14px">Cargando tareas desde Google Sheets…</div>
-        </div>
-        <div id="tareas-analisis-content">
-          <!-- KPI mini resumen -->
-          <div id="tareas-kpi-mini" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px"></div>
-          <!-- Distribución por Estado -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
-            <div class="chart-card">
-              <div class="card-title"><span class="dot-sec" style="background:var(--amarillo)"></span>Distribución por Estado</div>
-              <div id="vis-tarea-estado" style="padding:8px 0"></div>
-            </div>
-            <div class="chart-card">
-              <div class="card-title"><span class="dot-sec" style="background:#8B6FE8"></span>Jurisdicciones</div>
-              <div id="vis-tarea-jurisdiccion" style="padding:4px 0"></div>
-            </div>
-          </div>
-          <div class="chart-card" style="margin-bottom:18px">
-            <div class="card-title"><span class="dot-sec" style="background:#00B0F0"></span>Top Procesos</div>
-            <div id="vis-tarea-procesos" style="padding:4px 0"></div>
-          </div>
-          <div class="chart-card" style="margin-bottom:18px">
-            <div class="card-title"><span class="dot-sec" style="background:var(--naranja)"></span>Top Gestores por Carga de Tareas</div>
-            <div id="vis-tarea-gestores" style="padding:4px 0"></div>
-          </div>
-          <!-- Tabla resumen -->
-          <div class="section-title"><span class="dot-sec" style="background:var(--amarillo)"></span>Detalle Consolidado por Gestor · Tareas</div>
-          <div class="tbl-card">
-            <table>
-              <thead><tr>
-                <th>#</th><th>Gestor</th><th>Tipo</th><th>Total</th>
-                <th>Pendiente</th><th>En Proceso</th><th>Completada</th><th>Bloqueada</th><th>Cancelada</th>
-                <th>Procesos</th>
-              </tr></thead>
-              <tbody id="tbl-tareas-resumen"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- TAREAS SUB-TAB CARGA -->
-      <div id="tab-tareas-carga" style="display:none">
-        <div class="section-title"><span class="dot-sec" style="background:var(--amarillo)"></span>Carga por Gestor · Tareas Pendientes</div>
-        <div class="carga-subtabs">
-          <div class="carga-subtab active" id="tcst-operativo" onclick="switchTareasCargaSubTab('operativo')">
-            🔧 Tareas Operativo <span class="st-badge" id="tcst-badge-operativo">0</span>
-          </div>
-          <div class="carga-subtab" id="tcst-proyectos" onclick="switchTareasCargaSubTab('proyectos')">
-            📐 Tareas Proyectos <span class="st-badge" id="tcst-badge-proyectos">0</span>
-          </div>
-        </div>
-        <div id="gestores-grid-tareas-carga-operativo"><div class="empty">Cargando tareas…</div></div>
-        <div id="gestores-grid-tareas-carga-proyectos" style="display:none"><div class="empty">Cargando tareas…</div></div>
-      </div>
-
-    </div><!-- /padding-top tareas -->
-  </div><!-- /main-tareas -->
+    </div>
 
 </main>
 <footer id="footer-txt">GTN · PEI PENDIENTES · Proyectos e Implementación</footer>
@@ -1103,46 +962,6 @@ const KNOWN_SHEETS = [
   //  {fecha:'17-07-26',gid:1731121928},
     {fecha:'23-07-26',gid:306558480},
 ];
-
-// ── HOJAS DE TAREAS ────────────────────────────────────────────────────
-// Hoja: QS: TAREAS PENDIENTES PEI (04-08-2026)
-// IMPORTANTE: Si la hoja de tareas está en un Spreadsheet DIFERENTE al de OTS,
-// pon aquí el ID de ese Spreadsheet (la parte entre /d/ y /edit en la URL)
-// Si es el MISMO Spreadsheet que OTS, deja null
-const SHEET_ID_TAREAS = '1SMRqn8HFhbZW0HhDdoK--9Met-sBfg2gcsse4Niaa64';
-
-const KNOWN_SHEETS_TAREAS = [
-  {fecha:'04-08-26', gid: 88454513, nombre:'QS: TAREAS PENDIENTES PEI (04-08-2026)'},
-];
-
-// Columnas de la hoja de TAREAS
-const CT = {
-  NOMBRE_PROCESO:   'NOMBRE_PROCESO',
-  NOMBRE_TAREA:     'NOMBRE_TAREA',
-  ID_TAREA:         'ID_TAREA',
-  ESTADO_TAREA:     'ESTADO_TAREA',
-  JURISDICCION:     'JURISDICCION_LOGIN_TAREA',
-  ANNO:             'AÑO.ULT.ESTADO',
-  MES:              'MES.ULT.ESTADO',
-  GESTOR:           'ULT USUARIO ASIGNADO',
-  // internas (calculadas)
-  GRUPO:            '_tarea_grupo',
-  TIPO_GESTION:     '_tarea_tipo_gestion',
-};
-
-// Colores por estado de tarea
-const TAREA_EST_COL = {
-  'Pendiente':       '#FFA700',
-  'En Proceso':      '#00B0F0',
-  'Completada':      '#34D399',
-  'Cancelada':       '#FF44B0',
-  'Bloqueada':       '#FF6F42',
-  'En Revisión':     '#8B6FE8',
-  'Asignada':        '#6EBEEB',
-};
-
-// Estado de datos de tareas
-let allTareas = [], filteredTareas = [], _tareaMapCache = {};
 
 const C={
   GESTOR:'NOMBRE_USR_ULT_PLAN',
@@ -1480,91 +1299,10 @@ function setProgress(done,total){
   document.getElementById('prog-bar').style.width=(done/total*100)+'%';
 }
 
-// ── NAVEGACIÓN PRINCIPAL (Órdenes / Tareas) ────────────────────────────
-let _mainTab = 'ordenes'; // 'ordenes' | 'tareas'
-let _ordSubTab = 'analisis';  // 'analisis' | 'carga'
-let _tarSubTab = 'analisis';  // 'analisis' | 'carga'
-let _tareasCargaSubTab = 'operativo';
-
-function switchMainTab(t){
-  _mainTab = t;
-  ['ordenes','tareas'].forEach(s=>{
-    const el=document.getElementById('main-'+s);
-    if(el) el.style.display = s===t?'':'none';
-    document.getElementById('main-tab-'+s)?.classList.toggle('active', s===t);
-  });
-
-  if(t !== 'tareas') return;
-
-  if(!allTareas.length){
-    // Mostrar spinner y cargar
-    const ph=document.getElementById('tareas-analisis-placeholder');
-    const ct=document.getElementById('tareas-analisis-content');
-    if(ph){ ph.style.display=''; ph.innerHTML=`
-      <div style="padding:40px;text-align:center;color:var(--muted)">
-        <div style="font-size:32px;margin-bottom:12px">⏳</div>
-        <div style="font-size:14px">Cargando tareas desde Google Sheets…</div>
-        <div style="font-size:11px;margin-top:6px">Espera unos segundos</div>
-      </div>`; }
-    if(ct) ct.style.display='none';
-    if(!_tareasLoading) loadTareas().catch(e=>console.warn('[Tareas] Error:', e));
-  } else {
-    // Datos ya disponibles: renderizar en el próximo frame de animación
-    // (garantiza que el div ya está visible en pantalla)
-    renderKPIsTareas();
-    requestAnimationFrame(()=>{
-      requestAnimationFrame(()=>{
-        if(!filteredTareas.length && allTareas.length) filteredTareas = [...allTareas];
-        const tCt=document.getElementById('tareas-analisis-content');
-        const tPh=document.getElementById('tareas-analisis-placeholder');
-        if(tCt) tCt.style.display = '';
-        if(tPh) tPh.style.display = 'none';
-        renderTareasAnalisis();
-        renderGestoresTareasNew();
-        window._tareasPendienteRender = false;
-      });
-    });
-  }
-}
-
-// Sub-tabs dentro de ÓRDENES
-function switchOrdSubTab(t){
-  _ordSubTab = t;
-  // Botones
-  const bA=document.getElementById('ord-subtab-analisis');
-  const bC=document.getElementById('ord-subtab-carga');
-  if(bA){ bA.style.background=t==='analisis'?'rgba(0,176,240,.18)':'transparent'; bA.style.color=t==='analisis'?'var(--turquesa)':'var(--muted)'; }
-  if(bC){ bC.style.background=t==='carga'?'rgba(0,176,240,.18)':'transparent';    bC.style.color=t==='carga'?'var(--turquesa)':'var(--muted)'; }
-  // Contenido
-  document.getElementById('tab-analisis').style.display = t==='analisis'?'':'none';
-  document.getElementById('tab-carga').style.display    = t==='carga'?'':'none';
-}
-
-// Sub-tabs dentro de TAREAS
-function switchTarSubTab(t){
-  _tarSubTab = t;
-  const bA=document.getElementById('tar-subtab-analisis');
-  const bC=document.getElementById('tar-subtab-carga');
-  if(bA){ bA.style.background=t==='analisis'?'rgba(255,167,0,.18)':'transparent'; bA.style.color=t==='analisis'?'var(--amarillo)':'var(--muted)'; }
-  if(bC){ bC.style.background=t==='carga'?'rgba(255,167,0,.18)':'transparent';    bC.style.color=t==='carga'?'var(--amarillo)':'var(--muted)'; }
-  document.getElementById('tab-tareas-analisis').style.display = t==='analisis'?'':'none';
-  document.getElementById('tab-tareas-carga').style.display    = t==='carga'?'':'none';
-}
-
-// Sub-tabs dentro de Carga por Gestor Tareas
-function switchTareasCargaSubTab(t){
-  _tareasCargaSubTab = t;
-  ['operativo','proyectos'].forEach(s=>{
-    document.getElementById('tcst-'+s)?.classList.toggle('active', s===t);
-    const g=document.getElementById('gestores-grid-tareas-carga-'+s);
-    if(g) g.style.display = s===t?'':'none';
-  });
-}
-
-// Compatibilidad: switchTab antiguo redirige a switchOrdSubTab
+// ── TABS ───────────────────────────────────────────────────────────────
 function switchTab(t){
-  const map={analisis:'analisis', carga:'carga'};
-  switchOrdSubTab(map[t]||t);
+  ['analisis','carga'].forEach(id=>document.getElementById('tab-'+id).style.display=id===t?'':'none');
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['analisis','carga'][i]===t));
 }
 
 // ── SEARCHABLE MULTI-SELECT FILTERS ────────────────────────────────────
@@ -3211,39 +2949,10 @@ async function loadAll(){
   }
 
   setProgress(0,0);
-  // Tareas se cargan solo cuando el usuario abre esa tab (ver switchMainTab)
 }
 
 // ── INICIO ─────────────────────────────────────────────────────────────
 initFilters();
-
-// Inicializar navegación: Órdenes activo, sub-tab Análisis visible
-(function initNav(){
-  // Mostrar sección Órdenes, ocultar Tareas
-  const mO=document.getElementById('main-ordenes');
-  const mT=document.getElementById('main-tareas');
-  if(mO) mO.style.display='';
-  if(mT) mT.style.display='none';
-
-  // Activar sub-tab Análisis en Órdenes (mostrar tab-analisis, ocultar tab-carga)
-  const tA=document.getElementById('tab-analisis');
-  const tC=document.getElementById('tab-carga');
-  if(tA) tA.style.display='';
-  if(tC) tC.style.display='none';
-
-  // Botones sub-tab Órdenes: Análisis activo
-  const bA=document.getElementById('ord-subtab-analisis');
-  const bC=document.getElementById('ord-subtab-carga');
-  if(bA){ bA.style.background='rgba(0,176,240,.18)'; bA.style.color='var(--turquesa)'; }
-  if(bC){ bC.style.background='transparent';          bC.style.color='var(--muted)'; }
-
-  // Tareas: sub-tab Análisis activo (aunque está oculto)
-  const ttA=document.getElementById('tab-tareas-analisis');
-  const ttC=document.getElementById('tab-tareas-carga');
-  if(ttA) ttA.style.display='';
-  if(ttC) ttC.style.display='none';
-})();
-
 loadAll();
 
 // ── GESTOR NAVIGATOR ──────────────────────────────────────────────────────
@@ -3630,656 +3339,6 @@ function toggleTheme(){
 
 
 
-// ══════════════════════════════════════════════════════════════════════
-// ── MÓDULO TAREAS ──────────────────────────────────────────────────────
-// ══════════════════════════════════════════════════════════════════════
-
-// ── FETCH TAREAS via Google Visualization Query API (CORS-safe) ─────────
-async function fetchSheetTareas(s) {
-  // Usar el Sheet ID de tareas (puede ser diferente al de OTS)
-  const sid = SHEET_ID_TAREAS || SHEET_ID;
-  
-  // Probar todas las combinaciones posibles
-  const urls = [
-    // Por nombre de hoja (más confiable)
-    `https://docs.google.com/spreadsheets/d/${sid}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s.nombre)}`,
-    // Por GID
-    `https://docs.google.com/spreadsheets/d/${sid}/gviz/tq?tqx=out:json&gid=${s.gid}`,
-  ];
-  // Si es un sheet diferente también probar el de OTS (por si acaso)
-  if(SHEET_ID_TAREAS && SHEET_ID_TAREAS !== SHEET_ID){
-    urls.push(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(s.nombre)}`);
-  }
-
-  for(const url of urls){
-    console.log('[Tareas] Probando:', url.split('?')[1]);
-    try {
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 30000);
-      const resp  = await fetch(url, {signal: ctrl.signal});
-      clearTimeout(timer);
-      if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      const txt = await resp.text();
-
-      const match = txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
-      if(!match) throw new Error('Formato inválido');
-
-      const json = JSON.parse(match[1]);
-      if(json.status === 'error'){
-        throw new Error(json.errors?.[0]?.detailed_message || 'Error gviz');
-      }
-
-      const table = json.table;
-      if(!table?.cols?.length) throw new Error('Sin columnas');
-
-      const cols = table.cols.map(c => (c.label || c.id || '').trim());
-      console.log('[Tareas] Columnas:', cols.slice(0,10), '...');
-
-      // Validar que es la hoja de Tareas
-      const esTareas = cols.some(c =>
-        c.includes('ULT USUARIO') || c.includes('NOMBRE_TAREA') ||
-        c.includes('ESTADO_TAREA') || c.includes('ID_TAREA') ||
-        c.includes('NOMBRE_PROCESO')
-      );
-      if(!esTareas){
-        throw new Error(`No es hoja de tareas. Columnas encontradas: ${cols.slice(0,5).join(', ')}`);
-      }
-
-      const rows = (table.rows||[]).map(r => {
-        const obj = {_tarea_fecha: s.fecha, _tarea_gid: s.gid};
-        cols.forEach((col, i) => {
-          const cell = r.c?.[i];
-          obj[col] = cell?.v != null ? String(cell.v) : (cell?.f || '');
-        });
-        return obj;
-      }).filter(r => cols.some(col => r[col]?.trim?.()));
-
-      console.log(`[Tareas] ✅ ${rows.length} filas. URL: ${url.split('?')[1]}`);
-      return rows;
-
-    } catch(e){
-      console.warn('[Tareas] ✗', url.split('?')[1], '→', e.message);
-    }
-  }
-
-  // Todas fallaron — mostrar error útil con instrucciones
-  const sid2 = SHEET_ID_TAREAS || SHEET_ID;
-  throw new Error(
-    `No se pudo acceder a la hoja "${s.nombre}" (GID: ${s.gid}).\n\n` +
-    `La API gviz siempre devuelve la primera hoja del Spreadsheet (ID: ${sid2}).\n\n` +
-    `Solución: Verifica en la URL de Google Sheets que el ID del Spreadsheet ` +
-    `que contiene "${s.nombre}" y actualiza SHEET_ID_TAREAS en el código.`
-  );
-}
-
-// Carga de la hoja de tareas desde Apps Script
-let _tareasLoading = false;
-
-async function loadTareas(){
-  if(_tareasLoading){ console.warn('[Tareas] Carga ya en progreso, ignorando solicitud duplicada.'); return; }
-  _tareasLoading = true;
-  if(!KNOWN_SHEETS_TAREAS.length){ _tareasLoading=false; return; }
-
-  allTareas = [];
-
-  for(const s of KNOWN_SHEETS_TAREAS){
-    if(!s.gid || s.gid === 0){
-      console.warn('[Tareas] GID no configurado para hoja:', s.nombre);
-      continue;
-    }
-    try {
-      console.log('[Tareas] Cargando hoja:', s.nombre, 'GID:', s.gid);
-      const rows = await fetchSheetTareas(s);
-      console.log('[Tareas] Filas recibidas:', rows.length, '| Primera fila keys:', rows[0]?Object.keys(rows[0]).slice(0,8):[]);
-
-      // Auto-detectar nombres de columnas reales en la primera fila
-      if(rows.length){
-        const firstKeys = Object.keys(rows[0]);
-        // Detectar columna gestor (busca cualquier variante de "ULT*USUARIO*ASIGNADO" o "GESTOR")
-        const gestorKey = firstKeys.find(k=>{
-          const n=k.trim().toLowerCase().replace(/[\s._-]+/g,'');
-          return n.includes('ultusuario')||n.includes('usuarioasig')||n==='gestor';
-        }) || CT.GESTOR;
-        // Detectar columna estado
-        const estadoKey = firstKeys.find(k=>{
-          const n=k.trim().toLowerCase().replace(/[\s._-]+/g,'');
-          return n.includes('estadotarea')||n.includes('estado_tarea');
-        }) || CT.ESTADO_TAREA;
-        // Detectar jurisdicción
-        const jurKey = firstKeys.find(k=>{
-          const n=k.trim().toLowerCase().replace(/[\s._-]+/g,'');
-          return n.includes('jurisdiccion')||n.includes('login_tarea');
-        }) || CT.JURISDICCION;
-
-        console.log('[Tareas] Columnas detectadas → Gestor:', gestorKey, '| Estado:', estadoKey, '| Jurisdicción:', jurKey);
-        console.log('[Tareas] Todas las columnas:', firstKeys);
-
-        rows.forEach(row => {
-          const rawGestor = (row[gestorKey]||'').trim();
-          const pm = PERSONAL_MAP[rawGestor.toLowerCase()] || {};
-          row._tarea_gestor       = rawGestor || 'Sin gestor';
-          row._tarea_grupo        = pm.grupo  || 'OTROS';
-          row._tarea_tipo_gestion = pm.tipo   || 'OTROS';
-          // Normalizar campos clave por si el nombre real difiere del esperado
-          if(gestorKey !== CT.GESTOR)     row[CT.GESTOR]      = row[gestorKey]  || '';
-          if(estadoKey !== CT.ESTADO_TAREA) row[CT.ESTADO_TAREA]= row[estadoKey] || '';
-          if(jurKey    !== CT.JURISDICCION) row[CT.JURISDICCION]= row[jurKey]    || '';
-        });
-      }
-      allTareas.push(...rows);
-    } catch(e) {
-      console.warn('[Tareas] Error cargando hoja', s.nombre, e);
-      // Mostrar error visible en la UI
-      const ph = document.getElementById('tareas-analisis-placeholder');
-      if(ph) ph.innerHTML = `
-        <div style="padding:30px;text-align:center">
-          <div style="font-size:28px;margin-bottom:10px">⚠️</div>
-          <div style="color:#FF6F42;font-size:14px;font-weight:700;margin-bottom:8px">Error cargando tareas</div>
-          <div style="color:var(--muted);font-size:12px;max-width:500px;margin:0 auto;line-height:1.6">${e.message}</div>
-          <div style="margin-top:14px;color:var(--muted);font-size:11px">
-            💡 <b style="color:var(--turquesa)">Posible causa:</b> El Apps Script no tiene acceso a la hoja
-            <code style="background:rgba(255,255,255,.08);padding:2px 6px;border-radius:4px">${s.nombre}</code><br>
-            Verifica que el GID <code style="background:rgba(255,255,255,.08);padding:2px 6px;border-radius:4px">${s.gid}</code>
-            está en el mismo Spreadsheet que las hojas OTS.
-          </div>
-          <button onclick="loadTareas()" style="margin-top:16px;padding:8px 20px;border-radius:20px;border:1.5px solid rgba(0,176,240,.4);background:rgba(0,176,240,.1);color:var(--turquesa);font-family:var(--font);font-size:12px;cursor:pointer">
-            🔄 Reintentar
-          </button>
-        </div>`;
-    }
-  }
-
-  console.log('[Tareas] Total tareas cargadas:', allTareas.length);
-  filteredTareas = [...allTareas];
-  _tareasLoading = false;
-  renderKPIsTareas();
-
-  // Asegurar que la sección tareas sea visible antes de renderizar charts
-  const mainTareas = document.getElementById('main-tareas');
-  const isVisible = mainTareas && mainTareas.style.display !== 'none';
-
-  if(isVisible){
-    // doble rAF: garantiza que el browser pintó el layout antes de crear Canvas
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      console.log('[Tareas] Ejecutando render...');
-      // Garantizar que filteredTareas tiene datos (puede haberse vaciado por filtros)
-      if(!filteredTareas.length && allTareas.length) filteredTareas = [...allTareas];
-      // Forzar visibilidad de los contenedores
-      const mT=document.getElementById('main-tareas');
-      const tAn=document.getElementById('tab-tareas-analisis');
-      const tCt=document.getElementById('tareas-analisis-content');
-      const tPh=document.getElementById('tareas-analisis-placeholder');
-      if(mT)  mT.style.display  = '';
-      if(tAn) tAn.style.display = '';
-      if(tCt) tCt.style.display = '';    // forzar visible ANTES de renderizar
-      if(tPh) tPh.style.display = 'none'; // ocultar spinner
-      renderTareasAnalisis();
-      renderGestoresTareasNew();
-      console.log('[Tareas] Render completado. filteredTareas:', filteredTareas.length);
-    }));
-  } else {
-    window._tareasPendienteRender = true;
-    console.log('[Tareas] Datos listos, se renderizan al abrir la tab.');
-  }
-}
-
-// ── KPIs TAREAS ────────────────────────────────────────────────────────
-function renderKPIsTareas(){
-  const t = filteredTareas;
-  const count = est => t.filter(r=>getTareaEst(r)===est).length;
-  const tot = t.length;
-  const gestores = new Set(t.map(r=>r._tarea_gestor).filter(Boolean)).size;
-  const procesos = new Set(t.map(r=>r[CT.NOMBRE_PROCESO]||'').filter(Boolean)).size;
-  const jurisdicciones = new Set(t.map(r=>r[CT.JURISDICCION]||'').filter(Boolean)).size;
-
-  const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
-  set('kt-total',    tot.toLocaleString('es-EC'));
-  set('kt-total-s',  tot+' tareas cargadas');
-  set('kt-proceso',  count('En Proceso'));
-  set('kt-proceso-s',tot?Math.round(count('En Proceso')/tot*100)+'% del total':'');
-  set('kt-pendiente',count('Pendiente'));
-  set('kt-pendiente-s',tot?Math.round(count('Pendiente')/tot*100)+'% del total':'');
-  set('kt-completada',count('Completada'));
-  set('kt-completada-s',tot?Math.round(count('Completada')/tot*100)+'% del total':'');
-  set('kt-cancelada',count('Cancelada'));
-  set('kt-bloqueada',count('Bloqueada'));
-  set('kt-revision', count('En Revisión'));
-  set('kt-asignada', count('Asignada'));
-  set('kt-gestores', gestores);
-  set('kt-procesos', procesos);
-  set('kt-jurisdicciones', jurisdicciones);
-}
-
-// ── ANÁLISIS GENERAL TAREAS ─────────────────────────────────────────────
-let _tareasChartsDone = false;
-
-function renderTareasAnalisis(){
-  const ph = document.getElementById('tareas-analisis-placeholder');
-  const ct = document.getElementById('tareas-analisis-content');
-
-  if(!filteredTareas.length){
-    if(ph) ph.style.display = '';
-    if(ct) ct.style.display = 'none';
-    _tareasChartsDone = false;
-    return;
-  }
-
-  // Ocultar spinner, mostrar contenido
-  if(ph) ph.style.display = 'none';
-  if(ct) ct.style.display = '';
-
-  // Mini KPIs
-  const estMap={};
-  filteredTareas.forEach(r=>{ const e=getTareaEst(r)||'Sin estado'; estMap[e]=(estMap[e]||0)+1; });
-  const estEntries=Object.entries(estMap).sort((a,b)=>b[1]-a[1]);
-  const tot = filteredTareas.length;
-
-  const miniKpi = document.getElementById('tareas-kpi-mini');
-  if(miniKpi) miniKpi.innerHTML = estEntries.map(([est,cnt])=>`
-    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:8px 14px;border-top:3px solid ${colorTareaEst(est)}">
-      <div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:2px">${est}</div>
-      <div style="font-family:var(--font-cond);font-weight:800;font-size:22px;color:${colorTareaEst(est)}">${cnt}</div>
-      <div style="font-size:9px;color:var(--muted)">${Math.round(cnt/tot*100)}% del total</div>
-    </div>`).join('');
-
-  // Tabla resumen
-  _renderTablaTareasResumen();
-
-  // Visualizaciones directas (HTML puro, sin Canvas)
-  _drawTareasCharts(estEntries, tot);
-}
-
-function _drawTareasCharts(estEntries, tot){
-  const set = (id, html) => { const el=document.getElementById(id); if(el) el.innerHTML=html; };
-  const makeBars = (entries, colorFn) => {
-    const max = Math.max(...entries.map(([,v])=>v), 1);
-    return entries.map(([label, val])=>{
-      const pct=Math.round(val/max*100), col=colorFn(label);
-      return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
-        <div style="width:150px;font-size:11px;color:#9BBCD8;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0" title="${esc(label)}">${label.length>22?label.slice(0,20)+'…':label}</div>
-        <div style="flex:1;background:rgba(255,255,255,.06);border-radius:3px;height:18px;position:relative">
-          <div style="width:${pct}%;background:${col};border-radius:3px;height:100%"></div>
-        </div>
-        <div style="width:40px;font-family:var(--font-cond);font-weight:700;font-size:12px;color:${col};text-align:right">${val}</div>
-      </div>`;
-    }).join('');
-  };
-
-  // Donut SVG estados
-  const circ=2*Math.PI*54, cx=70, cy=70, r=54, sw=20;
-  let off=0, arcs='';
-  estEntries.forEach(([est,cnt])=>{
-    const col=colorTareaEst(est), dash=(cnt/tot)*circ;
-    arcs+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="${sw}"
-      stroke-dasharray="${dash} ${circ}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})"/>`;
-    off+=dash;
-  });
-  set('vis-tarea-estado', `<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-    <svg width="140" height="140" style="flex-shrink:0">
-      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${sw}"/>
-      ${arcs}
-      <text x="${cx}" y="${cy-6}" text-anchor="middle" fill="#e8f0ff" font-size="22" font-weight="800" font-family="Barlow Condensed,sans-serif">${tot}</text>
-      <text x="${cx}" y="${cy+12}" text-anchor="middle" fill="#8899aa" font-size="11">tareas</text>
-    </svg>
-    <div style="flex:1;min-width:130px">${estEntries.map(([est,cnt])=>`
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-        <div style="width:9px;height:9px;border-radius:2px;background:${colorTareaEst(est)};flex-shrink:0"></div>
-        <span style="font-size:12px;color:#9BBCD8;flex:1">${est}</span>
-        <span style="font-family:var(--font-cond);font-weight:700;color:${colorTareaEst(est)};font-size:13px">${cnt}</span>
-        <span style="color:var(--muted);font-size:10px;width:30px;text-align:right">${Math.round(cnt/tot*100)}%</span>
-      </div>`).join('')}
-    </div>
-  </div>`);
-
-  // Procesos
-  const procMap={};
-  filteredTareas.forEach(r=>{const p=r[CT.NOMBRE_PROCESO]||'Sin proceso';procMap[p]=(procMap[p]||0)+1;});
-  set('vis-tarea-procesos', makeBars(Object.entries(procMap).sort((a,b)=>b[1]-a[1]).slice(0,12), ()=>'#00B0F0'));
-
-  // Jurisdicciones
-  const jurMap={};
-  filteredTareas.forEach(r=>{const j=r[CT.JURISDICCION]||'Sin jurisdicción';jurMap[j]=(jurMap[j]||0)+1;});
-  set('vis-tarea-jurisdiccion', makeBars(Object.entries(jurMap).sort((a,b)=>b[1]-a[1]).slice(0,10), ()=>'#8B6FE8'));
-
-  // Gestores
-  const gMap={};
-  filteredTareas.forEach(r=>{const g=r._tarea_gestor||'Sin gestor';gMap[g]=(gMap[g]||0)+1;});
-  set('vis-tarea-gestores', makeBars(Object.entries(gMap).sort((a,b)=>b[1]-a[1]).slice(0,15), ()=>'#FFA700'));
-
-  console.log('[Tareas] Visualizaciones dibujadas correctamente');
-}
-
-function _renderTablaTareasResumen(){
-  const tblMap={};
-  filteredTareas.forEach(r=>{
-    const g=r._tarea_gestor||'Sin gestor';
-    if(!tblMap[g]) tblMap[g]={tipo:r._tarea_tipo_gestion||'—',estados:{},procesos:new Set()};
-    const e=getTareaEst(r)||'Sin estado';
-    tblMap[g].estados[e]=(tblMap[g].estados[e]||0)+1;
-    if(r[CT.NOMBRE_PROCESO]) tblMap[g].procesos.add(r[CT.NOMBRE_PROCESO]);
-  });
-  const tblRows=Object.entries(tblMap).sort((a,b)=>b[1].procesos.size-a[1].procesos.size||
-    Object.values(b[1].estados).reduce((s,v)=>s+v,0)-Object.values(a[1].estados).reduce((s,v)=>s+v,0));
-  const tipoPill=t=>t==='PROYECTOS'
-    ?`<span style="background:rgba(110,190,235,.18);color:#6EBEEB;border:1px solid rgba(110,190,235,.35);padding:2px 8px;border-radius:20px;font-size:10px;font-family:var(--font-cond)">${t}</span>`
-    :t==='OPERATIVO'
-    ?`<span style="background:rgba(52,211,153,.18);color:#34D399;border:1px solid rgba(52,211,153,.35);padding:2px 8px;border-radius:20px;font-size:10px;font-family:var(--font-cond)">${t}</span>`
-    :`<span style="color:var(--muted);font-size:11px">${t}</span>`;
-  document.getElementById('tbl-tareas-resumen').innerHTML=tblRows.length?tblRows.map(([g,d],i)=>{
-    const tot2=Object.values(d.estados).reduce((s,v)=>s+v,0);
-    return`<tr>
-      <td style="color:var(--muted);font-family:var(--font-cond)">${i+1}</td>
-      <td style="font-weight:700;color:var(--turquesa);font-family:var(--font-cond)">${g}</td>
-      <td>${tipoPill(d.tipo)}</td>
-      <td style="font-family:var(--font-cond);font-weight:700;color:var(--amarillo)">${tot2}</td>
-      <td>${d.estados['Pendiente']||0}</td>
-      <td style="color:#00B0F0">${d.estados['En Proceso']||0}</td>
-      <td style="color:#34D399">${d.estados['Completada']||0}</td>
-      <td style="color:#FF6F42">${d.estados['Bloqueada']||0}</td>
-      <td style="color:#FF44B0">${d.estados['Cancelada']||0}</td>
-      <td style="color:var(--muted)">${d.procesos.size}</td>
-    </tr>`;
-  }).join(''):`<tr><td colspan="10" class="empty">Sin datos de tareas</td></tr>`;
-}
-
-// ── CARGA POR GESTOR TAREAS (nuevo, usa gestores-grid-tareas-carga-*) ───
-function renderGestoresTareasNew(){
-  _tareaIdCounter = 0;
-
-  const hasGid = KNOWN_SHEETS_TAREAS.some(s=>s.gid&&s.gid!==0);
-  if(!filteredTareas.length){
-    const msg = hasGid
-      ? `<div style="padding:30px;text-align:center;color:var(--muted)">⏳ Cargando…</div>`
-      : `<div style="padding:20px;text-align:center;color:var(--muted)">Configura el GID en <code>KNOWN_SHEETS_TAREAS</code></div>`;
-    ['gestores-grid-tareas-carga-operativo','gestores-grid-tareas-carga-proyectos'].forEach(id=>{
-      const el=document.getElementById(id); if(el) el.innerHTML=msg;
-    });
-    return;
-  }
-
-  // Agrupar por gestor
-  const map={};
-  filteredTareas.forEach(r=>{
-    const g=r._tarea_gestor||(r[CT.GESTOR]||'Sin gestor').trim();
-    if(!map[g]) map[g]={estados:{},procesos:new Set(),jurisdicciones:new Set(),rows:[],tipo:r._tarea_tipo_gestion||'OTROS'};
-    const est=getTareaEst(r);
-    map[g].estados[est]=(map[g].estados[est]||0)+1;
-    if(r[CT.NOMBRE_PROCESO]) map[g].procesos.add(r[CT.NOMBRE_PROCESO]);
-    if(r[CT.JURISDICCION])   map[g].jurisdicciones.add(r[CT.JURISDICCION]);
-    map[g].rows.push(r);
-  });
-
-  const rows=Object.entries(map).map(([g,d])=>({g,d,tot:d.rows.length})).sort((a,b)=>b.tot-a.tot);
-  const rowsOp=rows.filter(({d})=>d.tipo==='OPERATIVO'||(d.tipo!=='PROYECTOS'&&d.tipo!=='OTROS'));
-  const rowsPr=rows.filter(({d})=>d.tipo==='PROYECTOS');
-
-  // Badges
-  const bOp=document.getElementById('tcst-badge-operativo');
-  const bPr=document.getElementById('tcst-badge-proyectos');
-  if(bOp) bOp.textContent=rowsOp.reduce((s,{tot})=>s+tot,0);
-  if(bPr) bPr.textContent=rowsPr.reduce((s,{tot})=>s+tot,0);
-
-  function buildGrid(rList){
-    if(!rList.length) return '<div class="empty">Sin datos de tareas para este tipo</div>';
-    return rList.map(({g,d,tot})=>{
-      const uid=++_tareaIdCounter;
-      const estEntries=Object.entries(d.estados).sort((a,b)=>b[1]-a[1]);
-      const totalEst=estEntries.reduce((s,[,v])=>s+v,0);
-      const barSegs=estEntries.map(([est,cnt])=>{
-        const pct=totalEst?Math.round(cnt/totalEst*100):0;
-        return `<div class="gc-seg" style="width:${pct}%;background:${colorTareaEst(est)}" title="${est}:${cnt}"></div>`;
-      }).join('');
-      const estPills=estEntries.map(([est,cnt])=>`
-        <div class="gc-est">
-          <span class="gc-est-dot" style="background:${colorTareaEst(est)}"></span>
-          <span class="gc-est-n" style="color:${colorTareaEst(est)}">${cnt}</span> ${est}
-        </div>`).join('');
-      return `<div class="gestor-card">
-        <div class="gc-header">
-          <div class="gc-name">👤 ${g}</div>
-          <div class="gc-badges">
-            <span class="gc-badge gb-total">${tot} tareas · ${d.procesos.size} proceso${d.procesos.size!==1?'s':''} · ${d.jurisdicciones.size} jurisdicción${d.jurisdicciones.size!==1?'es':''}</span>
-          </div>
-        </div>
-        <div class="gc-bar">${barSegs}</div>
-        <div class="gc-estados">${estPills}</div>
-        <div class="gp-tabs" style="margin-top:10px">
-          <div class="gp-tab active" id="tgpt2-${uid}-analisis" onclick="switchTareaGpTab2(${uid},'analisis')">📊 Análisis</div>
-          <div class="gp-tab" id="tgpt2-${uid}-detalle" onclick="switchTareaGpTab2(${uid},'detalle')">📋 Detalle · ${tot}</div>
-          <div style="flex:1"></div>
-          <button onclick="exportarTareasGestor('${encodeURIComponent(g)}')"
-            style="display:flex;align-items:center;gap:5px;padding:4px 12px;border-radius:16px;
-                   border:1.5px solid rgba(52,211,153,.4);background:rgba(52,211,153,.1);
-                   color:#34D399;font-family:var(--font);font-size:11px;font-weight:600;
-                   cursor:pointer;white-space:nowrap;margin-bottom:2px">⬇ Excel</button>
-        </div>
-        <div class="gp-panel active" id="tgpp2-${uid}-analisis">
-          ${buildAnalisisHTMLTareas(g,d,d.rows,uid)}
-        </div>
-        <div class="gp-panel" id="tgpp2-${uid}-detalle">
-          <div class="gc-detail">
-            <table><thead><tr>
-              <th>#</th><th>Proceso</th><th>Tarea</th><th>ID</th>
-              <th>Estado</th><th>Jurisdicción</th><th>Año</th><th>Mes</th>
-            </tr></thead>
-            <tbody>${d.rows.map((r,i)=>`<tr>
-              <td class="td-num">${i+1}</td>
-              <td class="td-muted" data-tip="${esc(r[CT.NOMBRE_PROCESO])}" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r[CT.NOMBRE_PROCESO]||'—'}</td>
-              <td class="td-client" data-tip="${esc(r[CT.NOMBRE_TAREA])}">${r[CT.NOMBRE_TAREA]||'—'}</td>
-              <td class="td-num" style="color:var(--azul-c)">${r[CT.ID_TAREA]||'—'}</td>
-              <td>${pillTarea(getTareaEst(r))}</td>
-              <td class="td-muted">${r[CT.JURISDICCION]||'—'}</td>
-              <td class="td-num">${r[CT.ANNO]||'—'}</td>
-              <td class="td-muted">${r[CT.MES]||'—'}</td>
-            </tr>`).join('')||'<tr><td colspan="8" class="empty">Sin tareas</td></tr>'}
-            </tbody></table>
-          </div>
-        </div>
-      </div>`;
-    }).join('');
-  }
-
-  const gridOp=document.getElementById('gestores-grid-tareas-carga-operativo');
-  const gridPr=document.getElementById('gestores-grid-tareas-carga-proyectos');
-  if(gridOp) gridOp.innerHTML=buildGrid(rowsOp);
-  if(gridPr) gridPr.innerHTML=buildGrid(rowsPr);
-}
-
-function switchTareaGpTab2(uid, tab){
-  ['analisis','detalle'].forEach(t=>{
-    document.getElementById('tgpt2-'+uid+'-'+t)?.classList.toggle('active', t===tab);
-    document.getElementById('tgpp2-'+uid+'-'+t)?.classList.toggle('active', t===tab);
-  });
-}
-
-// Exportar todas las tareas a Excel
-function exportarTareasExcel(){
-  if(!filteredTareas.length){ alert('Sin tareas para exportar.'); return; }
-  const headers=['GESTOR','NOMBRE_PROCESO','NOMBRE_TAREA','ID_TAREA','ESTADO_TAREA','JURISDICCION_LOGIN_TAREA','AÑO.ULT.ESTADO','MES.ULT.ESTADO','TIPO_GESTION'];
-  const keys=[CT.GESTOR,CT.NOMBRE_PROCESO,CT.NOMBRE_TAREA,CT.ID_TAREA,CT.ESTADO_TAREA,CT.JURISDICCION,CT.ANNO,CT.MES,'_tarea_tipo_gestion'];
-  const sep=';', esc2=v=>'"'+String(v||'').replace(/"/g,'""')+'"';
-  const lines=['sep=;',headers.map(esc2).join(sep)];
-  filteredTareas.forEach(r=>lines.push(keys.map(k=>esc2(r[k]||'')).join(sep)));
-  const blob=new Blob(['\uFEFF'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=`tareas_pei_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-}
-
-// Función helper para obtener el estado de una tarea
-function getTareaEst(r){ return (r[CT.ESTADO_TAREA]||'').trim(); }
-
-// Colores de estado de tarea (devuelve color dado el estado)
-function colorTareaEst(est){
-  return TAREA_EST_COL[est] || '#9BBCD8';
-}
-
-// Pill HTML para estados de tarea
-function pillTarea(est){
-  const col = colorTareaEst(est);
-  return `<span style="display:inline-block;font-size:11px;padding:2px 9px;border-radius:99px;font-weight:700;
-    white-space:nowrap;font-family:var(--font-cond);letter-spacing:.3px;
-    background:${col}22;color:${col};border:1px solid ${col}55">${est||'—'}</span>`;
-}
-
-// Render de la grilla de gestores de Tareas
-// Seleccionar gestor de tareas (reservado para expansión futura)
-function selectTareaGestor(idx, tipo){ /* futuro: scroll a card o filtrar */ }
-
-// Exportar tareas de un gestor a CSV
-function exportarTareasGestor(encoded){
-  const g = decodeURIComponent(encoded);
-  const rows = filteredTareas.filter(r=>(r._tarea_gestor||'')===g);
-  if(!rows.length){ alert('Sin tareas para exportar.'); return; }
-  const headers = ['GESTOR','NOMBRE_PROCESO','NOMBRE_TAREA','ID_TAREA','ESTADO_TAREA','JURISDICCION_LOGIN_TAREA','AÑO.ULT.ESTADO','MES.ULT.ESTADO'];
-  const keys    = [CT.GESTOR, CT.NOMBRE_PROCESO, CT.NOMBRE_TAREA, CT.ID_TAREA, CT.ESTADO_TAREA, CT.JURISDICCION, CT.ANNO, CT.MES];
-  const sep = ';';
-  const esc2 = v => '"'+String(v||'').replace(/"/g,'""')+'"';
-  const lines = ['sep=;', headers.map(esc2).join(sep)];
-  rows.forEach(r => lines.push(keys.map(k=>esc2(r[k]||'')).join(sep)));
-  const blob = new Blob(['\uFEFF'+lines.join('\n')], {type:'text/csv;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `tareas_${g.replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-}
-
-// Panel de Análisis de Tareas por Gestor (similar a buildAnalisisHTML de OTS)
-function buildAnalisisHTMLTareas(g, d, rows, uid){
-  const estEntries = Object.entries(d.estados).sort((a,b)=>b[1]-a[1]);
-  const tot = rows.length;
-  if(!tot) return '<div class="empty" style="padding:20px">Sin tareas</div>';
-
-  // Donut SVG de estados
-  const cx=65, cy=65, r=50, sw=18, circ=2*Math.PI*r;
-  let offset=0, arcs='';
-  estEntries.forEach(([est,cnt])=>{
-    const col = colorTareaEst(est);
-    const dash = (cnt/tot)*circ;
-    arcs += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="${sw}"
-      stroke-dasharray="${dash} ${circ}" stroke-dashoffset="${-offset}" transform="rotate(-90 ${cx} ${cy})"/>`;
-    offset += dash;
-  });
-  const donutSvg = `<svg width="130" height="130" style="display:block">
-    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${sw}"/>
-    ${arcs}
-    <text x="${cx}" y="${cy-6}" text-anchor="middle" fill="#e8f0ff" font-size="20" font-weight="800" font-family="Barlow Condensed,sans-serif">${tot}</text>
-    <text x="${cx}" y="${cy+12}" text-anchor="middle" fill="#8899aa" font-size="10">tareas</text>
-  </svg>`;
-
-  // Leyenda del donut
-  const legend = estEntries.map(([est,cnt])=>`
-    <div class="gc-donut-legend-item">
-      <div class="gc-donut-legend-dot" style="background:${colorTareaEst(est)}"></div>
-      <span>${est}</span>
-      <span class="gc-donut-legend-pct" style="color:${colorTareaEst(est)}">${tot?Math.round(cnt/tot*100):0}%</span>
-    </div>`).join('');
-
-  // Top 5 tareas más antiguas (por año+mes del último estado)
-  const rowsConFecha = rows.filter(r=>r[CT.ANNO]&&r[CT.MES]).sort((a,b)=>{
-    const ya=+(a[CT.ANNO]||0), yb=+(b[CT.ANNO]||0);
-    if(ya!==yb) return ya-yb;
-    // Comparar mes como texto (ene, feb... o numérico)
-    return String(a[CT.MES]).localeCompare(String(b[CT.MES]));
-  });
-  const top5 = rowsConFecha.slice(0,5);
-
-  const alertRows = top5.map(r=>{
-    const est = getTareaEst(r);
-    const col = colorTareaEst(est);
-    return `<div class="gc-alert-row">
-      <div class="gc-alert-semaforo" style="background:${col}"></div>
-      <div class="gc-alert-info">
-        <div class="gc-alert-cliente">${r[CT.NOMBRE_TAREA]||r[CT.ID_TAREA]||'—'}</div>
-        <div class="gc-alert-login">📂 ${r[CT.NOMBRE_PROCESO]||'—'}</div>
-        <div class="gc-alert-motivo">🌐 ${r[CT.JURISDICCION]||'—'}</div>
-      </div>
-      <div class="gc-alert-right">
-        <div class="gc-alert-dias" style="color:${col};font-size:11px">${r[CT.ANNO]||'—'} ${r[CT.MES]||''}</div>
-        <div class="gc-alert-estado" style="color:${col}">${est}</div>
-      </div>
-    </div>`;
-  }).join('');
-
-  // Desglose por Jurisdicción (como los "motivos" de OTS)
-  const jurMap = {}, jurRows = {};
-  rows.forEach(r=>{
-    const j = (r[CT.JURISDICCION]||'Sin jurisdicción').trim();
-    jurMap[j] = (jurMap[j]||0) + 1;
-    if(!jurRows[j]) jurRows[j] = [];
-    jurRows[j].push(r);
-  });
-  const jurSorted = Object.entries(jurMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
-
-  const uid2 = uid+'_'+g.replace(/[^a-z0-9]/gi,'_');
-  const jurItems = jurSorted.map(([j,c],i)=>{
-    const uid3 = uid2+'_jur_'+i;
-    if(!window._gcTareaJurCache) window._gcTareaJurCache={};
-    window._gcTareaJurCache[uid3] = jurRows[j]||[];
-    return `<div class="gc-mot-item" id="gcmi-t-${uid3}" onclick="gcToggleTareaJur('${uid3}')">
-      <span class="gc-mot-num" style="color:#00B0F0">${c}</span>
-      <span class="gc-mot-txt" title="${esc(j)}">${esc(j)}</span>
-      <span class="gc-mot-arrow">▼</span>
-    </div>
-    <div class="gc-mot-detail" id="gcmd-t-${uid3}" style="display:none"></div>`;
-  }).join('') || '<div style="color:var(--muted);font-size:11px;padding:6px 0">Sin jurisdicciones</div>';
-
-  return `<div class="gc-analisis-grid">
-    <div class="gc-donut-wrap">
-      <div class="gc-donut-title">Distribución Estados</div>
-      ${donutSvg}
-      <div class="gc-donut-legend">${legend}</div>
-    </div>
-    <div class="gc-alert-panel">
-      <div class="gc-alert-title">📅 Top 5 · Más Antiguas</div>
-      ${alertRows||'<div style="color:#666;font-size:12px">Sin tareas con fecha</div>'}
-    </div>
-    <div class="gc-motivos-panel">
-      <div class="gc-motivos-title" style="color:#00B0F0">🌐 Desglose por Jurisdicción</div>
-      <div class="gc-motivos-sub" style="color:#9BBCD8">${jurSorted.length} jurisdicciones · ${tot} tareas totales</div>
-      ${jurItems}
-    </div>
-  </div>`;
-}
-
-// Toggle detalle de jurisdicción dentro del panel de análisis de tareas
-function gcToggleTareaJur(uid3){
-  const rows = (window._gcTareaJurCache||{})[uid3]||[];
-  const item  = document.getElementById('gcmi-t-'+uid3);
-  const detail= document.getElementById('gcmd-t-'+uid3);
-  if(!item||!detail) return;
-  const isOpen = detail.style.display!=='none';
-  // Cerrar todos en el mismo panel
-  item.closest('.gc-motivos-panel').querySelectorAll('.gc-mot-detail').forEach(d=>d.style.display='none');
-  item.closest('.gc-motivos-panel').querySelectorAll('.gc-mot-item').forEach(el=>el.classList.remove('gc-mot-active'));
-  if(isOpen) return;
-  item.classList.add('gc-mot-active');
-  detail.style.display='block';
-  if(!rows.length){ detail.innerHTML='<div class="gc-mot-detail-hdr">Sin registros</div>'; return; }
-  detail.innerHTML=`
-    <div class="gc-mot-detail-hdr">${rows.length} tarea${rows.length!==1?'s':''}</div>
-    <div class="gc-mot-scroll">
-      <table class="gc-mot-tbl">
-        <thead><tr>
-          <th>#</th><th>Proceso</th><th>Tarea</th><th>Estado</th><th>Año</th><th>Mes</th>
-        </tr></thead>
-        <tbody>${rows.map((r,i)=>{
-          const est=getTareaEst(r);
-          const col=colorTareaEst(est);
-          return `<tr>
-            <td style="color:var(--muted);font-family:var(--font-cond)">${i+1}</td>
-            <td style="color:#9BBCD8;font-size:11px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r[CT.NOMBRE_PROCESO])}">${r[CT.NOMBRE_PROCESO]||'—'}</td>
-            <td style="font-weight:600;color:#e8f0ff;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r[CT.NOMBRE_TAREA])}">${r[CT.NOMBRE_TAREA]||r[CT.ID_TAREA]||'—'}</td>
-            <td><span style="color:${col};font-weight:700;font-family:var(--font-cond);font-size:11px">${est||'—'}</span></td>
-            <td style="color:var(--muted);font-size:11px">${r[CT.ANNO]||'—'}</td>
-            <td style="color:var(--muted);font-size:11px">${r[CT.MES]||'—'}</td>
-          </tr>`;
-        }).join('')}</tbody>
-      </table>
-    </div>`;
-}
-
 // ── RASTREADOR DE TECLAS MODIFICADORAS (Ctrl/Shift/Meta) ──────────────
 // Chart.js 4.x no siempre expone e.native correctamente en onClick,
 // por eso capturamos el estado de las teclas en el canvas directamente.
@@ -4287,6 +3346,145 @@ window._lastClickMulti=false;
 document.addEventListener('mousedown',function(ev){
   window._lastClickMulti=!!(ev.ctrlKey||ev.shiftKey||ev.metaKey);
 });
+
+// ════════════════════════════════════════════════════════════════
+// ── MÓDULO TAREAS ───────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════
+
+const SHEET_ID_TAREAS = '1SMRqn8HFhbZW0HhDdoK--9Met-sBfg2gcsse4Niaa64';
+const GID_TAREAS      = 88454513;
+const tcol = e => ({'Pendiente':'#FFA700','En Proceso':'#00B0F0','Completada':'#34D399','Cancelada':'#FF44B0','Bloqueada':'#FF6F42','En Revision':'#8B6FE8','Asignada':'#6EBEEB'}[e]||'#9BBCD8');
+
+let _tareas = [], _tareasLoading = false;
+
+// Extender switchCargaSubTab para incluir tabs de tareas
+const _origSwitch = switchCargaSubTab;
+switchCargaSubTab = function(tipo){
+  const all = ['operativo','proyectos','tareas-op','tareas-pr'];
+  _cargaSubTab = tipo;
+  all.forEach(t=>{
+    document.getElementById('cst-'+t)?.classList.toggle('active', t===tipo);
+    const g=document.getElementById('gestores-grid-'+t);
+    if(g) g.style.display = t===tipo?'':'none';
+  });
+  if(tipo==='tareas-op'||tipo==='tareas-pr'){
+    if(!_tareas.length && !_tareasLoading) loadTareas();
+    else renderTareasGestores();
+  }
+};
+
+async function loadTareas(){
+  if(_tareasLoading) return;
+  _tareasLoading = true;
+  try {
+    const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID_TAREAS}/gviz/tq?tqx=out:json&gid=${GID_TAREAS}`;
+    const txt=await (await fetch(url)).text();
+    const m=txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
+    if(!m) throw new Error('Respuesta inválida');
+    const json=JSON.parse(m[1]);
+    if(json.status==='error') throw new Error(json.errors?.[0]?.message||'Error');
+    const cols=json.table.cols.map(c=>(c.label||c.id||'').trim());
+    const fi=(fn)=>cols.findIndex(fn);
+    const iG=fi(c=>c.includes('ULT USUARIO')), iE=fi(c=>c==='ESTADO_TAREA');
+    const iJ=fi(c=>c==='JURISDICCION_LOGIN_TAREA'), iP=fi(c=>c==='NOMBRE_PROCESO');
+    const iT=fi(c=>c==='NOMBRE_TAREA'), iA=fi(c=>c.includes('AÑO')), iM=fi(c=>c.includes('MES'));
+    const cv=(row,i)=>i>=0?(row.c?.[i]?.v!=null?String(row.c[i].v):(row.c?.[i]?.f||'')):'';
+    _tareas=(json.table.rows||[]).map(row=>({
+      gestor:cv(row,iG).trim()||'Sin gestor', estado:cv(row,iE).trim()||'Sin estado',
+      juris:cv(row,iJ).trim()||'—', proceso:cv(row,iP).trim()||'—',
+      tarea:cv(row,iT).trim()||'—', anno:cv(row,iA).trim(), mes:cv(row,iM).trim(),
+    }));
+    console.log(`[Tareas] ${_tareas.length} tareas cargadas`);
+    const badge=document.getElementById('tareas-badge-total');
+    if(badge) badge.textContent=`${_tareas.length} tareas`;
+    renderTareasGestores();
+    renderTareasAnalisis();
+  } catch(e){
+    console.error('[Tareas]',e);
+    ['tareas-op','tareas-pr'].forEach(t=>{
+      const g=document.getElementById('gestores-grid-'+t);
+      if(g) g.innerHTML=`<div style="padding:20px;text-align:center;color:#FF6F42">⚠ ${e.message} <button onclick="loadTareas()" style="margin-left:10px;padding:4px 12px;border-radius:16px;border:1px solid rgba(0,176,240,.4);background:rgba(0,176,240,.1);color:var(--turquesa);cursor:pointer">Reintentar</button></div>`;
+    });
+  } finally { _tareasLoading=false; }
+}
+
+function renderTareasGestores(){
+  const map={};
+  _tareas.forEach(r=>{
+    if(!map[r.gestor]) map[r.gestor]={estados:{},juriSet:new Set(),rows:[]};
+    map[r.gestor].estados[r.estado]=(map[r.gestor].estados[r.estado]||0)+1;
+    map[r.gestor].juriSet.add(r.juris);
+    map[r.gestor].rows.push(r);
+  });
+  const sorted=Object.entries(map).map(([g,d])=>({g,d,tot:d.rows.length})).sort((a,b)=>b.tot-a.tot);
+  const getTipo=g=>(typeof PERSONAL_MAP!=='undefined'&&PERSONAL_MAP[g.toLowerCase()]?.tipo)||'OPERATIVO';
+  const rowsOp=sorted.filter(({g})=>getTipo(g)!=='PROYECTOS');
+  const rowsPr=sorted.filter(({g})=>getTipo(g)==='PROYECTOS');
+  const bOp=document.getElementById('cst-badge-tareas-op');
+  const bPr=document.getElementById('cst-badge-tareas-pr');
+  if(bOp) bOp.textContent=rowsOp.reduce((s,{tot})=>s+tot,0);
+  if(bPr) bPr.textContent=rowsPr.reduce((s,{tot})=>s+tot,0);
+
+  const card=({g,d,tot})=>{
+    const estArr=Object.entries(d.estados).sort((a,b)=>b[1]-a[1]);
+    const bar=estArr.map(([e,c])=>`<div class="gc-seg" style="width:${Math.round(c/tot*100)}%;background:${tcol(e)}" title="${e}:${c}"></div>`).join('');
+    const pills=estArr.map(([e,c])=>`<div class="gc-est"><span class="gc-est-dot" style="background:${tcol(e)}"></span><span class="gc-est-n" style="color:${tcol(e)}">${c}</span> ${e}</div>`).join('');
+    const top3=d.rows.filter(r=>r.anno).sort((a,b)=>a.anno.localeCompare(b.anno)).slice(0,3);
+    const alerts=top3.map(r=>`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)">
+      <div style="width:6px;height:6px;border-radius:50%;background:${tcol(r.estado)};flex-shrink:0"></div>
+      <div style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:#e8f0ff">${r.tarea}</div>
+      <span style="font-size:10px;color:${tcol(r.estado)};font-family:var(--font-cond);font-weight:700;flex-shrink:0">${r.anno} ${r.mes}</span>
+    </div>`).join('');
+    return`<div class="gestor-card" style="border-top:3px solid #FFA700">
+      <div class="gc-header">
+        <div class="gc-name" style="color:#FFA700">👤 ${g}</div>
+        <span class="gc-badge" style="background:rgba(255,167,0,.1);border:1px solid rgba(255,167,0,.3);color:#FFA700">${tot} tareas · ${d.juriSet.size} jurisd.</span>
+      </div>
+      <div class="gc-bar">${bar}</div>
+      <div class="gc-estados">${pills}</div>
+      ${top3.length?`<div style="margin-top:10px"><div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">📅 Más antiguas</div>${alerts}</div>`:''}
+    </div>`;
+  };
+
+  const gOp=document.getElementById('gestores-grid-tareas-op');
+  const gPr=document.getElementById('gestores-grid-tareas-pr');
+  if(gOp) gOp.innerHTML=rowsOp.length?rowsOp.map(card).join(''):'<div class="empty">Sin gestores Operativo</div>';
+  if(gPr) gPr.innerHTML=rowsPr.length?rowsPr.map(card).join(''):'<div class="empty">Sin gestores Proyectos</div>';
+}
+
+function renderTareasAnalisis(){
+  const body=document.getElementById('tareas-analisis-body');
+  if(!body||!_tareas.length) return;
+  const tot=_tareas.length;
+  const cnt=(arr,key)=>{const m={};arr.forEach(r=>{m[r[key]]=(m[r[key]]||0)+1;});return Object.entries(m).sort((a,b)=>b[1]-a[1]);};
+  const estArr=cnt(_tareas,'estado'), jurArr=cnt(_tareas,'juris').slice(0,8), procArr=cnt(_tareas,'proceso').slice(0,8);
+  const circ=2*Math.PI*54,cx=70,cy=70,r2=54,sw=20;
+  let off=0,arcs='';
+  estArr.forEach(([e,c])=>{const col=tcol(e),d=(c/tot)*circ;arcs+=`<circle cx="${cx}" cy="${cy}" r="${r2}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-dasharray="${d} ${circ}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})"/>`;off+=d;});
+  const bars=(arr,col)=>arr.map(([l,v])=>{const mx=arr[0][1]||1;return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+    <div style="width:120px;font-size:11px;color:#9BBCD8;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0" title="${esc(l)}">${l.length>16?l.slice(0,14)+'…':l}</div>
+    <div style="flex:1;background:rgba(255,255,255,.06);border-radius:3px;height:15px"><div style="width:${Math.round(v/mx*100)}%;background:${col};border-radius:3px;height:100%"></div></div>
+    <div style="width:34px;font-family:var(--font-cond);font-weight:700;font-size:11px;color:${col};text-align:right">${v}</div>
+  </div>`;}).join('');
+  body.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+    <div class="chart-card"><div class="card-title">📊 Por Estado</div>
+      <div style="display:flex;align-items:center;gap:12px;padding:6px 0">
+        <svg width="140" height="140" style="flex-shrink:0">
+          <circle cx="${cx}" cy="${cy}" r="${r2}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${sw}"/>${arcs}
+          <text x="${cx}" y="${cy-6}" text-anchor="middle" fill="#e8f0ff" font-size="22" font-weight="800" font-family="Barlow Condensed,sans-serif">${tot}</text>
+          <text x="${cx}" y="${cy+12}" text-anchor="middle" fill="#8899aa" font-size="11">tareas</text>
+        </svg>
+        <div>${estArr.map(([e,c])=>`<div style="display:flex;align-items:center;gap:5px;margin-bottom:4px">
+          <div style="width:8px;height:8px;border-radius:2px;background:${tcol(e)};flex-shrink:0"></div>
+          <span style="font-size:11px;color:#9BBCD8;flex:1">${e}</span>
+          <span style="font-family:var(--font-cond);font-weight:700;color:${tcol(e)};font-size:12px">${c}</span>
+        </div>`).join('')}</div>
+      </div>
+    </div>
+    <div class="chart-card"><div class="card-title">🌐 Por Jurisdicción</div><div style="padding:6px 0">${bars(jurArr,'#8B6FE8')}</div></div>
+    <div class="chart-card"><div class="card-title">📂 Por Proceso</div><div style="padding:6px 0">${bars(procArr,'#00B0F0')}</div></div>
+  </div>`;
+}
 
 </script>
 </body>

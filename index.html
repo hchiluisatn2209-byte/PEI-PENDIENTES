@@ -3858,35 +3858,73 @@ function renderKPIsTareas(){
 }
 
 // ── ANÁLISIS GENERAL TAREAS ─────────────────────────────────────────────
+let _tareasChartsDone = false;
+
 function renderTareasAnalisis(){
   if(!filteredTareas.length){
     document.getElementById('tareas-analisis-placeholder').style.display='';
     document.getElementById('tareas-analisis-content').style.display='none';
+    _tareasChartsDone = false;
     return;
   }
-  document.getElementById('tareas-analisis-placeholder').style.display='none';
-  document.getElementById('tareas-analisis-content').style.display='';
 
-  // Chart: Distribución por Estado
+  // Mostrar contenido, ocultar placeholder
+  const ph = document.getElementById('tareas-analisis-placeholder');
+  const ct = document.getElementById('tareas-analisis-content');
+  if(ph) ph.style.display = 'none';
+  if(ct) ct.style.display = '';
+
+  // Tabla resumen (no depende de Canvas — renderizar siempre)
+  _renderTablaTareasResumen();
+
+  // Leyenda de estados (tampoco depende de Canvas)
   const estMap={};
-  filteredTareas.forEach(r=>{
-    const e=getTareaEst(r)||'Sin estado';
-    estMap[e]=(estMap[e]||0)+1;
-  });
+  filteredTareas.forEach(r=>{ const e=getTareaEst(r)||'Sin estado'; estMap[e]=(estMap[e]||0)+1; });
   const estEntries=Object.entries(estMap).sort((a,b)=>b[1]-a[1]);
+  const tot=estEntries.reduce((s,[,v])=>s+v,0);
+  const legEl = document.getElementById('leg-tarea-estado');
+  if(legEl) legEl.innerHTML=estEntries.map(([l,v],i)=>
+    `<div class="leg-i"><span class="leg-sq" style="background:${colorTareaEst(l)}"></span>${l} · ${Math.round(v/tot*100)}%</div>`
+  ).join('');
+
+  // Charts: usar IntersectionObserver para crear cuando el canvas sea visible
+  _tareasChartsDone = false;
+  const canvas = document.getElementById('ch-tarea-estado');
+  if(!canvas) return;
+
+  const tryDrawCharts = (attempt=0) => {
+    if(_tareasChartsDone) return;
+    const rect = canvas.getBoundingClientRect();
+    console.log('[Tareas] Canvas rect:', rect.width, 'x', rect.height, 'attempt:', attempt);
+    if(rect.width > 0){
+      _tareasChartsDone = true;
+      _drawTareasCharts(estEntries, tot);
+    } else if(attempt < 20){
+      // Reintentar hasta 20 veces con pequeño delay creciente
+      setTimeout(()=>tryDrawCharts(attempt+1), 50*(attempt+1));
+    } else {
+      // Último recurso: forzar dimensiones y dibujar igual
+      console.warn('[Tareas] Canvas sin dimensiones tras 20 intentos — forzando render');
+      _tareasChartsDone = true;
+      _drawTareasCharts(estEntries, tot);
+    }
+  };
+
+  requestAnimationFrame(tryDrawCharts);
+}
+
+function _drawTareasCharts(estEntries, tot){
   const estLabels=estEntries.map(([k])=>k);
   const estVals=estEntries.map(([,v])=>v);
   const estCols=estLabels.map(l=>colorTareaEst(l));
-  const tot=estVals.reduce((a,b)=>a+b,0);
-  document.getElementById('leg-tarea-estado').innerHTML=estLabels.map((l,i)=>
-    `<div class="leg-i"><span class="leg-sq" style="background:${estCols[i]}"></span>${l} · ${Math.round(estVals[i]/tot*100)}%</div>`
-  ).join('');
+
+  // Chart Estado
   mkChart('ch-tarea-estado',{type:'doughnut',
     data:{labels:estLabels,datasets:[{data:estVals,backgroundColor:estCols.map(c=>c+'bb'),borderColor:estCols,borderWidth:1}]},
     options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{display:false}}}
   });
 
-  // Chart: Top Procesos
+  // Chart Procesos
   const procMap={};
   filteredTareas.forEach(r=>{const p=r[CT.NOMBRE_PROCESO]||'Sin proceso';procMap[p]=(procMap[p]||0)+1;});
   const procSorted=Object.entries(procMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
@@ -3898,7 +3936,7 @@ function renderTareasAnalisis(){
       scales:{x:{grid:{color:GC},ticks:TST},y:{grid:{color:'transparent'},ticks:TST}}}
   });
 
-  // Chart: Jurisdicciones
+  // Chart Jurisdicciones
   const jurMap={};
   filteredTareas.forEach(r=>{const j=r[CT.JURISDICCION]||'Sin jurisdicción';jurMap[j]=(jurMap[j]||0)+1;});
   const jurSorted=Object.entries(jurMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
@@ -3910,7 +3948,7 @@ function renderTareasAnalisis(){
       scales:{x:{grid:{color:GC},ticks:TST},y:{grid:{color:'transparent'},ticks:TST}}}
   });
 
-  // Chart: Top Gestores
+  // Chart Gestores
   const gMap={};
   filteredTareas.forEach(r=>{const g=r._tarea_gestor||'Sin gestor';gMap[g]=(gMap[g]||0)+1;});
   const gSorted=Object.entries(gMap).sort((a,b)=>b[1]-a[1]).slice(0,15);
@@ -3927,8 +3965,10 @@ function renderTareasAnalisis(){
         c2.restore();
       }}}
   });
+  console.log('[Tareas] Charts dibujados correctamente');
+}
 
-  // Tabla resumen por gestor
+function _renderTablaTareasResumen(){
   const tblMap={};
   filteredTareas.forEach(r=>{
     const g=r._tarea_gestor||'Sin gestor';

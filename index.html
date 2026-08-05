@@ -3914,57 +3914,79 @@ function renderTareasAnalisis(){
 }
 
 function _drawTareasCharts(estEntries, tot){
+  // Usar barras HTML puras — no dependen de Canvas ni de dimensiones del DOM
+  const makeBars = (entries, colorFn, maxVal) => {
+    const max = maxVal || Math.max(...entries.map(([,v])=>v), 1);
+    return entries.map(([label, val])=>{
+      const pct = Math.round(val/max*100);
+      const col = colorFn(label);
+      return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <div style="width:160px;font-size:11px;color:#9BBCD8;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0" title="${esc(label)}">${label.length>22?label.slice(0,20)+'…':label}</div>
+        <div style="flex:1;background:rgba(255,255,255,.06);border-radius:3px;height:18px;position:relative">
+          <div style="width:${pct}%;background:${col};border-radius:3px;height:100%;transition:width .4s"></div>
+        </div>
+        <div style="width:36px;font-family:var(--font-cond);font-weight:700;font-size:12px;color:${col};text-align:right">${val}</div>
+      </div>`;
+    }).join('');
+  };
+
+  // Donut SVG de estados
   const estLabels=estEntries.map(([k])=>k);
   const estVals=estEntries.map(([,v])=>v);
   const estCols=estLabels.map(l=>colorTareaEst(l));
-
-  // Chart Estado
-  mkChart('ch-tarea-estado',{type:'doughnut',
-    data:{labels:estLabels,datasets:[{data:estVals,backgroundColor:estCols.map(c=>c+'bb'),borderColor:estCols,borderWidth:1}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{display:false}}}
+  const circ=2*Math.PI*54, cx=70,cy=70,r=54,sw=20;
+  let off=0, arcs='';
+  estEntries.forEach(([est,cnt])=>{
+    const col=colorTareaEst(est), dash=(cnt/tot)*circ;
+    arcs+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="${sw}"
+      stroke-dasharray="${dash} ${circ}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})"/>`;
+    off+=dash;
   });
+  const donutHtml = `<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+    <svg width="140" height="140" style="flex-shrink:0">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${sw}"/>
+      ${arcs}
+      <text x="${cx}" y="${cy-6}" text-anchor="middle" fill="#e8f0ff" font-size="22" font-weight="800" font-family="Barlow Condensed,sans-serif">${tot}</text>
+      <text x="${cx}" y="${cy+12}" text-anchor="middle" fill="#8899aa" font-size="11">tareas</text>
+    </svg>
+    <div style="flex:1;min-width:140px">${estEntries.map(([est,cnt])=>`
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+        <div style="width:10px;height:10px;border-radius:2px;background:${colorTareaEst(est)};flex-shrink:0"></div>
+        <span style="font-size:12px;color:#9BBCD8;flex:1">${est}</span>
+        <span style="font-family:var(--font-cond);font-weight:700;color:${colorTareaEst(est)};font-size:13px">${cnt}</span>
+        <span style="color:var(--muted);font-size:10px">${Math.round(cnt/tot*100)}%</span>
+      </div>`).join('')}
+    </div>
+  </div>`;
 
-  // Chart Procesos
+  // Reemplazar canvas con HTML
+  const replaceCanvas = (canvasId, html) => {
+    const canvas = document.getElementById(canvasId);
+    if(!canvas) return;
+    const parent = canvas.parentElement;
+    parent.innerHTML = `<div style="padding:8px 0">${html}</div>`;
+  };
+
+  replaceCanvas('ch-tarea-estado', donutHtml);
+
+  // Procesos
   const procMap={};
   filteredTareas.forEach(r=>{const p=r[CT.NOMBRE_PROCESO]||'Sin proceso';procMap[p]=(procMap[p]||0)+1;});
   const procSorted=Object.entries(procMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  mkChart('ch-tarea-procesos',{type:'bar',
-    data:{labels:procSorted.map(([k])=>k.length>30?k.slice(0,28)+'…':k),
-          datasets:[{data:procSorted.map(([,v])=>v),backgroundColor:'rgba(0,176,240,.75)',borderColor:'#00B0F0',borderWidth:1,borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
-      plugins:{legend:{display:false}},
-      scales:{x:{grid:{color:GC},ticks:TST},y:{grid:{color:'transparent'},ticks:TST}}}
-  });
+  replaceCanvas('ch-tarea-procesos', `<div style="padding:4px 0">${makeBars(procSorted, ()=>'#00B0F0')}</div>`);
 
-  // Chart Jurisdicciones
+  // Jurisdicciones
   const jurMap={};
   filteredTareas.forEach(r=>{const j=r[CT.JURISDICCION]||'Sin jurisdicción';jurMap[j]=(jurMap[j]||0)+1;});
   const jurSorted=Object.entries(jurMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  mkChart('ch-tarea-jurisdiccion',{type:'bar',
-    data:{labels:jurSorted.map(([k])=>k.length>25?k.slice(0,23)+'…':k),
-          datasets:[{data:jurSorted.map(([,v])=>v),backgroundColor:'rgba(139,111,232,.75)',borderColor:'#8B6FE8',borderWidth:1,borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
-      plugins:{legend:{display:false}},
-      scales:{x:{grid:{color:GC},ticks:TST},y:{grid:{color:'transparent'},ticks:TST}}}
-  });
+  replaceCanvas('ch-tarea-jurisdiccion', `<div style="padding:4px 0">${makeBars(jurSorted, ()=>'#8B6FE8')}</div>`);
 
-  // Chart Gestores
+  // Gestores
   const gMap={};
   filteredTareas.forEach(r=>{const g=r._tarea_gestor||'Sin gestor';gMap[g]=(gMap[g]||0)+1;});
   const gSorted=Object.entries(gMap).sort((a,b)=>b[1]-a[1]).slice(0,15);
-  mkChart('ch-tarea-gestores',{type:'bar',
-    data:{labels:gSorted.map(([k])=>k),
-          datasets:[{data:gSorted.map(([,v])=>v),backgroundColor:'rgba(255,167,0,.75)',borderColor:'#FFA700',borderWidth:1,borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.x} tareas`}}},
-      scales:{x:{grid:{color:GC},ticks:TST},y:{grid:{color:'transparent'},ticks:TST}},
-      animation:{onComplete(ctx){
-        const ch=ctx.chart,ds=ch.data.datasets[0],meta=ch.getDatasetMeta(0),c2=ch.ctx;
-        c2.save();c2.font='bold 11px "Barlow Condensed",sans-serif';c2.fillStyle='#fff';c2.textBaseline='middle';
-        meta.data.forEach((bar,i)=>{const v=ds.data[i];if(!v)return;c2.fillText(v,bar.x+5,bar.y);});
-        c2.restore();
-      }}}
-  });
+  replaceCanvas('ch-tarea-gestores', `<div style="padding:4px 0">${makeBars(gSorted, ()=>'#FFA700')}</div>`);
+
   console.log('[Tareas] Charts dibujados correctamente');
 }
 

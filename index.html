@@ -740,48 +740,22 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
         <div class="kpi-sub" id="k-misc-s">fechas · empresas</div>
       </div>
     </div>
-    <!-- KPI Strip TAREAS (se muestra al activar tab de tareas) -->
+    <!-- KPI Strip TAREAS — estados se renderizan dinámicamente -->
     <div id="kpi-strip-tareas" class="kpi-strip" style="display:none">
       <div class="kpi-card" style="--ak:#FFA700">
         <div class="kpi-lbl">Total Tareas</div>
         <div class="kpi-val" id="kt-total">—</div>
         <div class="kpi-sub" id="kt-sub">tareas cargadas</div>
       </div>
-      <div class="kpi-card" style="--ak:#FFA700">
-        <div class="kpi-lbl">Pendiente</div>
-        <div class="kpi-val" id="kt-pendiente">—</div>
-        <div class="kpi-sub" id="kt-pendiente-s">por iniciar</div>
-      </div>
-      <div class="kpi-card" style="--ak:#00B0F0">
-        <div class="kpi-lbl">En Proceso</div>
-        <div class="kpi-val" id="kt-proceso">—</div>
-        <div class="kpi-sub" id="kt-proceso-s">en ejecución</div>
-      </div>
-      <div class="kpi-card" style="--ak:#34D399">
-        <div class="kpi-lbl">Completada</div>
-        <div class="kpi-val" id="kt-completada">—</div>
-        <div class="kpi-sub" id="kt-completada-s">finalizadas</div>
-      </div>
-      <div class="kpi-card" style="--ak:#FF44B0">
-        <div class="kpi-lbl">Cancelada</div>
-        <div class="kpi-val" id="kt-cancelada">—</div>
-        <div class="kpi-sub">canceladas</div>
-      </div>
-      <div class="kpi-card" style="--ak:#FF6F42">
-        <div class="kpi-lbl">Bloqueada</div>
-        <div class="kpi-val" id="kt-bloqueada">—</div>
-        <div class="kpi-sub">con impedimento</div>
-      </div>
-      <div class="kpi-card" style="--ak:#8B6FE8">
-        <div class="kpi-lbl">En Revisión</div>
-        <div class="kpi-val" id="kt-revision">—</div>
-        <div class="kpi-sub">bajo revisión</div>
-      </div>
-      <div class="kpi-card" style="--ak:#6EBEEB">
-        <div class="kpi-lbl">Asignada</div>
-        <div class="kpi-val" id="kt-asignada">—</div>
-        <div class="kpi-sub">pendiente inicio</div>
-      </div>
+      <!-- Los siguientes 7 cards se llenan dinámicamente con los estados reales -->
+      <div class="kpi-card" id="kt-est-0" style="--ak:#9BBCD8"><div class="kpi-lbl" id="kt-lbl-0">—</div><div class="kpi-val" id="kt-val-0">—</div><div class="kpi-sub" id="kt-pct-0"></div></div>
+      <div class="kpi-card" id="kt-est-1" style="--ak:#9BBCD8"><div class="kpi-lbl" id="kt-lbl-1">—</div><div class="kpi-val" id="kt-val-1">—</div><div class="kpi-sub" id="kt-pct-1"></div></div>
+      <div class="kpi-card" id="kt-est-2" style="--ak:#9BBCD8"><div class="kpi-lbl" id="kt-lbl-2">—</div><div class="kpi-val" id="kt-val-2">—</div><div class="kpi-sub" id="kt-pct-2"></div></div>
+      <div class="kpi-card" id="kt-est-3" style="--ak:#9BBCD8"><div class="kpi-lbl" id="kt-lbl-3">—</div><div class="kpi-val" id="kt-val-3">—</div><div class="kpi-sub" id="kt-pct-3"></div></div>
+      <div class="kpi-card" id="kt-est-4" style="--ak:#9BBCD8"><div class="kpi-lbl" id="kt-lbl-4">—</div><div class="kpi-val" id="kt-val-4">—</div><div class="kpi-sub" id="kt-pct-4"></div></div>
+      <div class="kpi-card" id="kt-est-5" style="--ak:#9BBCD8"><div class="kpi-lbl" id="kt-lbl-5">—</div><div class="kpi-val" id="kt-val-5">—</div><div class="kpi-sub" id="kt-pct-5"></div></div>
+      <div class="kpi-card" id="kt-est-6" style="--ak:#9BBCD8"><div class="kpi-lbl" id="kt-lbl-6">—</div><div class="kpi-val" id="kt-val-6">—</div><div class="kpi-sub" id="kt-pct-6"></div></div>
+      <!-- Cards fijos -->
       <div class="kpi-card" style="--ak:var(--azul-c)">
         <div class="kpi-lbl">Gestores</div>
         <div class="kpi-val" id="kt-gestores">—</div>
@@ -3481,7 +3455,21 @@ document.addEventListener('mousedown',function(ev){
 
 const SHEET_ID_TAREAS = '1SMRqn8HFhbZW0HhDdoK--9Met-sBfg2gcsse4Niaa64';
 const GID_TAREAS      = 88454513;
-const tcol = e => ({'Pendiente':'#FFA700','En Proceso':'#00B0F0','Completada':'#34D399','Cancelada':'#FF44B0','Bloqueada':'#FF6F42','En Revision':'#8B6FE8','Asignada':'#6EBEEB'}[e]||'#9BBCD8');
+const tcol = e => ({
+  // Estados reales de ESTADO_TAREA
+  'Asignada':      '#6EBEEB',
+  'Aceptada':      '#34D399',
+  'Pausada':       '#FF6F42',
+  'Reprogramada':  '#FFA700',
+  // Otros posibles
+  'Pendiente':     '#FFA700',
+  'En Proceso':    '#00B0F0',
+  'Completada':    '#34D399',
+  'Cancelada':     '#FF44B0',
+  'Bloqueada':     '#FF6F42',
+  'En Revision':   '#8B6FE8',
+  'En Revisión':   '#8B6FE8',
+}[e] || '#9BBCD8');
 
 // Mapeo login -> nombre completo, equipo, tipo, ciudad
 const PERSONAL_MAP_TAREAS = {
@@ -3672,67 +3660,43 @@ async function loadTareas(){
 function renderKpisTareas(){
   if(!_tareas.length) return;
   const tot = _tareas.length;
-  const pct = n => tot ? Math.round(n/tot*100)+'% del total' : '';
-  const set = (id,v,s='')=>{ const e=document.getElementById(id); if(e) e.textContent=v; const es=document.getElementById(id+'-s'); if(es&&s) es.textContent=s; };
+  const set = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
 
-  // Contar todos los estados reales de la hoja
+  // Total
+  set('kt-total', tot.toLocaleString('es-EC'));
+  set('kt-sub',   tot+' tareas cargadas');
+
+  // Contar estados reales
   const estMap = {};
-  _tareas.forEach(r=>{ estMap[r.estado]=(estMap[r.estado]||0)+1; });
+  _tareas.forEach(r=>{ const e=r.estado||'Sin estado'; estMap[e]=(estMap[e]||0)+1; });
   const estArr = Object.entries(estMap).sort((a,b)=>b[1]-a[1]);
-  console.log('[Tareas] Estados reales:', estArr);
+  console.log('[Tareas] Estados:', estArr.map(([k,v])=>k+'='+v).join(', '));
 
-  // KPIs fijos
-  set('kt-total', tot.toLocaleString('es-EC'), tot+' tareas cargadas');
-  const gestoresUnicos = new Set(_tareas.map(r=>r.login).filter(Boolean)).size;
-  const procesosUnicos = new Set(_tareas.map(r=>r.proceso).filter(p=>p&&p!=='—')).size;
-  const jurisUnicas    = new Set(_tareas.map(r=>r.juris).filter(j=>j&&j!=='—')).size;
-  set('kt-gestores',       gestoresUnicos);
-  set('kt-procesos',       procesosUnicos);
-  set('kt-jurisdicciones', jurisUnicas);
-
-  // KPIs de estado: buscar por nombre real de la hoja (case-insensitive, sin tildes)
-  const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
-  const findEst = (...names) => names.reduce((s,n)=>{
-    const k = estArr.find(([k])=> norm(k)===norm(n) || norm(k).includes(norm(n)));
-    return s + (k ? k[1] : 0);
-  }, 0);
-
-  set('kt-pendiente',  findEst('Pendiente','pendiente'),   pct(findEst('Pendiente','pendiente')));
-  set('kt-proceso',    findEst('En Proceso','en proceso','proceso'), pct(findEst('En Proceso','en proceso','proceso')));
-  set('kt-completada', findEst('Completada','completado','Finalizada'), pct(findEst('Completada','completado','Finalizada')));
-  set('kt-cancelada',  findEst('Cancelada','cancelado'));
-  set('kt-bloqueada',  findEst('Bloqueada','bloqueado','Pausada','pausado'));
-  set('kt-revision',   findEst('En Revisión','revision','Aceptada'));
-  set('kt-asignada',   findEst('Asignada','asignado','Reprogramada'));
-
-  // Actualizar el strip con los estados reales si hay muchos sin mapear
-  const totalMapeado = findEst('Pendiente','En Proceso','Completada','Cancelada','Bloqueada','Pausada','En Revisión','Aceptada','Asignada','Reprogramada');
-  if(totalMapeado < tot * 0.5){
-    // Más de la mitad sin mapear — actualizar labels dinámicamente
-    _updateTareasKpiLabels(estArr, tot);
-  }
-}
-
-function _updateTareasKpiLabels(estArr, tot){
-  // Reemplazar los KPI cards de estado con los valores reales de la hoja
-  const strip = document.getElementById('kpi-strip-tareas');
-  if(!strip) return;
-  // Mantener los primeros 2 cards fijos (Total + un fijo), reemplazar estados dinámicamente
-  const staticCards = strip.querySelectorAll('.kpi-card');
-  const estadoCards = Array.from(staticCards).slice(1, 8); // los 7 de estado
+  // Llenar los 7 cards dinámicos con los estados reales
   estArr.slice(0,7).forEach(([est,cnt], i)=>{
-    const card = estadoCards[i];
-    if(!card) return;
     const col = tcol(est);
-    card.style.setProperty('--ak', col);
-    const lbl = card.querySelector('.kpi-lbl');
-    const val = card.querySelector('.kpi-val');
-    const sub = card.querySelector('.kpi-sub');
-    if(lbl) lbl.textContent = est;
-    if(val){ val.textContent = cnt; val.style.color = col; }
-    if(sub) sub.textContent = tot ? Math.round(cnt/tot*100)+'% del total' : '';
+    const card = document.getElementById('kt-est-'+i);
+    if(card) card.style.setProperty('--ak', col);
+    set('kt-lbl-'+i, est);
+    set('kt-val-'+i, cnt);
+    set('kt-pct-'+i, Math.round(cnt/tot*100)+'% del total');
+    // Color del valor
+    const valEl = document.getElementById('kt-val-'+i);
+    if(valEl) valEl.style.color = col;
   });
+  // Ocultar cards sin datos
+  for(let i=estArr.length; i<7; i++){
+    const card = document.getElementById('kt-est-'+i);
+    if(card) card.style.display='none';
+  }
+
+  // Fijos
+  set('kt-gestores',       new Set(_tareas.map(r=>r.login).filter(Boolean)).size);
+  set('kt-procesos',       new Set(_tareas.map(r=>r.proceso).filter(p=>p&&p!=='—')).size);
+  set('kt-jurisdicciones', new Set(_tareas.map(r=>r.juris).filter(j=>j&&j!=='—')).size);
 }
+
+function _updateTareasKpiLabels(){} // no-op, ya no necesario
 
 function renderTareasGestores(){
   const map={};

@@ -990,8 +990,7 @@ const KNOWN_SHEETS = [
   //  {fecha:'07-07-26',gid:494955224},
   //  {fecha:'08-07-26',gid:1901801479},
   //  {fecha:'17-07-26',gid:1731121928},
- //   {fecha:'04-08-26',gid:816732549},
-     {fecha:'05-08-26',gid:1874107970},
+    {fecha:'23-07-26',gid:306558480},
 ];
 
 const C={
@@ -3397,7 +3396,7 @@ document.addEventListener('mousedown',function(ev){
 // ════════════════════════════════════════════════════════════════
 
 const SHEET_ID_TAREAS = '1SMRqn8HFhbZW0HhDdoK--9Met-sBfg2gcsse4Niaa64';
-const GID_TAREAS      = 1869129353;
+const GID_TAREAS      = 88454513;
 const tcol = e => ({
   // Estados reales de ESTADO_TAREA
   'Asignada':      '#6EBEEB',
@@ -3761,42 +3760,67 @@ function renderTareasGestores(){
         </div>`;
       });
 
+      const otsUid = uid + '_ots';
+      // Tabla detalle OTS
+      const otsDetalleHTML = `<div class="gc-detail"><table><thead><tr>
+        <th>#</th><th>Cliente</th><th>Login</th><th>Estado</th><th>Días</th><th>Motivo</th><th>Fec. Plan</th>
+      </tr></thead><tbody>${otsRows.map((r,i)=>{
+        const dias=diasDesde(r[C.FE_PLAN])||0; const ec=getEst(r); const col=otsColOTS(ec);
+        return `<tr>
+          <td class="td-num">${i+1}</td>
+          <td class="td-client" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r[C.CLIENTE]||'—')}</td>
+          <td class="td-muted">${esc(r[C.LOGIN]||'—')}</td>
+          <td><span style="color:${col};font-weight:700;font-family:var(--font-cond);font-size:11px">${ec}</span></td>
+          <td class="td-num" style="color:${col}">${dias}d</td>
+          <td class="td-muted" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r[C.MOTIVO]||r[C.MOTIVO_HIST]||'—')}</td>
+          <td class="td-muted">${r[C.FE_PLAN]||'—'}</td>
+        </tr>`;
+      }).join('')||'<tr><td colspan="7" class="empty">Sin órdenes</td></tr>'}</tbody></table></div>`;
+
       otsBlock = `<div style="margin-top:16px;padding-top:14px;border-top:2px solid rgba(0,176,240,.25)">
         <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--turquesa);margin-bottom:10px;font-weight:700">
           📦 Órdenes OTS · ${otsTot} órdenes
         </div>
-        <!-- Barra de estados OTS -->
         <div class="gc-bar" style="margin-bottom:8px">
           ${otsEstArr.map(([e,c])=>`<div class="gc-seg" style="width:${Math.round(c/otsTot*100)}%;background:${otsColOTS(e)}" title="${e}:${c}"></div>`).join('')}
         </div>
-        <div class="gc-estados" style="margin-bottom:12px">
+        <div class="gc-estados" style="margin-bottom:10px">
           ${otsEstArr.map(([e,c])=>`<div class="gc-est"><span class="gc-est-dot" style="background:${otsColOTS(e)}"></span><span class="gc-est-n" style="color:${otsColOTS(e)}">${c}</span> ${e}</div>`).join('')}
         </div>
-        <div class="gc-analisis-grid">
-          <div class="gc-donut-wrap">
-            <div class="gc-donut-title">Distribución Estados · OTS</div>
-            <svg width="130" height="130">
-              <circle cx="${cx4}" cy="${cy4}" r="${r5}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${sw4}"/>
-              ${arcs4}
-              <text x="${cx4}" y="${cy4-6}" text-anchor="middle" fill="#e8f0ff" font-size="20" font-weight="800" font-family="Barlow Condensed,sans-serif">${otsTot}</text>
-              <text x="${cx4}" y="${cy4+11}" text-anchor="middle" fill="#8899aa" font-size="10">órdenes</text>
-            </svg>
-            <div class="gc-donut-legend">
-              ${otsEstArr.map(([e,c])=>`<div class="gc-donut-legend-item">
-                <div class="gc-donut-legend-dot" style="background:${otsColOTS(e)}"></div>
-                <span>${e}</span>
-                <span class="gc-donut-legend-pct" style="color:${otsColOTS(e)}">${Math.round(c/otsTot*100)}%</span>
-              </div>`).join('')}
+        <div class="gp-tabs">
+          <div class="gp-tab active" id="tgpt-${otsUid}-analisis" onclick="switchTareaGpTab('${otsUid}','analisis')">📊 Análisis</div>
+          <div class="gp-tab" id="tgpt-${otsUid}-detalle" onclick="switchTareaGpTab('${otsUid}','detalle')">📋 Detalle · ${otsTot}</div>
+        </div>
+        <div class="gp-panel active" id="tgpp-${otsUid}-analisis">
+          <div class="gc-analisis-grid">
+            <div class="gc-donut-wrap">
+              <div class="gc-donut-title">Distribución Estados · OTS</div>
+              <svg width="130" height="130">
+                <circle cx="${cx4}" cy="${cy4}" r="${r5}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${sw4}"/>
+                ${arcs4}
+                <text x="${cx4}" y="${cy4-6}" text-anchor="middle" fill="#e8f0ff" font-size="20" font-weight="800" font-family="Barlow Condensed,sans-serif">${otsTot}</text>
+                <text x="${cx4}" y="${cy4+11}" text-anchor="middle" fill="#8899aa" font-size="10">órdenes</text>
+              </svg>
+              <div class="gc-donut-legend">
+                ${otsEstArr.map(([e,c])=>`<div class="gc-donut-legend-item">
+                  <div class="gc-donut-legend-dot" style="background:${otsColOTS(e)}"></div>
+                  <span>${e}</span>
+                  <span class="gc-donut-legend-pct" style="color:${otsColOTS(e)}">${Math.round(c/otsTot*100)}%</span>
+                </div>`).join('')}
+              </div>
+            </div>
+            <div class="gc-alert-panel">
+              <div class="gc-alert-title">🔴 Top 5 · Mayor Antigüedad</div>
+              ${otsAlertRows||'<div style="color:#666;font-size:12px">Sin órdenes con fecha</div>'}
+            </div>
+            <div class="gc-motivos-panel">
+              <div class="gc-motivos-sub" style="color:#9BBCD8;margin-bottom:8px">Motivos de Gestión</div>
+              ${otsMotHTML||'<div style="color:var(--muted);font-size:11px">Sin motivos registrados</div>'}
             </div>
           </div>
-          <div class="gc-alert-panel">
-            <div class="gc-alert-title">🔴 Top 5 · Mayor Antigüedad</div>
-            ${otsAlertRows||'<div style="color:#666;font-size:12px">Sin órdenes con fecha</div>'}
-          </div>
-          <div class="gc-motivos-panel">
-            <div class="gc-motivos-sub" style="color:#9BBCD8;margin-bottom:8px">Motivos de Gestión</div>
-            ${otsMotHTML||'<div style="color:var(--muted);font-size:11px">Sin motivos registrados</div>'}
-          </div>
+        </div>
+        <div class="gp-panel" id="tgpp-${otsUid}-detalle">
+          ${otsDetalleHTML}
         </div>
       </div>`;
     } else {

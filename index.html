@@ -784,72 +784,27 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
     </div>
     <!-- Sub-pestañas por tipo de gestión -->
     <div class="carga-subtabs">
-      <div class="carga-subtab active" id="cst-operativo" onclick="switchCargaSubTab('operativo')">
-        🔧 OTS Operativo <span class="st-badge" id="cst-badge-operativo">0</span>
-      </div>
-      <div class="carga-subtab" id="cst-proyectos" onclick="switchCargaSubTab('proyectos')">
-        📐 OTS Proyectos <span class="st-badge" id="cst-badge-proyectos">0</span>
-      </div>
-      <div class="carga-subtab" id="cst-tareas-op" onclick="switchCargaSubTab('tareas-op')">
-        🗂 Tareas Operativo <span class="st-badge" id="cst-badge-tareas-op" style="background:rgba(255,167,0,.2);color:#FFA700">0</span>
+      <div class="carga-subtab active" id="cst-tareas-op" onclick="switchCargaSubTab('tareas-op')">
+        🔧 Carga Operativo <span class="st-badge" id="cst-badge-tareas-op" style="background:rgba(255,167,0,.2);color:#FFA700">0</span>
       </div>
       <div class="carga-subtab" id="cst-tareas-pr" onclick="switchCargaSubTab('tareas-pr')">
-        📋 Tareas Proyectos <span class="st-badge" id="cst-badge-tareas-pr" style="background:rgba(255,167,0,.2);color:#FFA700">0</span>
+        📐 Carga Proyectos <span class="st-badge" id="cst-badge-tareas-pr" style="background:rgba(255,167,0,.2);color:#FFA700">0</span>
       </div>
     </div>
-    <div id="gestores-grid-operativo"><div class="empty">Cargando...</div></div>
-    <div id="gestores-grid-proyectos" style="display:none"><div class="empty">Cargando...</div></div>
-    <div id="gestores-grid-tareas-op" style="display:none">
-      <div style="padding:20px;text-align:center;color:var(--muted)">⏳ Cargando tareas…</div>
+    <!-- Grids OTS ocultos permanentemente (sus datos se renderizan dentro de las cards de Tareas) -->
+    <div id="gestores-grid-operativo" style="display:none"></div>
+    <div id="gestores-grid-proyectos" style="display:none"></div>
+    <div id="gestores-grid-tareas-op">
+      <div style="padding:20px;text-align:center;color:var(--muted)">⏳ Cargando…</div>
     </div>
     <div id="gestores-grid-tareas-pr" style="display:none">
-      <div style="padding:20px;text-align:center;color:var(--muted)">⏳ Cargando tareas…</div>
+      <div style="padding:20px;text-align:center;color:var(--muted)">⏳ Cargando…</div>
     </div>
-    <!-- Panel compartido de análisis/detalle del gestor seleccionado -->
-    <div class="gestor-panel" id="gestor-panel"></div>
-    <!-- alias para compatibilidad -->
+    <!-- Panel OTS individual oculto permanentemente -->
+    <div class="gestor-panel" id="gestor-panel" style="display:none"></div>
     <div id="gestores-grid" style="display:none"></div>
-
-    <!-- DETALLE GESTOR SELECCIONADO -->
-    <div id="detalle-gestor-wrap" style="display:none">
-      <div class="section-title"><span class="dot-sec" style="background:var(--magenta)"></span>
-        Detalle de órdenes · <span id="detalle-gestor-nombre" style="color:var(--turquesa)">—</span>
-        <button onclick="exportarExcel()" style="margin-left:auto;display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1.5px solid rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#34D399;font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;letter-spacing:.5px;white-space:nowrap">
-          ⬇ Exportar Excel
-        </button>
-      </div>
-      <div class="tbl-card" style="margin-bottom:20px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
-          <span id="detalle-count" style="font-family:var(--font-cond);font-size:11px;color:var(--muted);letter-spacing:1px"></span>
-          <div style="display:flex;gap:6px;flex-wrap:wrap" id="detalle-estado-filtros"></div>
-        </div>
-        <div class="tbl-scroll">
-          <table id="tbl-detalle">
-            <thead><tr>
-              <th>#</th>
-              <th class="sortable" data-col="FE_PREPLANIFICADA_DMA" onclick="sortDetalle(this)">Fec. Solicitud</th>
-              <th class="sortable" data-col="EMPRESA" onclick="sortDetalle(this)">Tipo Empresa</th>
-              <th>User</th>
-              <th class="sortable" data-col="LOGIN" onclick="sortDetalle(this)">Login</th>
-              <th class="sortable" data-col="CLIENTE" onclick="sortDetalle(this)">Cliente</th>
-              <th class="sortable" data-col="EST" onclick="sortDetalle(this)">Estado Servicio</th>
-              <th class="sortable" data-col="PRODUCTO" onclick="sortDetalle(this)">Producto</th>
-              <th class="sortable" data-col="TIPO_ORDEN" onclick="sortDetalle(this)">Tipo Orden</th>
-              <th class="sortable" data-col="SUCURSAL" onclick="sortDetalle(this)">Téc. Sucursal</th>
-              <th class="sortable" data-col="FE_PLAN" onclick="sortDetalle(this)">FE Últ Plan</th>
-              <th class="sortable" data-col="DIAS" onclick="sortDetalle(this)">Días sin gestión</th>
-              <th>Obs Últ Plan</th>
-              <th class="sortable" data-col="MOTIVO" onclick="sortDetalle(this)">Motivo</th>
-              <th>Obs Replanif.</th>
-              <th class="sortable" data-col="CONTRATO" onclick="sortDetalle(this)">Est. Contrato</th>
-              <th class="sortable" data-col="VENDEDOR" onclick="sortDetalle(this)">Vendedor</th>
-            </tr></thead>
-            <tbody id="tbl-detalle-body"><tr><td colspan="17" class="empty">Selecciona un gestor en el gráfico</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
+    <div id="detalle-gestor-wrap" style="display:none"></div>
+  </div><!-- /padding-top -->
 
 
 
@@ -1397,13 +1352,13 @@ function switchTab(t){
     if(titulo) titulo.innerHTML = '<span class="dot-sec"></span>Indicadores Clave · OTS &nbsp;|&nbsp; <span style="color:#FFA700">Tareas PEI</span>';
     if(btnOts) btnOts.style.display = '';
   } else {
-    // En Carga: depende de la sub-tab activa — se maneja en switchCargaSubTab
-    // Por defecto (primera vez entrando) mostrar OTS
+    // Carga por Gestor: siempre KPIs de Tareas, activar Carga Operativo
     if(kpiWrap)  kpiWrap.style.display  = '';
-    if(otsStrip) otsStrip.style.display = '';
-    if(tarStrip) tarStrip.style.display = 'none';
-    if(titulo) titulo.innerHTML = '<span class="dot-sec"></span>Indicadores Clave · OTS';
-    if(btnOts) btnOts.style.display = '';
+    if(otsStrip) otsStrip.style.display = 'none';
+    if(tarStrip) tarStrip.style.display = '';
+    if(titulo) titulo.innerHTML = '<span class="dot-sec" style="background:#FFA700"></span>Indicadores Clave · Carga PEI';
+    if(btnOts) btnOts.style.display = 'none';
+    switchCargaSubTab('tareas-op');
   }
 }
 
@@ -3531,49 +3486,30 @@ let _tareas = [], _tareasLoading = false;
 // Extender switchCargaSubTab para incluir tabs de tareas
 const _origSwitch = switchCargaSubTab;
 switchCargaSubTab = function(tipo){
-  const all = ['operativo','proyectos','tareas-op','tareas-pr'];
-  _cargaSubTab = tipo;
-  all.forEach(t=>{
-    document.getElementById('cst-'+t)?.classList.toggle('active', t===tipo);
-    const g=document.getElementById('gestores-grid-'+t);
-    if(g) g.style.display = t===tipo?'':'none';
+  // Solo 2 tabs: Carga Operativo (tareas-op) y Carga Proyectos (tareas-pr)
+  const t = (tipo==='operativo'||tipo==='tareas-op') ? 'tareas-op' : 'tareas-pr';
+  _cargaSubTab = t;
+
+  ['tareas-op','tareas-pr'].forEach(id=>{
+    document.getElementById('cst-'+id)?.classList.toggle('active', id===t);
+    const g=document.getElementById('gestores-grid-'+id);
+    if(g) g.style.display = id===t?'':'none';
   });
 
-  // Cambiar KPI strip y título según si es OTS o Tareas
-  const esTareas = tipo==='tareas-op'||tipo==='tareas-pr';
-
-  // Ocultar panel de gestor OTS al entrar en tabs de Tareas
-  const panelOTS = document.getElementById('gestor-panel');
-  const wrapDet  = document.getElementById('detalle-gestor-wrap');
-  if(esTareas){
-    if(panelOTS) panelOTS.style.display = 'none';
-    if(wrapDet)  wrapDet.style.display  = 'none';
-  } else {
-    if(panelOTS) panelOTS.style.display = '';
-    // Solo mostrar wrap si hay contenido
-    if(wrapDet && panelOTS?.innerHTML?.trim()) wrapDet.style.display = '';
-  }
+  // Siempre KPIs de Tareas en esta sección
+  const kpiWrap    = document.getElementById('kpi-sticky-wrap');
   const otsStrip   = document.getElementById('kpi-strip-ots');
   const tareasStrip= document.getElementById('kpi-strip-tareas');
   const titulo     = document.getElementById('kpi-section-title');
   const btnOts     = document.getElementById('btn-export-ots');
-  const kpiWrap    = document.getElementById('kpi-sticky-wrap');
+  if(kpiWrap)     kpiWrap.style.display     = '';
+  if(otsStrip)    otsStrip.style.display    = 'none';
+  if(tareasStrip) tareasStrip.style.display = '';
+  if(titulo) titulo.innerHTML = '<span class="dot-sec" style="background:#FFA700"></span>Indicadores Clave · Carga PEI';
+  if(btnOts) btnOts.style.display = 'none';
 
-  if(esTareas){
-    if(kpiWrap)     kpiWrap.style.display     = '';
-    if(otsStrip)    otsStrip.style.display    = 'none';
-    if(tareasStrip) tareasStrip.style.display = '';
-    if(titulo) titulo.innerHTML = '<span class="dot-sec" style="background:#FFA700"></span>Indicadores Clave · Tareas PEI';
-    if(btnOts) btnOts.style.display = 'none';
-    if(!_tareas.length && !_tareasLoading) loadTareas();
-    else { renderKpisTareas(); renderTareasGestores(); }
-  } else {
-    if(kpiWrap)     kpiWrap.style.display     = '';
-    if(otsStrip)    otsStrip.style.display    = '';
-    if(tareasStrip) tareasStrip.style.display = 'none';
-    if(titulo) titulo.innerHTML = '<span class="dot-sec"></span>Indicadores Clave · OTS';
-    if(btnOts) btnOts.style.display = '';
-  }
+  if(!_tareas.length && !_tareasLoading) loadTareas();
+  else { renderKpisTareas(); renderTareasGestores(); }
 };
 
 async function loadTareas(){

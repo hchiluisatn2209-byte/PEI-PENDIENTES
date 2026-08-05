@@ -3452,16 +3452,37 @@ async function loadTareas(){
 
     const cv=(row,i)=>i>=0?(row.c?.[i]?.v!=null?String(row.c[i].v):(row.c?.[i]?.f||'')):'';
 
+    // Construir lookup inverso: nombre_completo_normalizado -> {login, ...datos}
+    const nombreToLogin = {};
+    Object.entries(PERSONAL_MAP_TAREAS).forEach(([login, d])=>{
+      // Normalizar: minúsculas, sin tildes, sin espacios extra
+      const norm = d.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+      nombreToLogin[norm] = {login, ...d};
+    });
+
+    const resolveGestor = (rawVal) => {
+      const raw = rawVal.trim();
+      if(!raw) return {login:'sin-gestor', gestor:'Sin gestor', tipo:'OTROS', equipo:'—', ciudad:'—'};
+      // Intentar match directo por login (minúsculas)
+      const byLogin = getPM(raw.toLowerCase());
+      if(byLogin) return {login:raw.toLowerCase(), gestor:raw.toLowerCase(), tipo:byLogin.tipo, equipo:byLogin.equipo, ciudad:byLogin.ciudad};
+      // Intentar match por nombre completo normalizado
+      const norm = raw.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+      const found = nombreToLogin[norm];
+      if(found) return {login:found.login, gestor:found.login, tipo:found.tipo, equipo:found.equipo, ciudad:found.ciudad};
+      // Fallback: usar el valor tal cual
+      return {login:raw, gestor:raw, tipo:'OTROS', equipo:'—', ciudad:'—'};
+    };
+
     _tareas=(json.table.rows||[]).map(row=>{
-      const login = cv(row,iLogin).trim().toLowerCase();
-      const pm    = getPM(login);
+      const rawGestor = cv(row,iLogin);
+      const g = resolveGestor(rawGestor);
       return {
-        login,
-        // Mostrar nombre completo si está en el mapa, si no mostrar el login
-        gestor:  pm ? pm.nombre : (login||'Sin gestor'),
-        tipo:    pm ? pm.tipo   : 'OTROS',
-        equipo:  pm ? pm.equipo : '—',
-        ciudad:  pm ? pm.ciudad : '—',
+        login:   g.login,
+        gestor:  g.login,   // mostrar el login (aarroyo, morozco, etc.)
+        tipo:    g.tipo,
+        equipo:  g.equipo,
+        ciudad:  g.ciudad,
         estado:  cv(row,iEstado).trim()  || 'Sin estado',
         juris:   cv(row,iJuris).trim()   || '—',
         proceso: cv(row,iProceso).trim() || '—',
@@ -3524,11 +3545,13 @@ function renderTareasGestores(){
     const tipoPill = d.tipo==='PROYECTOS'
       ? `<span style="background:rgba(110,190,235,.18);color:#6EBEEB;border:1px solid rgba(110,190,235,.35);padding:2px 8px;border-radius:20px;font-size:10px;font-family:var(--font-cond)">${d.tipo}</span>`
       : `<span style="background:rgba(52,211,153,.18);color:#34D399;border:1px solid rgba(52,211,153,.35);padding:2px 8px;border-radius:20px;font-size:10px;font-family:var(--font-cond)">${d.tipo}</span>`;
+    const pm2 = getPM(d.login);
+    const nombreCompleto = pm2 ? pm2.nombre : '';
     return`<div class="gestor-card" style="border-top:3px solid #FFA700">
       <div class="gc-header">
         <div class="gc-name" style="color:#FFA700">
           👤 ${g}
-          <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:4px">${d.login}</span>
+          ${nombreCompleto?`<span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:4px">${nombreCompleto}</span>`:''}
         </div>
         <div class="gc-badges">
           ${tipoPill}

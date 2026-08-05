@@ -1586,9 +1586,10 @@ function applyFilters(){
 
   updateFiltrosCount();
   renderAll();
-}
 
-function toggleFiltrosPanel(){
+  // También aplicar filtro de gestor a Tareas (campo NOMBRE_USR_ULT_PLAN = login)
+  if(_tareas.length) setTimeout(()=>{ renderTareasGestores(); renderKpisTareas(); }, 50);
+}
   const panel=document.getElementById('filter-panel');
   const btn=document.getElementById('btn-filtros');
   const open=panel.style.display==='none'||panel.style.display==='';
@@ -3658,53 +3659,58 @@ async function loadTareas(){
 }
 
 function renderKpisTareas(){
-  if(!_tareas.length) return;
-  const tot = _tareas.length;
+  // Respetar filtro de gestor si está activo
+  const gFiltro = typeof sfGetVals==='function' ? sfGetVals('sf-gestor') : null;
+  const source = gFiltro ? _tareas.filter(r=>gFiltro.has(r.login)) : _tareas;
+  if(!source.length) return;
+  const tot = source.length;
   const set = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
 
-  // Total
   set('kt-total', tot.toLocaleString('es-EC'));
   set('kt-sub',   tot+' tareas cargadas');
 
-  // Contar estados reales
   const estMap = {};
-  _tareas.forEach(r=>{ const e=r.estado||'Sin estado'; estMap[e]=(estMap[e]||0)+1; });
+  source.forEach(r=>{ const e=r.estado||'Sin estado'; estMap[e]=(estMap[e]||0)+1; });
   const estArr = Object.entries(estMap).sort((a,b)=>b[1]-a[1]);
   console.log('[Tareas] Estados:', estArr.map(([k,v])=>k+'='+v).join(', '));
 
-  // Llenar los 7 cards dinámicos con los estados reales
   estArr.slice(0,7).forEach(([est,cnt], i)=>{
     const col = tcol(est);
     const card = document.getElementById('kt-est-'+i);
-    if(card) card.style.setProperty('--ak', col);
+    if(card){ card.style.setProperty('--ak', col); card.style.display=''; }
     set('kt-lbl-'+i, est);
     set('kt-val-'+i, cnt);
     set('kt-pct-'+i, Math.round(cnt/tot*100)+'% del total');
-    // Color del valor
     const valEl = document.getElementById('kt-val-'+i);
     if(valEl) valEl.style.color = col;
   });
-  // Ocultar cards sin datos
   for(let i=estArr.length; i<7; i++){
     const card = document.getElementById('kt-est-'+i);
     if(card) card.style.display='none';
   }
 
-  // Fijos
-  set('kt-gestores',       new Set(_tareas.map(r=>r.login).filter(Boolean)).size);
-  set('kt-procesos',       new Set(_tareas.map(r=>r.proceso).filter(p=>p&&p!=='—')).size);
-  set('kt-jurisdicciones', new Set(_tareas.map(r=>r.juris).filter(j=>j&&j!=='—')).size);
+  set('kt-gestores',       new Set(source.map(r=>r.login).filter(Boolean)).size);
+  set('kt-procesos',       new Set(source.map(r=>r.proceso).filter(p=>p&&p!=='—')).size);
+  set('kt-jurisdicciones', new Set(source.map(r=>r.juris).filter(j=>j&&j!=='—')).size);
 }
 
 function _updateTareasKpiLabels(){} // no-op, ya no necesario
 
 function renderTareasGestores(){
+  // Respetar filtro de gestor si está activo
+  const gFiltro = typeof sfGetVals==='function' ? sfGetVals('sf-gestor') : null;
+
+  const source = gFiltro
+    ? _tareas.filter(r => gFiltro.has(r.login))
+    : _tareas;
+
   const map={};
-  _tareas.forEach(r=>{
+  source.forEach(r=>{
     const key=r.gestor;
-    if(!map[key]) map[key]={login:r.login,tipo:r.tipo,equipo:r.equipo,ciudad:r.ciudad,estados:{},juriSet:new Set(),rows:[]};
+    if(!map[key]) map[key]={login:r.login,tipo:r.tipo,equipo:r.equipo,ciudad:r.ciudad,estados:{},juriSet:new Set(),procMap:{},rows:[]};
     map[key].estados[r.estado]=(map[key].estados[r.estado]||0)+1;
     map[key].juriSet.add(r.juris);
+    map[key].procMap[r.proceso]=(map[key].procMap[r.proceso]||0)+1;
     map[key].rows.push(r);
   });
   const sorted=Object.entries(map).map(([g,d])=>({g,d,tot:d.rows.length})).sort((a,b)=>b.tot-a.tot);
@@ -3716,22 +3722,98 @@ function renderTareasGestores(){
   if(bOp) bOp.textContent=rowsOp.reduce((s,{tot})=>s+tot,0);
   if(bPr) bPr.textContent=rowsPr.reduce((s,{tot})=>s+tot,0);
 
+  let _tcardUid = 0;
+
   const card=({g,d,tot})=>{
+    const uid = ++_tcardUid;
     const estArr=Object.entries(d.estados).sort((a,b)=>b[1]-a[1]);
     const bar=estArr.map(([e,c])=>`<div class="gc-seg" style="width:${Math.round(c/tot*100)}%;background:${tcol(e)}" title="${e}:${c}"></div>`).join('');
     const pills=estArr.map(([e,c])=>`<div class="gc-est"><span class="gc-est-dot" style="background:${tcol(e)}"></span><span class="gc-est-n" style="color:${tcol(e)}">${c}</span> ${e}</div>`).join('');
-    const top3=d.rows.filter(r=>r.anno).sort((a,b)=>a.anno.localeCompare(b.anno)).slice(0,3);
-    const alerts=top3.map(r=>`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)">
-      <div style="width:6px;height:6px;border-radius:50%;background:${tcol(r.estado)};flex-shrink:0"></div>
-      <div style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:#e8f0ff">${r.tarea||r.id}</div>
-      <span style="font-size:10px;color:${tcol(r.estado)};font-family:var(--font-cond);font-weight:700;flex-shrink:0">${r.anno} ${r.mes}</span>
-    </div>`).join('');
+
     // Pill tipo
     const tipoPill = d.tipo==='PROYECTOS'
       ? `<span style="background:rgba(110,190,235,.18);color:#6EBEEB;border:1px solid rgba(110,190,235,.35);padding:2px 8px;border-radius:20px;font-size:10px;font-family:var(--font-cond)">${d.tipo}</span>`
       : `<span style="background:rgba(52,211,153,.18);color:#34D399;border:1px solid rgba(52,211,153,.35);padding:2px 8px;border-radius:20px;font-size:10px;font-family:var(--font-cond)">${d.tipo}</span>`;
     const pm2 = getPM(d.login);
     const nombreCompleto = pm2 ? pm2.nombre : '';
+
+    // ── PANEL ANÁLISIS (igual que OTS) ──────────────────
+    // Donut estados
+    const circ=2*Math.PI*50,cx=65,cy=65,r3=50,sw2=18;
+    let off2=0,arcs2='';
+    estArr.forEach(([e,c])=>{const col=tcol(e),dash=(c/tot)*circ;arcs2+=`<circle cx="${cx}" cy="${cy}" r="${r3}" fill="none" stroke="${col}" stroke-width="${sw2}" stroke-dasharray="${dash} ${circ}" stroke-dashoffset="${-off2}" transform="rotate(-90 ${cx} ${cy})"/>`;off2+=dash;});
+    const donut=`<svg width="130" height="130">
+      <circle cx="${cx}" cy="${cy}" r="${r3}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${sw2}"/>
+      ${arcs2}
+      <text x="${cx}" y="${cy-6}" text-anchor="middle" fill="#e8f0ff" font-size="20" font-weight="800" font-family="Barlow Condensed,sans-serif">${tot}</text>
+      <text x="${cx}" y="${cy+11}" text-anchor="middle" fill="#8899aa" font-size="10">tareas</text>
+    </svg>`;
+
+    // Top 5 más antiguas
+    const top5=d.rows.filter(r=>r.anno).sort((a,b)=>a.anno.localeCompare(b.anno)||a.mes.localeCompare(b.mes)).slice(0,5);
+    const alertRows=top5.map(r=>`<div class="gc-alert-row">
+      <div class="gc-alert-semaforo" style="background:${tcol(r.estado)}"></div>
+      <div class="gc-alert-info">
+        <div class="gc-alert-cliente">${esc(r.tarea||r.id)}</div>
+        <div class="gc-alert-login">📂 ${esc(r.proceso)}</div>
+        <div class="gc-alert-motivo">🌐 ${esc(r.juris)}</div>
+      </div>
+      <div class="gc-alert-right">
+        <div class="gc-alert-dias" style="color:${tcol(r.estado)};font-size:11px">${r.anno} ${r.mes}</div>
+        <div class="gc-alert-estado" style="color:${tcol(r.estado)}">${r.estado}</div>
+      </div>
+    </div>`).join('');
+
+    // Motivos (procesos) — igual que "Motivos de Gestión" en OTS
+    const procSorted=Object.entries(d.procMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    const motivoItems=procSorted.map(([proc,cnt2],pi)=>{
+      const uid3=`tc_${uid}_${pi}`;
+      if(!window._tProcRows) window._tProcRows={};
+      window._tProcRows[uid3]=d.rows.filter(r=>r.proceso===proc);
+      return`<div class="gc-mot-item" id="gcmi-t-${uid3}" onclick="gcToggleTareaProc('${uid3}')">
+        <span class="gc-mot-num" style="color:#FFA700">${cnt2}</span>
+        <span class="gc-mot-txt" title="${esc(proc)}">${esc(proc)}</span>
+        <span class="gc-mot-arrow">▼</span>
+      </div>
+      <div class="gc-mot-detail" id="gcmd-t-${uid3}" style="display:none"></div>`;
+    }).join('') || '<div style="color:var(--muted);font-size:11px">Sin procesos</div>';
+
+    const analisisHTML=`<div class="gc-analisis-grid">
+      <div class="gc-donut-wrap">
+        <div class="gc-donut-title">Distribución Estados</div>
+        ${donut}
+        <div class="gc-donut-legend">${estArr.map(([e,c])=>`
+          <div class="gc-donut-legend-item">
+            <div class="gc-donut-legend-dot" style="background:${tcol(e)}"></div>
+            <span>${e}</span>
+            <span class="gc-donut-legend-pct" style="color:${tcol(e)}">${Math.round(c/tot*100)}%</span>
+          </div>`).join('')}
+        </div>
+      </div>
+      <div class="gc-alert-panel">
+        <div class="gc-alert-title">📅 Top 5 · Mayor Antigüedad</div>
+        ${alertRows||'<div style="color:#666;font-size:12px">Sin tareas con fecha</div>'}
+      </div>
+      <div class="gc-motivos-panel">
+        <div class="gc-motivos-title" style="color:#FFA700">⚡ Procesos de Gestión</div>
+        <div class="gc-motivos-sub" style="color:#9BBCD8">${procSorted.length} procesos · ${tot} tareas</div>
+        ${motivoItems}
+      </div>
+    </div>`;
+
+    // Tabla detalle
+    const detalleHTML=`<div class="gc-detail"><table><thead><tr>
+      <th>#</th><th>Proceso</th><th>Tarea</th><th>Estado</th><th>Jurisdicción</th><th>Año</th><th>Mes</th>
+    </tr></thead><tbody>${d.rows.map((r,i)=>`<tr>
+      <td class="td-num">${i+1}</td>
+      <td class="td-muted" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.proceso)}</td>
+      <td class="td-client">${esc(r.tarea||r.id)}</td>
+      <td><span style="color:${tcol(r.estado)};font-weight:700;font-family:var(--font-cond)">${r.estado}</span></td>
+      <td class="td-muted">${r.juris}</td>
+      <td class="td-num">${r.anno}</td>
+      <td class="td-muted">${r.mes}</td>
+    </tr>`).join('')||'<tr><td colspan="7" class="empty">Sin tareas</td></tr>'}</tbody></table></div>`;
+
     return`<div class="gestor-card" style="border-top:3px solid #FFA700">
       <div class="gc-header">
         <div class="gc-name" style="color:#FFA700">
@@ -3746,7 +3828,12 @@ function renderTareasGestores(){
       </div>
       <div class="gc-bar">${bar}</div>
       <div class="gc-estados">${pills}</div>
-      ${top3.length?`<div style="margin-top:10px"><div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Mas antiguas</div>${alerts}</div>`:''}
+      <div class="gp-tabs" style="margin-top:10px">
+        <div class="gp-tab active" id="tgpt-${uid}-analisis" onclick="switchTareaGpTab(${uid},'analisis')">📊 Análisis</div>
+        <div class="gp-tab" id="tgpt-${uid}-detalle" onclick="switchTareaGpTab(${uid},'detalle')">📋 Detalle · ${tot}</div>
+      </div>
+      <div class="gp-panel active" id="tgpp-${uid}-analisis">${analisisHTML}</div>
+      <div class="gp-panel" id="tgpp-${uid}-detalle">${detalleHTML}</div>
     </div>`;
   };
 
@@ -3754,6 +3841,38 @@ function renderTareasGestores(){
   const gPr=document.getElementById('gestores-grid-tareas-pr');
   if(gOp) gOp.innerHTML=rowsOp.length?rowsOp.map(card).join(''):'<div class="empty">Sin gestores Operativo</div>';
   if(gPr) gPr.innerHTML=rowsPr.length?rowsPr.map(card).join(''):'<div class="empty">Sin gestores Proyectos</div>';
+}
+
+function switchTareaGpTab(uid, tab){
+  ['analisis','detalle'].forEach(t=>{
+    document.getElementById('tgpt-'+uid+'-'+t)?.classList.toggle('active', t===tab);
+    document.getElementById('tgpp-'+uid+'-'+t)?.classList.toggle('active', t===tab);
+  });
+}
+
+function gcToggleTareaProc(uid3){
+  const rows=(window._tProcRows||{})[uid3]||[];
+  const item=document.getElementById('gcmi-t-'+uid3);
+  const detail=document.getElementById('gcmd-t-'+uid3);
+  if(!item||!detail) return;
+  const isOpen=detail.style.display!=='none';
+  item.closest('.gc-motivos-panel').querySelectorAll('.gc-mot-detail').forEach(d=>d.style.display='none');
+  item.closest('.gc-motivos-panel').querySelectorAll('.gc-mot-item').forEach(el=>el.classList.remove('gc-mot-active'));
+  if(isOpen) return;
+  item.classList.add('gc-mot-active');
+  detail.style.display='block';
+  if(!rows.length){detail.innerHTML='<div class="gc-mot-detail-hdr">Sin tareas</div>';return;}
+  detail.innerHTML=`<div class="gc-mot-detail-hdr">${rows.length} tarea${rows.length!==1?'s':''}</div>
+    <div class="gc-mot-scroll"><table class="gc-mot-tbl"><thead><tr>
+      <th>#</th><th>Tarea</th><th>Estado</th><th>Jurisdicción</th><th>Año</th><th>Mes</th>
+    </tr></thead><tbody>${rows.map((r,i)=>`<tr>
+      <td style="color:var(--muted);font-family:var(--font-cond)">${i+1}</td>
+      <td style="font-weight:600;color:#e8f0ff;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.tarea||r.id)}</td>
+      <td><span style="color:${tcol(r.estado)};font-weight:700;font-family:var(--font-cond);font-size:11px">${r.estado}</span></td>
+      <td style="color:var(--muted);font-size:11px">${r.juris}</td>
+      <td style="color:var(--muted);font-size:11px">${r.anno}</td>
+      <td style="color:var(--muted);font-size:11px">${r.mes}</td>
+    </tr>`).join('')}</tbody></table></div>`;
 }
 
 let _analisisVista = 'ots'; // 'ots' | 'tareas' | 'ambos'

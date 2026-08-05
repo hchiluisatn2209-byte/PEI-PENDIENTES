@@ -3465,7 +3465,7 @@ const PERSONAL_MAP_TAREAS = {
 
 const getPM = login => PERSONAL_MAP_TAREAS[(login||'').toLowerCase().trim()] || null;
 
-let _tareas = [], _tareasLoading = false;
+let _tareas = [], _tareasLoading = false, _analisisVista = 'ots';
 
 // Extender switchCargaSubTab para incluir tabs de tareas
 const _origSwitch = switchCargaSubTab;

@@ -1352,12 +1352,12 @@ function switchTab(t){
     if(titulo) titulo.innerHTML = '<span class="dot-sec"></span>Indicadores Clave · OTS &nbsp;|&nbsp; <span style="color:#FFA700">Tareas PEI</span>';
     if(btnOts) btnOts.style.display = '';
   } else {
-    // Carga por Gestor: siempre KPIs de Tareas, activar Carga Operativo
+    // Carga por Gestor: mostrar KPIs de OTS + Tareas
     if(kpiWrap)  kpiWrap.style.display  = '';
-    if(otsStrip) otsStrip.style.display = 'none';
+    if(otsStrip) otsStrip.style.display = '';
     if(tarStrip) tarStrip.style.display = '';
-    if(titulo) titulo.innerHTML = '<span class="dot-sec" style="background:#FFA700"></span>Indicadores Clave · Carga PEI';
-    if(btnOts) btnOts.style.display = 'none';
+    if(titulo) titulo.innerHTML = '<span class="dot-sec"></span>Indicadores Clave · <span style="color:var(--turquesa)">Órdenes</span> &nbsp;+&nbsp; <span style="color:#FFA700">Tareas PEI</span>';
+    if(btnOts) btnOts.style.display = '';
     switchCargaSubTab('tareas-op');
   }
 }
@@ -3503,10 +3503,10 @@ switchCargaSubTab = function(tipo){
   const titulo     = document.getElementById('kpi-section-title');
   const btnOts     = document.getElementById('btn-export-ots');
   if(kpiWrap)     kpiWrap.style.display     = '';
-  if(otsStrip)    otsStrip.style.display    = 'none';
+  if(otsStrip)    otsStrip.style.display    = '';
   if(tareasStrip) tareasStrip.style.display = '';
-  if(titulo) titulo.innerHTML = '<span class="dot-sec" style="background:#FFA700"></span>Indicadores Clave · Carga PEI';
-  if(btnOts) btnOts.style.display = 'none';
+  if(titulo) titulo.innerHTML = '<span class="dot-sec"></span>Indicadores Clave · <span style="color:var(--turquesa)">Órdenes</span> &nbsp;+&nbsp; <span style="color:#FFA700">Tareas PEI</span>';
+  if(btnOts) btnOts.style.display = '';
 
   if(!_tareas.length && !_tareasLoading) loadTareas();
   else { renderKpisTareas(); renderTareasGestores(); }

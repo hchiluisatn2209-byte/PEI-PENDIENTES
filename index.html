@@ -3530,16 +3530,18 @@ async function loadTareas(){
     const fi=fn=>cols.findIndex(fn);
     // NOMBRE_USR_ULT_PLAN contiene el login directamente (hchiluisa, aarroyo, etc.)
     // ULT USUARIO ASIGNADO contiene el nombre completo (fallback)
-    const iNombreUlt = fi(c=>c==="NOMBRE_USR_ULT_PLAN");
-    const iUltUser   = fi(c=>c==="ULT USUARIO ASIGNADO"||c==="ULT_USUARIO_ASIGNADO");
-    const iEstado    = fi(c=>c==="ESTADO_TAREA");
-    const iJuris     = fi(c=>c==="JURISDICCION_LOGIN_TAREA");
-    const iProceso   = fi(c=>c==="NOMBRE_PROCESO");
-    const iTarea     = fi(c=>c==="NOMBRE_TAREA");
-    const iId        = fi(c=>c==="ID_TAREA");
-    const iAnno      = fi(c=>c.includes("AÑO"));
-    const iMes       = fi(c=>c.includes("MES"));
-    console.log("[Tareas] Indices: nombreUlt="+iNombreUlt+" ultUser="+iUltUser+" estado="+iEstado);
+    const iNombreUlt  = fi(c=>c==="NOMBRE_USR_ULT_PLAN");
+    const iUltUser    = fi(c=>c==="ULT USUARIO ASIGNADO"||c==="ULT_USUARIO_ASIGNADO");
+    const iEstado     = fi(c=>c==="ESTADO_TAREA");
+    const iJuris      = fi(c=>c==="JURISDICCION_LOGIN_TAREA");
+    const iProceso    = fi(c=>c==="NOMBRE_PROCESO");
+    const iTarea      = fi(c=>c==="NOMBRE_TAREA");
+    const iId         = fi(c=>c==="ID_TAREA");
+    const iAnno       = fi(c=>c.includes("AÑO"));
+    const iMes        = fi(c=>c.includes("MES"));
+    const iLogin      = fi(c=>c==="LOGIN.TAREA"||c==="LOGIN_TAREA"||c==="LOGIN");
+    const iFechaAsig  = fi(c=>c==="FECHA_ASIGNADA");
+    console.log("[Tareas] Indices: nombreUlt="+iNombreUlt+" estado="+iEstado+" fechaAsig="+iFechaAsig);
 
     // Construir lookup inverso nombre completo -> login (para fallback)
     const _nameToLogin = {};
@@ -3573,17 +3575,19 @@ async function loadTareas(){
       const pm = getPM(login);
       return {
         login,
-        gestor:  login,
-        tipo:    pm?.tipo   || "OTROS",
-        equipo:  pm?.equipo || "—",
-        ciudad:  pm?.ciudad || "—",
-        estado:  cv(row,iEstado)  || "Sin estado",
-        juris:   cv(row,iJuris)   || "—",
-        proceso: cv(row,iProceso) || "—",
-        tarea:   cv(row,iTarea)   || "—",
-        id:      cv(row,iId)      || "—",
-        anno:    cv(row,iAnno),
-        mes:     cv(row,iMes),
+        gestor:      login,
+        tipo:        pm?.tipo   || "OTROS",
+        equipo:      pm?.equipo || "—",
+        ciudad:      pm?.ciudad || "—",
+        estado:      cv(row,iEstado)    || "Sin estado",
+        juris:       cv(row,iJuris)     || "—",
+        proceso:     cv(row,iProceso)   || "—",
+        tarea:       cv(row,iTarea)     || "—",
+        id:          cv(row,iId)        || "—",
+        anno:        cv(row,iAnno),
+        mes:         cv(row,iMes),
+        loginTarea:  cv(row,iLogin)     || "—",
+        fechaAsig:   cv(row,iFechaAsig) || "—",
       };
     }).filter(Boolean);
 
@@ -3869,16 +3873,25 @@ function renderTareasGestores(){
 
     // Tabla detalle
     const detalleHTML=`<div class="gc-detail"><table><thead><tr>
-      <th>#</th><th>Proceso</th><th>Tarea</th><th>Estado</th><th>Jurisdicción</th><th>Año</th><th>Mes</th>
+      <th>#</th><th>NOMBRE_USR_ULT_PLAN</th><th>CIUDAD</th><th>TIPO_GESTIÓN</th><th>EQUIPO</th>
+      <th>ID_TAREA</th><th>LOGIN</th><th>ESTADO_TAREA</th><th>NOMBRE_PROCESO</th>
+      <th>NOMBRE_TAREA</th><th>JURISDICCION</th><th>AÑO</th><th>MES</th><th>FECHA_ASIGNADA</th>
     </tr></thead><tbody>${d.rows.map((r,i)=>`<tr>
       <td class="td-num">${i+1}</td>
-      <td class="td-muted" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.proceso)}</td>
-      <td class="td-client">${esc(r.tarea||r.id)}</td>
-      <td><span style="color:${tcol(r.estado)};font-weight:700;font-family:var(--font-cond)">${r.estado}</span></td>
-      <td class="td-muted">${r.juris}</td>
+      <td class="td-client" style="font-family:var(--font-cond);color:#FFA700">${esc(r.login)}</td>
+      <td class="td-muted">${r.ciudad}</td>
+      <td><span style="font-size:10px;font-family:var(--font-cond);font-weight:700;color:${r.tipo==='PROYECTOS'?'#6EBEEB':'#34D399'}">${r.tipo}</span></td>
+      <td class="td-muted" style="font-size:10px">${r.equipo}</td>
+      <td class="td-num" style="color:var(--azul-c)">${esc(r.id)}</td>
+      <td class="td-muted" style="font-size:10px">${esc(r.loginTarea)}</td>
+      <td><span style="color:${tcol(r.estado)};font-weight:700;font-family:var(--font-cond);font-size:11px">${r.estado}</span></td>
+      <td class="td-muted" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.proceso)}">${esc(r.proceso)}</td>
+      <td class="td-client" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.tarea)}">${esc(r.tarea)}</td>
+      <td class="td-muted" style="font-size:10px">${esc(r.juris)}</td>
       <td class="td-num">${r.anno}</td>
       <td class="td-muted">${r.mes}</td>
-    </tr>`).join('')||'<tr><td colspan="7" class="empty">Sin tareas</td></tr>'}</tbody></table></div>`;
+      <td class="td-muted" style="font-size:10px">${esc(r.fechaAsig)}</td>
+    </tr>`).join('')||'<tr><td colspan="14" class="empty">Sin tareas</td></tr>'}</tbody></table></div>`;
 
     return`<div class="gestor-card" style="border-top:3px solid #FFA700">
       <div class="gc-header">
@@ -3953,18 +3966,19 @@ function exportarTareasGestorCSV(encoded){
   const g = decodeURIComponent(encoded);
   const rows = _tareas.filter(r => r.gestor === g);
   if(!rows.length){ alert('Sin tareas para exportar.'); return; }
-  const headers = ['LOGIN','NOMBRE','TIPO','EQUIPO','CIUDAD','PROCESO','TAREA','ID','ESTADO','JURISDICCION','AÑO','MES'];
+  const headers = [
+    'NOMBRE_USR_ULT_PLAN','CIUDAD','TIPO_GESTIÓN','EQUIPO',
+    'ID_TAREA','LOGIN','ESTADO_TAREA','NOMBRE_PROCESO','NOMBRE_TAREA',
+    'JURISDICCION_LOGIN_TAREA','AÑO','MES','FECHA_ASIGNADA'
+  ];
   const sep = ';';
   const e2 = v => '"'+String(v||'').replace(/"/g,'""')+'"';
-  const pm2 = getPM(rows[0]?.login||'');
   const lines = ['sep=;', headers.map(e2).join(sep)];
-  rows.forEach(r => {
-    const pm3 = getPM(r.login||'');
-    lines.push([
-      r.login, pm3?pm3.nombre:'', r.tipo, r.equipo, r.ciudad,
-      r.proceso, r.tarea, r.id, r.estado, r.juris, r.anno, r.mes
-    ].map(e2).join(sep));
-  });
+  rows.forEach(r => lines.push([
+    r.login, r.ciudad, r.tipo, r.equipo,
+    r.id, r.loginTarea, r.estado, r.proceso, r.tarea,
+    r.juris, r.anno, r.mes, r.fechaAsig
+  ].map(e2).join(sep)));
   const blob = new Blob(['\uFEFF'+lines.join('\n')], {type:'text/csv;charset=utf-8'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);

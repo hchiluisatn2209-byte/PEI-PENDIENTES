@@ -999,9 +999,7 @@ const KNOWN_SHEETS = [
   //  {fecha:'07-07-26',gid:494955224},
   //  {fecha:'08-07-26',gid:1901801479},
   //  {fecha:'17-07-26',gid:1731121928},
-  //  {fecha:'23-07-26',gid:306558480},
-  {fecha:'05-08-26',gid:1874107970},
-  
+    {fecha:'23-07-26',gid:306558480},
 ];
 
 const C={
@@ -3811,6 +3809,14 @@ function renderTareasGestores(){
         <div class="gp-tabs">
           <div class="gp-tab active" id="tgpt-${otsUid}-analisis" onclick="switchTareaGpTab('${otsUid}','analisis')">📊 Análisis</div>
           <div class="gp-tab" id="tgpt-${otsUid}-detalle" onclick="switchTareaGpTab('${otsUid}','detalle')">📋 Detalle · ${otsTot}</div>
+          <div style="flex:1"></div>
+          <button onclick="exportarOTSGestorCSV('${encodeURIComponent(g)}')"
+            style="display:flex;align-items:center;gap:5px;padding:4px 12px;border-radius:16px;
+                   border:1.5px solid rgba(0,176,240,.4);background:rgba(0,176,240,.1);
+                   color:var(--turquesa);font-family:var(--font);font-size:11px;font-weight:600;
+                   cursor:pointer;white-space:nowrap;margin-bottom:2px">
+            ⬇ Excel
+          </button>
         </div>
         <div class="gp-panel active" id="tgpp-${otsUid}-analisis">
           <div class="gc-analisis-grid">
@@ -4002,6 +4008,29 @@ function gcToggleTareaProc(uid3){
       <td style="color:var(--muted);font-size:11px">${r.anno}</td>
       <td style="color:var(--muted);font-size:11px">${r.mes}</td>
     </tr>`).join('')}</tbody></table></div>`;
+}
+
+function exportarOTSGestorCSV(encoded){
+  const g = decodeURIComponent(encoded);
+  const rows = (typeof filtered!=='undefined'?filtered:[])
+    .filter(r=>(r[C.GESTOR]||'').trim().toLowerCase()===g.toLowerCase());
+  if(!rows.length){ alert('Sin órdenes OTS para exportar.'); return; }
+  const headers=['GESTOR','LOGIN','CLIENTE','ESTADO_SERVICIO','TIPO_GESTION','PRODUCTO',
+    'TIPO_ORDEN','FE_PREPLANIFICADA','DIAS_SIN_GESTION','MOTIVO','OBS_ULT_PLAN','CONTRATO'];
+  const keys=[C.GESTOR,C.LOGIN,C.CLIENTE,'EST',C.TIPO_GESTION,C.PRODUCTO,
+    C.TIPO_ORDEN,C.FE_PREPLAN,'DIAS',C.MOTIVO,C.OBS_PLAN,C.CONTRATO];
+  const sep=';', e2=v=>'"'+String(v||'').replace(/"/g,'""')+'"';
+  const lines=['sep=;', headers.map(e2).join(sep)];
+  rows.forEach(r=>lines.push(keys.map(k=>{
+    if(k==='EST') return e2(getEst(r));
+    if(k==='DIAS') return e2(diasDesde(r[C.FE_PLAN])||'');
+    return e2(r[k]||'');
+  }).join(sep)));
+  const blob=new Blob(['\uFEFF'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`ots_${g}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
 }
 
 function exportarTareasGestorCSV(encoded){

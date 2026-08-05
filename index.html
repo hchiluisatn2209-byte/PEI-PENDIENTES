@@ -1521,8 +1521,14 @@ function switchMainTab(t){
     renderKPIsTareas();
     requestAnimationFrame(()=>{
       requestAnimationFrame(()=>{
+        if(!filteredTareas.length && allTareas.length) filteredTareas = [...allTareas];
+        const tCt=document.getElementById('tareas-analisis-content');
+        const tPh=document.getElementById('tareas-analisis-placeholder');
+        if(tCt) tCt.style.display = '';
+        if(tPh) tPh.style.display = 'none';
         renderTareasAnalisis();
         renderGestoresTareasNew();
+        window._tareasPendienteRender = false;
       });
     });
   }
@@ -3803,21 +3809,20 @@ async function loadTareas(){
     // doble rAF: garantiza que el browser pintó el layout antes de crear Canvas
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
       console.log('[Tareas] Ejecutando render...');
-      // Diagnóstico DOM
+      // Garantizar que filteredTareas tiene datos (puede haberse vaciado por filtros)
+      if(!filteredTareas.length && allTareas.length) filteredTareas = [...allTareas];
+      // Forzar visibilidad de los contenedores
       const mT=document.getElementById('main-tareas');
       const tAn=document.getElementById('tab-tareas-analisis');
       const tCt=document.getElementById('tareas-analisis-content');
       const tPh=document.getElementById('tareas-analisis-placeholder');
-      console.log('[Tareas][DOM] main-tareas display:', mT?.style.display, '| computed:', getComputedStyle(mT||document.body).display);
-      console.log('[Tareas][DOM] tab-tareas-analisis display:', tAn?.style.display);
-      console.log('[Tareas][DOM] tareas-analisis-content display:', tCt?.style.display);
-      console.log('[Tareas][DOM] tareas-analisis-placeholder display:', tPh?.style.display);
-      // Forzar visibilidad por si algo la está ocultando
       if(mT)  mT.style.display  = '';
       if(tAn) tAn.style.display = '';
+      if(tCt) tCt.style.display = '';    // forzar visible ANTES de renderizar
+      if(tPh) tPh.style.display = 'none'; // ocultar spinner
       renderTareasAnalisis();
       renderGestoresTareasNew();
-      console.log('[Tareas] Render completado');
+      console.log('[Tareas] Render completado. filteredTareas:', filteredTareas.length);
     }));
   } else {
     window._tareasPendienteRender = true;

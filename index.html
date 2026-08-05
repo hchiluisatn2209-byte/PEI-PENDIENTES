@@ -3803,6 +3803,18 @@ async function loadTareas(){
     // doble rAF: garantiza que el browser pintó el layout antes de crear Canvas
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
       console.log('[Tareas] Ejecutando render...');
+      // Diagnóstico DOM
+      const mT=document.getElementById('main-tareas');
+      const tAn=document.getElementById('tab-tareas-analisis');
+      const tCt=document.getElementById('tareas-analisis-content');
+      const tPh=document.getElementById('tareas-analisis-placeholder');
+      console.log('[Tareas][DOM] main-tareas display:', mT?.style.display, '| computed:', getComputedStyle(mT||document.body).display);
+      console.log('[Tareas][DOM] tab-tareas-analisis display:', tAn?.style.display);
+      console.log('[Tareas][DOM] tareas-analisis-content display:', tCt?.style.display);
+      console.log('[Tareas][DOM] tareas-analisis-placeholder display:', tPh?.style.display);
+      // Forzar visibilidad por si algo la está ocultando
+      if(mT)  mT.style.display  = '';
+      if(tAn) tAn.style.display = '';
       renderTareasAnalisis();
       renderGestoresTareasNew();
       console.log('[Tareas] Render completado');

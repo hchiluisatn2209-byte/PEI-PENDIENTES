@@ -675,7 +675,11 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
       <div style="display:flex;gap:8px">
         <button class="btn-export-kpi" id="btn-export-ots" onclick="exportKpiExcel()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Exportar Excel
+          Excel OTS
+        </button>
+        <button class="btn-export-kpi" onclick="exportarTareasExcel()" style="border-color:rgba(255,167,0,.4);background:rgba(255,167,0,.1);color:#FFA700">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Excel Tareas
         </button>
       </div>
     </div>
@@ -4009,6 +4013,27 @@ function gcToggleTareaProc(uid3){
       <td style="color:var(--muted);font-size:11px">${r.anno}</td>
       <td style="color:var(--muted);font-size:11px">${r.mes}</td>
     </tr>`).join('')}</tbody></table></div>`;
+}
+
+// Exportar TODAS las tareas a CSV
+function exportarTareasExcel(){
+  const source = _tareas.length ? _tareas : [];
+  if(!source.length){ alert('Sin tareas cargadas para exportar.'); return; }
+  const headers=['NOMBRE_USR_ULT_PLAN','CIUDAD','TIPO_GESTIÓN','EQUIPO',
+    'ID_TAREA','LOGIN','ESTADO_TAREA','NOMBRE_PROCESO','NOMBRE_TAREA',
+    'JURISDICCION_LOGIN_TAREA','AÑO','MES','FECHA_ASIGNADA'];
+  const sep=';', e2=v=>'"'+String(v||'').replace(/"/g,'""')+'"';
+  const lines=['sep=;', headers.map(e2).join(sep)];
+  source.forEach(r=>lines.push([
+    r.login, r.ciudad, r.tipo, r.equipo,
+    r.id, r.loginTarea, r.estado, r.proceso, r.tarea,
+    r.juris, r.anno, r.mes, r.fechaAsig
+  ].map(e2).join(sep)));
+  const blob=new Blob(['\uFEFF'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`tareas_pei_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
 }
 
 function exportarOTSGestorCSV(encoded){

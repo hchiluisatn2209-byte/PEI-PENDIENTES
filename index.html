@@ -3541,6 +3541,18 @@ switchCargaSubTab = function(tipo){
 
   // Cambiar KPI strip y título según si es OTS o Tareas
   const esTareas = tipo==='tareas-op'||tipo==='tareas-pr';
+
+  // Ocultar panel de gestor OTS al entrar en tabs de Tareas
+  const panelOTS = document.getElementById('gestor-panel');
+  const wrapDet  = document.getElementById('detalle-gestor-wrap');
+  if(esTareas){
+    if(panelOTS) panelOTS.style.display = 'none';
+    if(wrapDet)  wrapDet.style.display  = 'none';
+  } else {
+    if(panelOTS) panelOTS.style.display = '';
+    // Solo mostrar wrap si hay contenido
+    if(wrapDet && panelOTS?.innerHTML?.trim()) wrapDet.style.display = '';
+  }
   const otsStrip   = document.getElementById('kpi-strip-ots');
   const tareasStrip= document.getElementById('kpi-strip-tareas');
   const titulo     = document.getElementById('kpi-section-title');

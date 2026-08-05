@@ -3348,12 +3348,64 @@ document.addEventListener('mousedown',function(ev){
 });
 
 // ════════════════════════════════════════════════════════════════
-// ── MÓDULO TAREAS ───────────────────────────────────────────────
+// ── MÓDULO TAREAS ───────────────────────────────────────════════
 // ════════════════════════════════════════════════════════════════
 
 const SHEET_ID_TAREAS = '1SMRqn8HFhbZW0HhDdoK--9Met-sBfg2gcsse4Niaa64';
 const GID_TAREAS      = 88454513;
 const tcol = e => ({'Pendiente':'#FFA700','En Proceso':'#00B0F0','Completada':'#34D399','Cancelada':'#FF44B0','Bloqueada':'#FF6F42','En Revision':'#8B6FE8','Asignada':'#6EBEEB'}[e]||'#9BBCD8');
+
+// Mapeo login -> nombre completo, equipo, tipo, ciudad
+const PERSONAL_MAP_TAREAS = {
+  'hchiluisa':   {nombre:'CHILUISA LOPEZ HAYDI GUISSELA',         equipo:'PLANIFICACIÓN',  tipo:'OPERATIVO',  ciudad:'UIO'},
+  'raacosta':    {nombre:'ACOSTA MATO ROMINA ALEXANDRA',           equipo:'PLANIFICACIÓN',  tipo:'OPERATIVO',  ciudad:'GYE'},
+  'cdalmeida':   {nombre:'ALMEIDA CHICAIZA CHRISTIAN DAVID',       equipo:'PLANIFICACIÓN',  tipo:'OPERATIVO',  ciudad:'UIO'},
+  'vcarrillo':   {nombre:'CARRILLO QUEZADA VERONICA MELINA',       equipo:'PLANIFICACIÓN',  tipo:'OPERATIVO',  ciudad:'GYE'},
+  'vcruz':       {nombre:'CRUZ CARGUA VERÓNICA LUCIA',             equipo:'PLANIFICACIÓN',  tipo:'OPERATIVO',  ciudad:'UIO'},
+  'dagallardo':  {nombre:'GALLARDO REASCO DIANA ALEJANDRA',        equipo:'PLANIFICACIÓN',  tipo:'OPERATIVO',  ciudad:'UIO'},
+  'wgaona':      {nombre:'GAONA BARBA WENDY DENISSE',              equipo:'PLANIFICACIÓN',  tipo:'OPERATIVO',  ciudad:'GYE'},
+  'ealopezt':    {nombre:'LOPEZ TOPANTA ERIKA ALEXANDRA',          equipo:'PLANIFICACIÓN',  tipo:'OPERATIVO',  ciudad:'UIO'},
+  'aonate':      {nombre:'OÑATE CAMPANA ALEXIS DAVID',             equipo:'PLANIFICACIÓN',  tipo:'OPERATIVO',  ciudad:'UIO'},
+  'morozco':     {nombre:'OROZCO VEGA MELANY ARACELY',             equipo:'PLANIFICACIÓN',  tipo:'OPERATIVO',  ciudad:'UIO'},
+  'sortiz':      {nombre:'ORTIZ GRANDA SILVIA VALERIA',            equipo:'PLANIFICACIÓN',  tipo:'OPERATIVO',  ciudad:'UIO'},
+  'durbano':     {nombre:'URBANO VALVERDE DAISY TATIANA',          equipo:'PLANIFICACIÓN',  tipo:'OPERATIVO',  ciudad:'UIO'},
+  'svacacela':   {nombre:'VACACELA DE LA A SORAYA LISSETTE',       equipo:'PLANIFICACIÓN',  tipo:'OPERATIVO',  ciudad:'GYE'},
+  'ggavilanez':  {nombre:'GAVILANEZ PERRAZO GABRIELA FERNANDA',    equipo:'PLANIFICACIÓN',  tipo:'OPERATIVO',  ciudad:'UIO'},
+  'sbaque':      {nombre:'BAQUE ALLAUCA SULAY KATHERINE',          equipo:'PLANIFICACIÓN',  tipo:'OPERATIVO',  ciudad:'GYE'},
+  'mydelgado':   {nombre:'DELGADO VELIZ MELANY YULEISY',           equipo:'PLANIFICACIÓN',  tipo:'OPERATIVO',  ciudad:'GYE'},
+  'wsalazar':    {nombre:'SALAZAR SALAZAR WENDY PRISCILLA',        equipo:'PLANIFICACIÓN',  tipo:'OPERATIVO',  ciudad:'GYE'},
+  'mspalma':     {nombre:'PALMA VARGAS MERY STEPHANIE',            equipo:'PLANIFICACIÓN',  tipo:'OPERATIVO',  ciudad:'GYE'},
+  'aavellan':    {nombre:'AVELLAN ARREAGA ANA PAULA',              equipo:'IMPLEMENTACIÓN', tipo:'PROYECTOS',  ciudad:'GYE'},
+  'jcamalle':    {nombre:'CAMALLE VÁSQUEZ JERSON RODRIGO',         equipo:'IMPLEMENTACIÓN', tipo:'PROYECTOS',  ciudad:'UIO'},
+  'kcorrea':     {nombre:'CORREA ULLON KAREN GABRIELA',            equipo:'IMPLEMENTACIÓN', tipo:'PROYECTOS',  ciudad:'UIO'},
+  'pluna':       {nombre:'LUNA VALENCIA PABLO MAURICIO',           equipo:'IMPLEMENTACIÓN', tipo:'PROYECTOS',  ciudad:'UIO'},
+  'femoran':     {nombre:'MORAN MUÑOZ FLOR ESTHER',                equipo:'IMPLEMENTACIÓN', tipo:'PROYECTOS',  ciudad:'GYE'},
+  'ganaranjo':   {nombre:'NARANJO SAMANIEGO GEOVANNA ADRIANA',     equipo:'IMPLEMENTACIÓN', tipo:'PROYECTOS',  ciudad:'GYE'},
+  'dvera':       {nombre:'VERA CARDENAS DAYLIN JOYCE',             equipo:'IMPLEMENTACIÓN', tipo:'PROYECTOS',  ciudad:'GYE'},
+  'lgaibor':     {nombre:'GAIBOR NOBOA LUIS ALBERTO',              equipo:'IMPLEMENTACIÓN', tipo:'PROYECTOS',  ciudad:'UIO'},
+  'abguallpa':   {nombre:'GUALLPA PARRA ANA BEATRIZ',              equipo:'IMPLEMENTACIÓN', tipo:'PROYECTOS',  ciudad:'UIO'},
+  'mvaldez':     {nombre:'VALDEZ MORA MIRIAN CECILIA',             equipo:'IMPLEMENTACIÓN', tipo:'PROYECTOS',  ciudad:'GYE'},
+  'jkleon':      {nombre:'LEON GAONA JHORDY KRISTOFER',            equipo:'IMPLEMENTACIÓN', tipo:'PROYECTOS',  ciudad:'UIO'},
+  'echiluiza':   {nombre:'CHILUIZA CHAVEZ ESTEFANIA PAOLA',        equipo:'IMPLEMENTACIÓN', tipo:'PROYECTOS',  ciudad:'UIO'},
+  'mamartinezv': {nombre:'MARTINEZ VERGARA MILTON ALFREDO',        equipo:'IMPLEMENTACIÓN', tipo:'PROYECTOS',  ciudad:'GYE'},
+  'vtacuri':     {nombre:'TACURI ORDONEZ VICTOR MANUEL',           equipo:'IMPLEMENTACIÓN', tipo:'PROYECTOS',  ciudad:'GYE'},
+  'amguzman':    {nombre:'GUZMAN ARAUJO ADRIANA MAYLI',            equipo:'IMPLEMENTACIÓN', tipo:'PROYECTOS',  ciudad:'GYE'},
+  'dcoronel':    {nombre:'CORONEL BONIFAZ DIANA ELIZABETH',        equipo:'IMPLEMENTACIÓN', tipo:'PROYECTOS',  ciudad:'UIO'},
+  'klmartinez':  {nombre:'MARTINEZ TOAPANTA KATHERINE LIZETH',     equipo:'IMPLEMENTACIÓN', tipo:'PROYECTOS',  ciudad:'UIO'},
+  'kremache':    {nombre:'REMACHE SANTA MARIA KATHERINE IVANOVA',  equipo:'IMPLEMENTACIÓN', tipo:'PROYECTOS',  ciudad:'UIO'},
+  'cralarcon':   {nombre:'ALARCON ARREAGA CARMEN ROSA',            equipo:'O&M',            tipo:'PROYECTOS',  ciudad:'GYE'},
+  'erchoez':     {nombre:'CHOEZ QUIMIS ERICK ROBERTO',             equipo:'O&M',            tipo:'PROYECTOS',  ciudad:'GYE'},
+  'jkguaman':    {nombre:'GUAMAN RUIZ JENNYFER KATHERINE',         equipo:'O&M',            tipo:'PROYECTOS',  ciudad:'GYE'},
+  'clhidalgo':   {nombre:'HIDALGO JIMENEZ CRISTINA LISBETH',       equipo:'O&M',            tipo:'PROYECTOS',  ciudad:'GYE'},
+  'esrivera':    {nombre:'RIVERA CASTANEDA ELIZABETH STEPHANIA',   equipo:'O&M',            tipo:'PROYECTOS',  ciudad:'GYE'},
+  'ansanchez':   {nombre:'SANCHEZ ZAMBRANO ANGELA ROSA',           equipo:'O&M',            tipo:'PROYECTOS',  ciudad:'GYE'},
+  'aarroyo':     {nombre:'ARROYO BURGOS AURA ERLINDA',             equipo:'O&M',            tipo:'PROYECTOS',  ciudad:'UIO'},
+  'jlcastillot': {nombre:'CASTILLO TIPANTASI JOSÉ LUIS',           equipo:'O&M',            tipo:'PROYECTOS',  ciudad:'UIO'},
+  'aldelgado':   {nombre:'DELGADO SIMBAÑA ANA LAURA',              equipo:'O&M',            tipo:'PROYECTOS',  ciudad:'UIO'},
+  'bsangolqui':  {nombre:'SANGOLQUI CAMPOVERDE BYRON RAUL',        equipo:'O&M',            tipo:'PROYECTOS',  ciudad:'UIO'},
+};
+
+const getPM = login => PERSONAL_MAP_TAREAS[(login||'').toLowerCase().trim()] || null;
 
 let _tareas = [], _tareasLoading = false;
 
@@ -3380,30 +3432,62 @@ async function loadTareas(){
     const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID_TAREAS}/gviz/tq?tqx=out:json&gid=${GID_TAREAS}`;
     const txt=await (await fetch(url)).text();
     const m=txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
-    if(!m) throw new Error('Respuesta inválida');
+    if(!m) throw new Error('Respuesta invalida');
     const json=JSON.parse(m[1]);
     if(json.status==='error') throw new Error(json.errors?.[0]?.message||'Error');
+
     const cols=json.table.cols.map(c=>(c.label||c.id||'').trim());
-    const fi=(fn)=>cols.findIndex(fn);
-    const iG=fi(c=>c.includes('ULT USUARIO')), iE=fi(c=>c==='ESTADO_TAREA');
-    const iJ=fi(c=>c==='JURISDICCION_LOGIN_TAREA'), iP=fi(c=>c==='NOMBRE_PROCESO');
-    const iT=fi(c=>c==='NOMBRE_TAREA'), iA=fi(c=>c.includes('AÑO')), iM=fi(c=>c.includes('MES'));
+    console.log('[Tareas] Columnas:', cols);
+
+    // Detectar índice del campo login del gestor (ULT USUARIO ASIGNADO = login)
+    const fi=fn=>cols.findIndex(fn);
+    const iLogin = fi(c=>c.includes('ULT USUARIO')||c==='ULT USUARIO ASIGNADO');
+    const iEstado= fi(c=>c==='ESTADO_TAREA');
+    const iJuris = fi(c=>c==='JURISDICCION_LOGIN_TAREA');
+    const iProceso=fi(c=>c==='NOMBRE_PROCESO');
+    const iTarea = fi(c=>c==='NOMBRE_TAREA');
+    const iId    = fi(c=>c==='ID_TAREA');
+    const iAnno  = fi(c=>c.includes('AÑO'));
+    const iMes   = fi(c=>c.includes('MES'));
+
     const cv=(row,i)=>i>=0?(row.c?.[i]?.v!=null?String(row.c[i].v):(row.c?.[i]?.f||'')):'';
-    _tareas=(json.table.rows||[]).map(row=>({
-      gestor:cv(row,iG).trim()||'Sin gestor', estado:cv(row,iE).trim()||'Sin estado',
-      juris:cv(row,iJ).trim()||'—', proceso:cv(row,iP).trim()||'—',
-      tarea:cv(row,iT).trim()||'—', anno:cv(row,iA).trim(), mes:cv(row,iM).trim(),
-    }));
-    console.log(`[Tareas] ${_tareas.length} tareas cargadas`);
+
+    _tareas=(json.table.rows||[]).map(row=>{
+      const login = cv(row,iLogin).trim().toLowerCase();
+      const pm    = getPM(login);
+      return {
+        login,
+        // Mostrar nombre completo si está en el mapa, si no mostrar el login
+        gestor:  pm ? pm.nombre : (login||'Sin gestor'),
+        tipo:    pm ? pm.tipo   : 'OTROS',
+        equipo:  pm ? pm.equipo : '—',
+        ciudad:  pm ? pm.ciudad : '—',
+        estado:  cv(row,iEstado).trim()  || 'Sin estado',
+        juris:   cv(row,iJuris).trim()   || '—',
+        proceso: cv(row,iProceso).trim() || '—',
+        tarea:   cv(row,iTarea).trim()   || '—',
+        id:      cv(row,iId).trim()      || '—',
+        anno:    cv(row,iAnno).trim(),
+        mes:     cv(row,iMes).trim(),
+      };
+    }).filter(r=>r.login||r.estado);
+
+    console.log(`[Tareas] ${_tareas.length} tareas. Ejemplo gestor:`, _tareas[0]?.gestor, '| tipo:', _tareas[0]?.tipo);
+
     const badge=document.getElementById('tareas-badge-total');
     if(badge) badge.textContent=`${_tareas.length} tareas`;
+
     renderTareasGestores();
     renderTareasAnalisis();
+
   } catch(e){
     console.error('[Tareas]',e);
     ['tareas-op','tareas-pr'].forEach(t=>{
       const g=document.getElementById('gestores-grid-'+t);
-      if(g) g.innerHTML=`<div style="padding:20px;text-align:center;color:#FF6F42">⚠ ${e.message} <button onclick="loadTareas()" style="margin-left:10px;padding:4px 12px;border-radius:16px;border:1px solid rgba(0,176,240,.4);background:rgba(0,176,240,.1);color:var(--turquesa);cursor:pointer">Reintentar</button></div>`;
+      if(g) g.innerHTML=`<div style="padding:20px;text-align:center;color:#FF6F42">
+        Error: ${e.message}
+        <button onclick="loadTareas()" style="margin-left:10px;padding:4px 12px;border-radius:16px;border:1px solid rgba(0,176,240,.4);background:rgba(0,176,240,.1);color:var(--turquesa);cursor:pointer">Reintentar</button>
+      </div>`;
     });
   } finally { _tareasLoading=false; }
 }
@@ -3411,15 +3495,16 @@ async function loadTareas(){
 function renderTareasGestores(){
   const map={};
   _tareas.forEach(r=>{
-    if(!map[r.gestor]) map[r.gestor]={estados:{},juriSet:new Set(),rows:[]};
-    map[r.gestor].estados[r.estado]=(map[r.gestor].estados[r.estado]||0)+1;
-    map[r.gestor].juriSet.add(r.juris);
-    map[r.gestor].rows.push(r);
+    const key=r.gestor;
+    if(!map[key]) map[key]={login:r.login,tipo:r.tipo,equipo:r.equipo,ciudad:r.ciudad,estados:{},juriSet:new Set(),rows:[]};
+    map[key].estados[r.estado]=(map[key].estados[r.estado]||0)+1;
+    map[key].juriSet.add(r.juris);
+    map[key].rows.push(r);
   });
   const sorted=Object.entries(map).map(([g,d])=>({g,d,tot:d.rows.length})).sort((a,b)=>b.tot-a.tot);
-  const getTipo=g=>(typeof PERSONAL_MAP!=='undefined'&&PERSONAL_MAP[g.toLowerCase()]?.tipo)||'OPERATIVO';
-  const rowsOp=sorted.filter(({g})=>getTipo(g)!=='PROYECTOS');
-  const rowsPr=sorted.filter(({g})=>getTipo(g)==='PROYECTOS');
+  const rowsOp=sorted.filter(({d})=>d.tipo!=='PROYECTOS');
+  const rowsPr=sorted.filter(({d})=>d.tipo==='PROYECTOS');
+
   const bOp=document.getElementById('cst-badge-tareas-op');
   const bPr=document.getElementById('cst-badge-tareas-pr');
   if(bOp) bOp.textContent=rowsOp.reduce((s,{tot})=>s+tot,0);
@@ -3432,17 +3517,28 @@ function renderTareasGestores(){
     const top3=d.rows.filter(r=>r.anno).sort((a,b)=>a.anno.localeCompare(b.anno)).slice(0,3);
     const alerts=top3.map(r=>`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)">
       <div style="width:6px;height:6px;border-radius:50%;background:${tcol(r.estado)};flex-shrink:0"></div>
-      <div style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:#e8f0ff">${r.tarea}</div>
+      <div style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:#e8f0ff">${r.tarea||r.id}</div>
       <span style="font-size:10px;color:${tcol(r.estado)};font-family:var(--font-cond);font-weight:700;flex-shrink:0">${r.anno} ${r.mes}</span>
     </div>`).join('');
+    // Pill tipo
+    const tipoPill = d.tipo==='PROYECTOS'
+      ? `<span style="background:rgba(110,190,235,.18);color:#6EBEEB;border:1px solid rgba(110,190,235,.35);padding:2px 8px;border-radius:20px;font-size:10px;font-family:var(--font-cond)">${d.tipo}</span>`
+      : `<span style="background:rgba(52,211,153,.18);color:#34D399;border:1px solid rgba(52,211,153,.35);padding:2px 8px;border-radius:20px;font-size:10px;font-family:var(--font-cond)">${d.tipo}</span>`;
     return`<div class="gestor-card" style="border-top:3px solid #FFA700">
       <div class="gc-header">
-        <div class="gc-name" style="color:#FFA700">👤 ${g}</div>
-        <span class="gc-badge" style="background:rgba(255,167,0,.1);border:1px solid rgba(255,167,0,.3);color:#FFA700">${tot} tareas · ${d.juriSet.size} jurisd.</span>
+        <div class="gc-name" style="color:#FFA700">
+          👤 ${g}
+          <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:4px">${d.login}</span>
+        </div>
+        <div class="gc-badges">
+          ${tipoPill}
+          <span class="gc-badge" style="background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--muted)">${d.equipo} · ${d.ciudad}</span>
+          <span class="gc-badge" style="background:rgba(255,167,0,.1);border:1px solid rgba(255,167,0,.3);color:#FFA700">${tot} tareas · ${d.juriSet.size} jurisd.</span>
+        </div>
       </div>
       <div class="gc-bar">${bar}</div>
       <div class="gc-estados">${pills}</div>
-      ${top3.length?`<div style="margin-top:10px"><div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">📅 Más antiguas</div>${alerts}</div>`:''}
+      ${top3.length?`<div style="margin-top:10px"><div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Mas antiguas</div>${alerts}</div>`:''}
     </div>`;
   };
 
@@ -3456,18 +3552,19 @@ function renderTareasAnalisis(){
   const body=document.getElementById('tareas-analisis-body');
   if(!body||!_tareas.length) return;
   const tot=_tareas.length;
-  const cnt=(arr,key)=>{const m={};arr.forEach(r=>{m[r[key]]=(m[r[key]]||0)+1;});return Object.entries(m).sort((a,b)=>b[1]-a[1]);};
-  const estArr=cnt(_tareas,'estado'), jurArr=cnt(_tareas,'juris').slice(0,8), procArr=cnt(_tareas,'proceso').slice(0,8);
+  const cnt=(key)=>{const m={};_tareas.forEach(r=>{m[r[key]]=(m[r[key]]||0)+1;});return Object.entries(m).sort((a,b)=>b[1]-a[1]);};
+  const estArr=cnt('estado'), jurArr=cnt('juris').slice(0,8), procArr=cnt('proceso').slice(0,8);
+  // Donut SVG
   const circ=2*Math.PI*54,cx=70,cy=70,r2=54,sw=20;
   let off=0,arcs='';
   estArr.forEach(([e,c])=>{const col=tcol(e),d=(c/tot)*circ;arcs+=`<circle cx="${cx}" cy="${cy}" r="${r2}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-dasharray="${d} ${circ}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})"/>`;off+=d;});
   const bars=(arr,col)=>arr.map(([l,v])=>{const mx=arr[0][1]||1;return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
-    <div style="width:120px;font-size:11px;color:#9BBCD8;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0" title="${esc(l)}">${l.length>16?l.slice(0,14)+'…':l}</div>
+    <div style="width:130px;font-size:11px;color:#9BBCD8;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0" title="${esc(l)}">${l.length>18?l.slice(0,16)+'...':l}</div>
     <div style="flex:1;background:rgba(255,255,255,.06);border-radius:3px;height:15px"><div style="width:${Math.round(v/mx*100)}%;background:${col};border-radius:3px;height:100%"></div></div>
     <div style="width:34px;font-family:var(--font-cond);font-weight:700;font-size:11px;color:${col};text-align:right">${v}</div>
   </div>`;}).join('');
   body.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
-    <div class="chart-card"><div class="card-title">📊 Por Estado</div>
+    <div class="chart-card"><div class="card-title">Por Estado</div>
       <div style="display:flex;align-items:center;gap:12px;padding:6px 0">
         <svg width="140" height="140" style="flex-shrink:0">
           <circle cx="${cx}" cy="${cy}" r="${r2}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${sw}"/>${arcs}
@@ -3481,11 +3578,12 @@ function renderTareasAnalisis(){
         </div>`).join('')}</div>
       </div>
     </div>
-    <div class="chart-card"><div class="card-title">🌐 Por Jurisdicción</div><div style="padding:6px 0">${bars(jurArr,'#8B6FE8')}</div></div>
-    <div class="chart-card"><div class="card-title">📂 Por Proceso</div><div style="padding:6px 0">${bars(procArr,'#00B0F0')}</div></div>
+    <div class="chart-card"><div class="card-title">Por Jurisdiccion</div><div style="padding:6px 0">${bars(jurArr,'#8B6FE8')}</div></div>
+    <div class="chart-card"><div class="card-title">Por Proceso</div><div style="padding:6px 0">${bars(procArr,'#00B0F0')}</div></div>
   </div>`;
 }
 
+</script>
 </script>
 </body>
 </html>

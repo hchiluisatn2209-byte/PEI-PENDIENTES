@@ -1590,6 +1590,8 @@ function applyFilters(){
   // También aplicar filtro de gestor a Tareas (campo NOMBRE_USR_ULT_PLAN = login)
   if(_tareas.length) setTimeout(()=>{ renderTareasGestores(); renderKpisTareas(); }, 50);
 }
+
+function toggleFiltrosPanel(){
   const panel=document.getElementById('filter-panel');
   const btn=document.getElementById('btn-filtros');
   const open=panel.style.display==='none'||panel.style.display==='';

@@ -1041,8 +1041,7 @@ const KNOWN_SHEETS = [
   //  {fecha:'07-07-26',gid:494955224},
   //  {fecha:'08-07-26',gid:1901801479},
   //  {fecha:'17-07-26',gid:1731121928},
-  //  {fecha:'23-07-26',gid:306558480},
-      {fecha:'04-08-26',gid:816732549},
+    {fecha:'23-07-26',gid:306558480},
 ];
 
 const C={
@@ -3832,16 +3831,24 @@ function _renderResumenOTSEnContenedor(containerId){
     if(n.indexOf('asig') >= 0) return '#6EBEEB';
     return '#9BBCD8';
   };
-  let html = '<div style="margin-bottom:10px;font-size:12px;color:var(--muted)">Total: <span style="font-family:var(--font-cond);font-weight:800;color:var(--turquesa);font-size:20px">' + tot + '</span> ordenes</div>';
+  let html = '<div style="margin-bottom:10px;font-size:12px;color:var(--muted)">Total: <span style="font-family:var(--font-cond);font-weight:800;color:var(--turquesa);font-size:20px">' + tot + '</span> órdenes</div>';
   estArr.forEach(function(pair){
     const e = pair[0], v = pair[1];
     const col = colOTS(e);
     const pct = Math.round(v / maxVal * 100);
-    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'
-          + '<div style="width:120px;font-size:11px;color:#9BBCD8;text-align:right;flex-shrink:0">' + e + '</div>'
-          + '<div style="flex:1;background:rgba(255,255,255,.06);border-radius:3px;height:16px">'
-          + '<div style="width:' + pct + '%;background:' + col + ';border-radius:3px;height:100%"></div></div>'
-          + '<div style="width:40px;font-family:var(--font-cond);font-weight:700;font-size:12px;color:' + col + ';text-align:right">' + v + '</div>'
+    const pctTot = Math.round(v / tot * 100);
+    // Label inside bar if bar is wide enough, outside otherwise
+    const labelInside = pct > 15;
+    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">'
+          + '<div style="width:120px;font-size:11px;color:#9BBCD8;text-align:right;flex-shrink:0;font-weight:600">' + e + '</div>'
+          + '<div style="flex:1;background:rgba(255,255,255,.06);border-radius:4px;height:20px;position:relative;overflow:visible">'
+          + '<div style="width:' + pct + '%;background:' + col + ';border-radius:4px;height:100%;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;box-sizing:border-box;min-width:4px">'
+          + (labelInside ? '<span style="font-size:10px;font-family:var(--font-cond);font-weight:700;color:rgba(0,0,0,.7);white-space:nowrap">' + pctTot + '%</span>' : '')
+          + '</div></div>'
+          + '<div style="width:46px;display:flex;align-items:center;gap:4px;flex-shrink:0">'
+          + '<span style="font-family:var(--font-cond);font-weight:800;font-size:14px;color:' + col + '">' + v + '</span>'
+          + (!labelInside ? '<span style="font-size:10px;color:var(--muted)">(' + pctTot + '%)</span>' : '')
+          + '</div>'
           + '</div>';
   });
   el.innerHTML = html;
@@ -3853,14 +3860,32 @@ function _renderAnalisisTareasEnContenedor(containerId){
   const tot=_tareas.length;
   const cnt=key=>{const m={};_tareas.forEach(r=>{m[r[key]]=(m[r[key]]||0)+1;});return Object.entries(m).sort((a,b)=>b[1]-a[1]);};
   const estArr=cnt('estado'), jurArr=cnt('juris').slice(0,6), procArr=cnt('proceso').slice(0,6);
+
+  // Donut SVG
   const circ=2*Math.PI*48,cx=60,cy=60,r2=48,sw=16;
   let off=0,arcs='';
   estArr.forEach(([e,c])=>{const col=tcol(e),d=(c/tot)*circ;arcs+=`<circle cx="${cx}" cy="${cy}" r="${r2}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-dasharray="${d} ${circ}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})"/>`;off+=d;});
-  const bars=(arr,col)=>arr.map(([l,v])=>{const mx=arr[0][1]||1;return`<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
-    <div style="width:100px;font-size:10px;color:#9BBCD8;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0">${l.length>14?l.slice(0,12)+'...':l}</div>
-    <div style="flex:1;background:rgba(255,255,255,.06);border-radius:3px;height:14px"><div style="width:${Math.round(v/mx*100)}%;background:${col};border-radius:3px;height:100%"></div></div>
-    <div style="width:30px;font-family:var(--font-cond);font-weight:700;font-size:11px;color:${col};text-align:right">${v}</div>
-  </div>`;}).join('');
+
+  // Barras con etiquetas completas
+  const bars=(arr,col)=>arr.map(([l,v])=>{
+    const mx=arr[0][1]||1;
+    const pct=Math.round(v/mx*100);
+    const pctTot=Math.round(v/tot*100);
+    const labelIn=pct>18;
+    return`<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+      <div style="width:100px;font-size:10px;color:#9BBCD8;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0;font-weight:600" title="${l}">${l.length>14?l.slice(0,12)+'...':l}</div>
+      <div style="flex:1;background:rgba(255,255,255,.06);border-radius:3px;height:17px;position:relative">
+        <div style="width:${pct}%;background:${col};border-radius:3px;height:100%;display:flex;align-items:center;justify-content:flex-end;padding-right:4px;box-sizing:border-box;min-width:4px">
+          ${labelIn?`<span style="font-size:9px;font-family:var(--font-cond);font-weight:700;color:rgba(0,0,0,.7)">${pctTot}%</span>`:''}
+        </div>
+      </div>
+      <div style="width:44px;display:flex;align-items:center;gap:3px;flex-shrink:0">
+        <span style="font-family:var(--font-cond);font-weight:800;font-size:13px;color:${col}">${v}</span>
+        ${!labelIn?`<span style="font-size:9px;color:var(--muted)">${pctTot}%</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+
   el.innerHTML=`<div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:14px;align-items:start">
     <div style="display:flex;align-items:center;gap:10px">
       <svg width="120" height="120" style="flex-shrink:0">
@@ -3868,14 +3893,21 @@ function _renderAnalisisTareasEnContenedor(containerId){
         <text x="${cx}" y="${cy-4}" text-anchor="middle" fill="#e8f0ff" font-size="18" font-weight="800" font-family="Barlow Condensed,sans-serif">${tot}</text>
         <text x="${cx}" y="${cy+12}" text-anchor="middle" fill="#8899aa" font-size="10">tareas</text>
       </svg>
-      <div>${estArr.map(([e,c])=>`<div style="display:flex;align-items:center;gap:4px;margin-bottom:4px">
-        <div style="width:7px;height:7px;border-radius:2px;background:${tcol(e)};flex-shrink:0"></div>
+      <div>${estArr.map(([e,c])=>`<div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
+        <div style="width:8px;height:8px;border-radius:2px;background:${tcol(e)};flex-shrink:0"></div>
         <span style="font-size:10px;color:#9BBCD8;flex:1">${e}</span>
-        <span style="font-family:var(--font-cond);font-weight:700;color:${tcol(e)};font-size:11px">${c}</span>
+        <span style="font-family:var(--font-cond);font-weight:700;color:${tcol(e)};font-size:12px">${c}</span>
+        <span style="font-size:9px;color:var(--muted)">${Math.round(c/tot*100)}%</span>
       </div>`).join('')}</div>
     </div>
-    <div><div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Jurisdicción</div>${bars(jurArr,'#8B6FE8')}</div>
-    <div><div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Proceso</div>${bars(procArr,'#00B0F0')}</div>
+    <div>
+      <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Jurisdicción</div>
+      ${bars(jurArr,'#8B6FE8')}
+    </div>
+    <div>
+      <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Proceso</div>
+      ${bars(procArr,'#00B0F0')}
+    </div>
   </div>`;
 }
 

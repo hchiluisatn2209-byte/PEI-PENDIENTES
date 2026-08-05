@@ -1017,40 +1017,33 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
       <!-- TAREAS SUB-TAB ANÁLISIS -->
       <div id="tab-tareas-analisis">
         <div class="section-title"><span class="dot-sec" style="background:var(--amarillo)"></span>Análisis General · Tareas Pendientes PEI</div>
-        <!-- Cargando... placeholder mientras llegan datos -->
         <div id="tareas-analisis-placeholder" style="text-align:center;padding:40px;color:var(--muted)">
           <div style="font-size:32px;margin-bottom:12px">⏳</div>
           <div style="font-size:14px">Cargando tareas desde Google Sheets…</div>
-          <div style="font-size:11px;margin-top:6px">Si tarda más de 30s revisa la consola (F12) — busca líneas <code>[Tareas]</code></div>
         </div>
-        <!-- Contenido real (se muestra cuando hay datos) -->
-        <div id="tareas-analisis-content" style="display:none">
+        <div id="tareas-analisis-content">
+          <!-- KPI mini resumen -->
+          <div id="tareas-kpi-mini" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px"></div>
           <!-- Distribución por Estado -->
-          <div class="charts-grid" style="margin-bottom:20px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
             <div class="chart-card">
               <div class="card-title"><span class="dot-sec" style="background:var(--amarillo)"></span>Distribución por Estado</div>
-              <div class="card-sub">Todas las tareas cargadas</div>
-              <div class="leg-row" id="leg-tarea-estado"></div>
-              <div style="position:relative;height:220px"><canvas id="ch-tarea-estado"></canvas></div>
-            </div>
-            <div class="chart-card">
-              <div class="card-title"><span class="dot-sec" style="background:#00B0F0"></span>Top Procesos</div>
-              <div class="card-sub">Procesos con más tareas</div>
-              <div style="position:relative;height:220px"><canvas id="ch-tarea-procesos"></canvas></div>
+              <div id="vis-tarea-estado" style="padding:8px 0"></div>
             </div>
             <div class="chart-card">
               <div class="card-title"><span class="dot-sec" style="background:#8B6FE8"></span>Jurisdicciones</div>
-              <div class="card-sub">Tareas por jurisdicción</div>
-              <div style="position:relative;height:220px"><canvas id="ch-tarea-jurisdiccion"></canvas></div>
+              <div id="vis-tarea-jurisdiccion" style="padding:4px 0"></div>
             </div>
           </div>
-          <!-- Top Gestores Tareas -->
-          <div class="chart-card full" style="margin-bottom:20px">
-            <div class="card-title"><span class="dot-sec" style="background:var(--naranja)"></span>Top Gestores por Carga de Tareas</div>
-            <div class="card-sub">Tareas asignadas por gestor</div>
-            <div style="position:relative;height:280px"><canvas id="ch-tarea-gestores"></canvas></div>
+          <div class="chart-card" style="margin-bottom:18px">
+            <div class="card-title"><span class="dot-sec" style="background:#00B0F0"></span>Top Procesos</div>
+            <div id="vis-tarea-procesos" style="padding:4px 0"></div>
           </div>
-          <!-- Tabla resumen por gestor -->
+          <div class="chart-card" style="margin-bottom:18px">
+            <div class="card-title"><span class="dot-sec" style="background:var(--naranja)"></span>Top Gestores por Carga de Tareas</div>
+            <div id="vis-tarea-gestores" style="padding:4px 0"></div>
+          </div>
+          <!-- Tabla resumen -->
           <div class="section-title"><span class="dot-sec" style="background:var(--amarillo)"></span>Detalle Consolidado por Gestor · Tareas</div>
           <div class="tbl-card">
             <table>
@@ -3861,80 +3854,59 @@ function renderKPIsTareas(){
 let _tareasChartsDone = false;
 
 function renderTareasAnalisis(){
+  const ph = document.getElementById('tareas-analisis-placeholder');
+  const ct = document.getElementById('tareas-analisis-content');
+
   if(!filteredTareas.length){
-    document.getElementById('tareas-analisis-placeholder').style.display='';
-    document.getElementById('tareas-analisis-content').style.display='none';
+    if(ph) ph.style.display = '';
+    if(ct) ct.style.display = 'none';
     _tareasChartsDone = false;
     return;
   }
 
-  // Mostrar contenido, ocultar placeholder
-  const ph = document.getElementById('tareas-analisis-placeholder');
-  const ct = document.getElementById('tareas-analisis-content');
+  // Ocultar spinner, mostrar contenido
   if(ph) ph.style.display = 'none';
   if(ct) ct.style.display = '';
 
-  // Tabla resumen (no depende de Canvas — renderizar siempre)
-  _renderTablaTareasResumen();
-
-  // Leyenda de estados (tampoco depende de Canvas)
+  // Mini KPIs
   const estMap={};
   filteredTareas.forEach(r=>{ const e=getTareaEst(r)||'Sin estado'; estMap[e]=(estMap[e]||0)+1; });
   const estEntries=Object.entries(estMap).sort((a,b)=>b[1]-a[1]);
-  const tot=estEntries.reduce((s,[,v])=>s+v,0);
-  const legEl = document.getElementById('leg-tarea-estado');
-  if(legEl) legEl.innerHTML=estEntries.map(([l,v],i)=>
-    `<div class="leg-i"><span class="leg-sq" style="background:${colorTareaEst(l)}"></span>${l} · ${Math.round(v/tot*100)}%</div>`
-  ).join('');
+  const tot = filteredTareas.length;
 
-  // Charts: usar IntersectionObserver para crear cuando el canvas sea visible
-  _tareasChartsDone = false;
-  const canvas = document.getElementById('ch-tarea-estado');
-  if(!canvas) return;
+  const miniKpi = document.getElementById('tareas-kpi-mini');
+  if(miniKpi) miniKpi.innerHTML = estEntries.map(([est,cnt])=>`
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:8px 14px;border-top:3px solid ${colorTareaEst(est)}">
+      <div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:2px">${est}</div>
+      <div style="font-family:var(--font-cond);font-weight:800;font-size:22px;color:${colorTareaEst(est)}">${cnt}</div>
+      <div style="font-size:9px;color:var(--muted)">${Math.round(cnt/tot*100)}% del total</div>
+    </div>`).join('');
 
-  const tryDrawCharts = (attempt=0) => {
-    if(_tareasChartsDone) return;
-    const rect = canvas.getBoundingClientRect();
-    console.log('[Tareas] Canvas rect:', rect.width, 'x', rect.height, 'attempt:', attempt);
-    if(rect.width > 0){
-      _tareasChartsDone = true;
-      _drawTareasCharts(estEntries, tot);
-    } else if(attempt < 20){
-      // Reintentar hasta 20 veces con pequeño delay creciente
-      setTimeout(()=>tryDrawCharts(attempt+1), 50*(attempt+1));
-    } else {
-      // Último recurso: forzar dimensiones y dibujar igual
-      console.warn('[Tareas] Canvas sin dimensiones tras 20 intentos — forzando render');
-      _tareasChartsDone = true;
-      _drawTareasCharts(estEntries, tot);
-    }
-  };
+  // Tabla resumen
+  _renderTablaTareasResumen();
 
-  requestAnimationFrame(tryDrawCharts);
+  // Visualizaciones directas (HTML puro, sin Canvas)
+  _drawTareasCharts(estEntries, tot);
 }
 
 function _drawTareasCharts(estEntries, tot){
-  // Usar barras HTML puras — no dependen de Canvas ni de dimensiones del DOM
-  const makeBars = (entries, colorFn, maxVal) => {
-    const max = maxVal || Math.max(...entries.map(([,v])=>v), 1);
+  const set = (id, html) => { const el=document.getElementById(id); if(el) el.innerHTML=html; };
+  const makeBars = (entries, colorFn) => {
+    const max = Math.max(...entries.map(([,v])=>v), 1);
     return entries.map(([label, val])=>{
-      const pct = Math.round(val/max*100);
-      const col = colorFn(label);
-      return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-        <div style="width:160px;font-size:11px;color:#9BBCD8;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0" title="${esc(label)}">${label.length>22?label.slice(0,20)+'…':label}</div>
+      const pct=Math.round(val/max*100), col=colorFn(label);
+      return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+        <div style="width:150px;font-size:11px;color:#9BBCD8;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0" title="${esc(label)}">${label.length>22?label.slice(0,20)+'…':label}</div>
         <div style="flex:1;background:rgba(255,255,255,.06);border-radius:3px;height:18px;position:relative">
-          <div style="width:${pct}%;background:${col};border-radius:3px;height:100%;transition:width .4s"></div>
+          <div style="width:${pct}%;background:${col};border-radius:3px;height:100%"></div>
         </div>
-        <div style="width:36px;font-family:var(--font-cond);font-weight:700;font-size:12px;color:${col};text-align:right">${val}</div>
+        <div style="width:40px;font-family:var(--font-cond);font-weight:700;font-size:12px;color:${col};text-align:right">${val}</div>
       </div>`;
     }).join('');
   };
 
-  // Donut SVG de estados
-  const estLabels=estEntries.map(([k])=>k);
-  const estVals=estEntries.map(([,v])=>v);
-  const estCols=estLabels.map(l=>colorTareaEst(l));
-  const circ=2*Math.PI*54, cx=70,cy=70,r=54,sw=20;
+  // Donut SVG estados
+  const circ=2*Math.PI*54, cx=70, cy=70, r=54, sw=20;
   let off=0, arcs='';
   estEntries.forEach(([est,cnt])=>{
     const col=colorTareaEst(est), dash=(cnt/tot)*circ;
@@ -3942,52 +3914,39 @@ function _drawTareasCharts(estEntries, tot){
       stroke-dasharray="${dash} ${circ}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})"/>`;
     off+=dash;
   });
-  const donutHtml = `<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+  set('vis-tarea-estado', `<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
     <svg width="140" height="140" style="flex-shrink:0">
       <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${sw}"/>
       ${arcs}
       <text x="${cx}" y="${cy-6}" text-anchor="middle" fill="#e8f0ff" font-size="22" font-weight="800" font-family="Barlow Condensed,sans-serif">${tot}</text>
       <text x="${cx}" y="${cy+12}" text-anchor="middle" fill="#8899aa" font-size="11">tareas</text>
     </svg>
-    <div style="flex:1;min-width:140px">${estEntries.map(([est,cnt])=>`
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
-        <div style="width:10px;height:10px;border-radius:2px;background:${colorTareaEst(est)};flex-shrink:0"></div>
+    <div style="flex:1;min-width:130px">${estEntries.map(([est,cnt])=>`
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+        <div style="width:9px;height:9px;border-radius:2px;background:${colorTareaEst(est)};flex-shrink:0"></div>
         <span style="font-size:12px;color:#9BBCD8;flex:1">${est}</span>
         <span style="font-family:var(--font-cond);font-weight:700;color:${colorTareaEst(est)};font-size:13px">${cnt}</span>
-        <span style="color:var(--muted);font-size:10px">${Math.round(cnt/tot*100)}%</span>
+        <span style="color:var(--muted);font-size:10px;width:30px;text-align:right">${Math.round(cnt/tot*100)}%</span>
       </div>`).join('')}
     </div>
-  </div>`;
-
-  // Reemplazar canvas con HTML
-  const replaceCanvas = (canvasId, html) => {
-    const canvas = document.getElementById(canvasId);
-    if(!canvas) return;
-    const parent = canvas.parentElement;
-    parent.innerHTML = `<div style="padding:8px 0">${html}</div>`;
-  };
-
-  replaceCanvas('ch-tarea-estado', donutHtml);
+  </div>`);
 
   // Procesos
   const procMap={};
   filteredTareas.forEach(r=>{const p=r[CT.NOMBRE_PROCESO]||'Sin proceso';procMap[p]=(procMap[p]||0)+1;});
-  const procSorted=Object.entries(procMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  replaceCanvas('ch-tarea-procesos', `<div style="padding:4px 0">${makeBars(procSorted, ()=>'#00B0F0')}</div>`);
+  set('vis-tarea-procesos', makeBars(Object.entries(procMap).sort((a,b)=>b[1]-a[1]).slice(0,12), ()=>'#00B0F0'));
 
   // Jurisdicciones
   const jurMap={};
   filteredTareas.forEach(r=>{const j=r[CT.JURISDICCION]||'Sin jurisdicción';jurMap[j]=(jurMap[j]||0)+1;});
-  const jurSorted=Object.entries(jurMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  replaceCanvas('ch-tarea-jurisdiccion', `<div style="padding:4px 0">${makeBars(jurSorted, ()=>'#8B6FE8')}</div>`);
+  set('vis-tarea-jurisdiccion', makeBars(Object.entries(jurMap).sort((a,b)=>b[1]-a[1]).slice(0,10), ()=>'#8B6FE8'));
 
   // Gestores
   const gMap={};
   filteredTareas.forEach(r=>{const g=r._tarea_gestor||'Sin gestor';gMap[g]=(gMap[g]||0)+1;});
-  const gSorted=Object.entries(gMap).sort((a,b)=>b[1]-a[1]).slice(0,15);
-  replaceCanvas('ch-tarea-gestores', `<div style="padding:4px 0">${makeBars(gSorted, ()=>'#FFA700')}</div>`);
+  set('vis-tarea-gestores', makeBars(Object.entries(gMap).sort((a,b)=>b[1]-a[1]).slice(0,15), ()=>'#FFA700'));
 
-  console.log('[Tareas] Charts dibujados correctamente');
+  console.log('[Tareas] Visualizaciones dibujadas correctamente');
 }
 
 function _renderTablaTareasResumen(){

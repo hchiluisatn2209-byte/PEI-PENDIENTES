@@ -1516,12 +1516,12 @@ function switchMainTab(t){
     } else {
       // Datos ya cargados — renderizar ahora que el div es visible
       renderKPIsTareas();
-      // Pequeño delay para que el browser pinte el div antes de crear los Canvas
       setTimeout(()=>{
         renderTareasAnalisis();
         renderGestoresTareasNew();
+        if(window.Chart) Object.values(Chart.instances||{}).forEach(c=>{ try{c.resize?.();}catch(e){} });
         window._tareasPendienteRender = false;
-      }, 50);
+      }, 250);
     }
   }
 }
@@ -3712,14 +3712,16 @@ async function fetchSheetTareas(s) {
 }
 
 // Carga de la hoja de tareas desde Apps Script
+let _tareasLoading = false;
+
 async function loadTareas(){
-  if(!APPS_SCRIPT_URL) return;
-  if(!KNOWN_SHEETS_TAREAS.length) return;
+  if(_tareasLoading){ console.warn('[Tareas] Carga ya en progreso, ignorando solicitud duplicada.'); return; }
+  _tareasLoading = true;
+  if(!KNOWN_SHEETS_TAREAS.length){ _tareasLoading=false; return; }
 
   allTareas = [];
 
   for(const s of KNOWN_SHEETS_TAREAS){
-    // Si el GID es 0 (placeholder), omitir
     if(!s.gid || s.gid === 0){
       console.warn('[Tareas] GID no configurado para hoja:', s.nombre);
       continue;
@@ -3788,22 +3790,27 @@ async function loadTareas(){
 
   console.log('[Tareas] Total tareas cargadas:', allTareas.length);
   filteredTareas = [...allTareas];
-
-  // Actualizar KPIs (funcionan aunque el div esté oculto)
+  _tareasLoading = false;
   renderKPIsTareas();
 
-  // Solo renderizar gráficos y grillas si la tab Tareas está visible
-  // (Canvas charts fallan silenciosamente si el contenedor es display:none)
-  if(_mainTab === 'tareas'){
-    renderKPIsTareas();
-    // Delay para que el browser termine de pintar antes de inicializar Canvas
-    setTimeout(()=>{
-      renderTareasAnalisis();
-      renderGestoresTareasNew();
-    }, 80);
+  // Asegurar que la sección tareas sea visible antes de renderizar charts
+  const mainTareas = document.getElementById('main-tareas');
+  const isVisible = mainTareas && mainTareas.style.display !== 'none';
+
+  const doRender = () => {
+    console.log('[Tareas] Ejecutando render...');
+    renderTareasAnalisis();
+    renderGestoresTareasNew();
+    if(window.Chart) Object.values(Chart.instances||{}).forEach(c=>{ try{c.resize?.();}catch(e){} });
+    console.log('[Tareas] Render completado');
+  };
+
+  if(isVisible){
+    setTimeout(doRender, 250);
   } else {
-    // Marcar pendiente para cuando el usuario abra la tab
+    // Datos listos — se renderizarán cuando el usuario abra la tab
     window._tareasPendienteRender = true;
+    console.log('[Tareas] Datos listos. Se renderizarán al abrir la tab Tareas.');
   }
 }
 

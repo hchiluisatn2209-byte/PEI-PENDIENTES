@@ -3672,24 +3672,66 @@ async function loadTareas(){
 function renderKpisTareas(){
   if(!_tareas.length) return;
   const tot = _tareas.length;
-  const cnt = est => _tareas.filter(r=>r.estado===est).length;
   const pct = n => tot ? Math.round(n/tot*100)+'% del total' : '';
   const set = (id,v,s='')=>{ const e=document.getElementById(id); if(e) e.textContent=v; const es=document.getElementById(id+'-s'); if(es&&s) es.textContent=s; };
 
-  set('kt-total',       tot.toLocaleString('es-EC'), tot+' tareas cargadas');
-  set('kt-pendiente',   cnt('Pendiente'),   pct(cnt('Pendiente')));
-  set('kt-proceso',     cnt('En Proceso'),  pct(cnt('En Proceso')));
-  set('kt-completada',  cnt('Completada'),  pct(cnt('Completada')));
-  set('kt-cancelada',   cnt('Cancelada'));
-  set('kt-bloqueada',   cnt('Bloqueada'));
-  set('kt-revision',    cnt('En Revisión'));
-  set('kt-asignada',    cnt('Asignada'));
+  // Contar todos los estados reales de la hoja
+  const estMap = {};
+  _tareas.forEach(r=>{ estMap[r.estado]=(estMap[r.estado]||0)+1; });
+  const estArr = Object.entries(estMap).sort((a,b)=>b[1]-a[1]);
+  console.log('[Tareas] Estados reales:', estArr);
+
+  // KPIs fijos
+  set('kt-total', tot.toLocaleString('es-EC'), tot+' tareas cargadas');
   const gestoresUnicos = new Set(_tareas.map(r=>r.login).filter(Boolean)).size;
   const procesosUnicos = new Set(_tareas.map(r=>r.proceso).filter(p=>p&&p!=='—')).size;
   const jurisUnicas    = new Set(_tareas.map(r=>r.juris).filter(j=>j&&j!=='—')).size;
-  set('kt-gestores',      gestoresUnicos);
-  set('kt-procesos',      procesosUnicos);
-  set('kt-jurisdicciones',jurisUnicas);
+  set('kt-gestores',       gestoresUnicos);
+  set('kt-procesos',       procesosUnicos);
+  set('kt-jurisdicciones', jurisUnicas);
+
+  // KPIs de estado: buscar por nombre real de la hoja (case-insensitive, sin tildes)
+  const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const findEst = (...names) => names.reduce((s,n)=>{
+    const k = estArr.find(([k])=> norm(k)===norm(n) || norm(k).includes(norm(n)));
+    return s + (k ? k[1] : 0);
+  }, 0);
+
+  set('kt-pendiente',  findEst('Pendiente','pendiente'),   pct(findEst('Pendiente','pendiente')));
+  set('kt-proceso',    findEst('En Proceso','en proceso','proceso'), pct(findEst('En Proceso','en proceso','proceso')));
+  set('kt-completada', findEst('Completada','completado','Finalizada'), pct(findEst('Completada','completado','Finalizada')));
+  set('kt-cancelada',  findEst('Cancelada','cancelado'));
+  set('kt-bloqueada',  findEst('Bloqueada','bloqueado','Pausada','pausado'));
+  set('kt-revision',   findEst('En Revisión','revision','Aceptada'));
+  set('kt-asignada',   findEst('Asignada','asignado','Reprogramada'));
+
+  // Actualizar el strip con los estados reales si hay muchos sin mapear
+  const totalMapeado = findEst('Pendiente','En Proceso','Completada','Cancelada','Bloqueada','Pausada','En Revisión','Aceptada','Asignada','Reprogramada');
+  if(totalMapeado < tot * 0.5){
+    // Más de la mitad sin mapear — actualizar labels dinámicamente
+    _updateTareasKpiLabels(estArr, tot);
+  }
+}
+
+function _updateTareasKpiLabels(estArr, tot){
+  // Reemplazar los KPI cards de estado con los valores reales de la hoja
+  const strip = document.getElementById('kpi-strip-tareas');
+  if(!strip) return;
+  // Mantener los primeros 2 cards fijos (Total + un fijo), reemplazar estados dinámicamente
+  const staticCards = strip.querySelectorAll('.kpi-card');
+  const estadoCards = Array.from(staticCards).slice(1, 8); // los 7 de estado
+  estArr.slice(0,7).forEach(([est,cnt], i)=>{
+    const card = estadoCards[i];
+    if(!card) return;
+    const col = tcol(est);
+    card.style.setProperty('--ak', col);
+    const lbl = card.querySelector('.kpi-lbl');
+    const val = card.querySelector('.kpi-val');
+    const sub = card.querySelector('.kpi-sub');
+    if(lbl) lbl.textContent = est;
+    if(val){ val.textContent = cnt; val.style.color = col; }
+    if(sub) sub.textContent = tot ? Math.round(cnt/tot*100)+'% del total' : '';
+  });
 }
 
 function renderTareasGestores(){

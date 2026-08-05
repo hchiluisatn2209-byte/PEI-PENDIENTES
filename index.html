@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Ejecutivo · Órdenes Pendientes PYL | GTN</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Dashboard PEI v2 · OTS + Tareas</title>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QV3G7TBFC6"></script>
 <script>
@@ -668,72 +671,133 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 </div>
 
 <main>
-  <!-- KPIs STICKY -->
-  <div class="kpi-sticky-wrap">
+  <!-- KPIs STICKY — solo visible en tab Análisis General y en sub-tabs de Tareas -->
+  <div class="kpi-sticky-wrap" id="kpi-sticky-wrap">
     <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
-      <span><span class="dot-sec"></span>Indicadores Clave · Estado Servicio</span>
-      <button class="btn-export-kpi" onclick="exportKpiExcel()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Exportar Excel
-      </button>
+      <span id="kpi-section-title"><span class="dot-sec"></span>Indicadores Clave · OTS</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn-export-kpi" id="btn-export-ots" onclick="exportKpiExcel()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exportar Excel
+        </button>
+      </div>
     </div>
-  <div class="kpi-strip">
-    <div class="kpi-card" style="--ak:var(--turquesa)">
-      <div class="kpi-lbl">Total Órdenes</div>
-      <div class="kpi-val" id="k-total">—</div>
-      <div class="kpi-sub" id="k-total-s">registros cargados</div>
+    <!-- KPI Strip OTS (siempre presente, se oculta en tabs de tareas) -->
+    <div id="kpi-strip-ots" class="kpi-strip">
+      <div class="kpi-card" style="--ak:var(--turquesa)">
+        <div class="kpi-lbl">Total Órdenes</div>
+        <div class="kpi-val" id="k-total">—</div>
+        <div class="kpi-sub" id="k-total-s">registros cargados</div>
+      </div>
+      <div class="kpi-card" style="--ak:#34D399">
+        <div class="kpi-lbl">Planificada</div>
+        <div class="kpi-val" id="k-plan">—</div>
+        <div class="kpi-sub" id="k-plan-s">coordinó actividad</div>
+      </div>
+      <div class="kpi-card" style="--ak:var(--magenta)">
+        <div class="kpi-lbl">Detenido</div>
+        <div class="kpi-val" id="k-det">—</div>
+        <div class="kpi-sub" id="k-det-s">cliente detuvo</div>
+      </div>
+      <div class="kpi-card" style="--ak:var(--amarillo)">
+        <div class="kpi-lbl">Replanificada</div>
+        <div class="kpi-val" id="k-rep">—</div>
+        <div class="kpi-sub" id="k-rep-s">no avanzó</div>
+      </div>
+      <div class="kpi-card" style="--ak:#7ED957">
+        <div class="kpi-lbl">AsignadoTarea</div>
+        <div class="kpi-val" id="k-asig">—</div>
+        <div class="kpi-sub" id="k-asig-s">listo a ejecutar</div>
+      </div>
+      <div class="kpi-card" style="--ak:var(--morado)">
+        <div class="kpi-lbl">PrePlanificada</div>
+        <div class="kpi-val" id="k-pre">—</div>
+        <div class="kpi-sub">sin gestor aún</div>
+      </div>
+      <div class="kpi-card" style="--ak:#00B0F0">
+        <div class="kpi-lbl">EnPruebas</div>
+        <div class="kpi-val" id="k-prueba">—</div>
+        <div class="kpi-sub" id="k-prueba-s">en validación</div>
+      </div>
+      <div class="kpi-card" style="--ak:#FF8C42">
+        <div class="kpi-lbl">EnVerificacion</div>
+        <div class="kpi-val" id="k-verif">—</div>
+        <div class="kpi-sub" id="k-verif-s">en revisión</div>
+      </div>
+      <div class="kpi-card" style="--ak:#6EBEEB">
+        <div class="kpi-lbl">Asignada</div>
+        <div class="kpi-val" id="k-asignada">—</div>
+        <div class="kpi-sub" id="k-asignada-s">asignada</div>
+      </div>
+      <div class="kpi-card" style="--ak:var(--azul-c)">
+        <div class="kpi-lbl">Gestores con Carga</div>
+        <div class="kpi-val" id="k-gest">—</div>
+        <div class="kpi-sub">Plan · Det · Replan · Asig</div>
+      </div>
+      <div class="kpi-card" style="--ak:var(--naranja)">
+        <div class="kpi-lbl">Hojas · Clientes</div>
+        <div class="kpi-val" id="k-misc">—</div>
+        <div class="kpi-sub" id="k-misc-s">fechas · empresas</div>
+      </div>
     </div>
-    <div class="kpi-card" style="--ak:#34D399">
-      <div class="kpi-lbl">Planificada</div>
-      <div class="kpi-val" id="k-plan">—</div>
-      <div class="kpi-sub" id="k-plan-s">coordinó actividad</div>
+    <!-- KPI Strip TAREAS (se muestra al activar tab de tareas) -->
+    <div id="kpi-strip-tareas" class="kpi-strip" style="display:none">
+      <div class="kpi-card" style="--ak:#FFA700">
+        <div class="kpi-lbl">Total Tareas</div>
+        <div class="kpi-val" id="kt-total">—</div>
+        <div class="kpi-sub" id="kt-sub">tareas cargadas</div>
+      </div>
+      <div class="kpi-card" style="--ak:#FFA700">
+        <div class="kpi-lbl">Pendiente</div>
+        <div class="kpi-val" id="kt-pendiente">—</div>
+        <div class="kpi-sub" id="kt-pendiente-s">por iniciar</div>
+      </div>
+      <div class="kpi-card" style="--ak:#00B0F0">
+        <div class="kpi-lbl">En Proceso</div>
+        <div class="kpi-val" id="kt-proceso">—</div>
+        <div class="kpi-sub" id="kt-proceso-s">en ejecución</div>
+      </div>
+      <div class="kpi-card" style="--ak:#34D399">
+        <div class="kpi-lbl">Completada</div>
+        <div class="kpi-val" id="kt-completada">—</div>
+        <div class="kpi-sub" id="kt-completada-s">finalizadas</div>
+      </div>
+      <div class="kpi-card" style="--ak:#FF44B0">
+        <div class="kpi-lbl">Cancelada</div>
+        <div class="kpi-val" id="kt-cancelada">—</div>
+        <div class="kpi-sub">canceladas</div>
+      </div>
+      <div class="kpi-card" style="--ak:#FF6F42">
+        <div class="kpi-lbl">Bloqueada</div>
+        <div class="kpi-val" id="kt-bloqueada">—</div>
+        <div class="kpi-sub">con impedimento</div>
+      </div>
+      <div class="kpi-card" style="--ak:#8B6FE8">
+        <div class="kpi-lbl">En Revisión</div>
+        <div class="kpi-val" id="kt-revision">—</div>
+        <div class="kpi-sub">bajo revisión</div>
+      </div>
+      <div class="kpi-card" style="--ak:#6EBEEB">
+        <div class="kpi-lbl">Asignada</div>
+        <div class="kpi-val" id="kt-asignada">—</div>
+        <div class="kpi-sub">pendiente inicio</div>
+      </div>
+      <div class="kpi-card" style="--ak:var(--azul-c)">
+        <div class="kpi-lbl">Gestores</div>
+        <div class="kpi-val" id="kt-gestores">—</div>
+        <div class="kpi-sub">con tareas</div>
+      </div>
+      <div class="kpi-card" style="--ak:#00B0F0">
+        <div class="kpi-lbl">Procesos</div>
+        <div class="kpi-val" id="kt-procesos">—</div>
+        <div class="kpi-sub">distintos</div>
+      </div>
+      <div class="kpi-card" style="--ak:#8B6FE8">
+        <div class="kpi-lbl">Jurisdicciones</div>
+        <div class="kpi-val" id="kt-jurisdicciones">—</div>
+        <div class="kpi-sub">activas</div>
+      </div>
     </div>
-    <div class="kpi-card" style="--ak:var(--magenta)">
-      <div class="kpi-lbl">Detenido</div>
-      <div class="kpi-val" id="k-det">—</div>
-      <div class="kpi-sub" id="k-det-s">cliente detuvo</div>
-    </div>
-    <div class="kpi-card" style="--ak:var(--amarillo)">
-      <div class="kpi-lbl">Replanificada</div>
-      <div class="kpi-val" id="k-rep">—</div>
-      <div class="kpi-sub" id="k-rep-s">no avanzó</div>
-    </div>
-    <div class="kpi-card" style="--ak:#7ED957">
-      <div class="kpi-lbl">AsignadoTarea</div>
-      <div class="kpi-val" id="k-asig">—</div>
-      <div class="kpi-sub" id="k-asig-s">listo a ejecutar</div>
-    </div>
-    <div class="kpi-card" style="--ak:var(--morado)">
-      <div class="kpi-lbl">PrePlanificada</div>
-      <div class="kpi-val" id="k-pre">—</div>
-      <div class="kpi-sub">sin gestor aún</div>
-    </div>
-    <div class="kpi-card" style="--ak:#00B0F0">
-      <div class="kpi-lbl">EnPruebas</div>
-      <div class="kpi-val" id="k-prueba">—</div>
-      <div class="kpi-sub" id="k-prueba-s">en validación</div>
-    </div>
-    <div class="kpi-card" style="--ak:#FF8C42">
-      <div class="kpi-lbl">EnVerificacion</div>
-      <div class="kpi-val" id="k-verif">—</div>
-      <div class="kpi-sub" id="k-verif-s">en revisión</div>
-    </div>
-    <div class="kpi-card" style="--ak:#6EBEEB">
-      <div class="kpi-lbl">Asignada</div>
-      <div class="kpi-val" id="k-asignada">—</div>
-      <div class="kpi-sub" id="k-asignada-s">asignada</div>
-    </div>
-    <div class="kpi-card" style="--ak:var(--azul-c)">
-      <div class="kpi-lbl">Gestores con Carga</div>
-      <div class="kpi-val" id="k-gest">—</div>
-      <div class="kpi-sub">Plan · Det · Replan · Asig</div>
-    </div>
-    <div class="kpi-card" style="--ak:var(--naranja)">
-      <div class="kpi-lbl">Hojas · Clientes</div>
-      <div class="kpi-val" id="k-misc">—</div>
-      <div class="kpi-sub" id="k-misc-s">fechas · empresas</div>
-    </div>
-  </div>
   </div><!-- /kpi-sticky-wrap -->
 
   <div style="padding-top:22px">
@@ -817,7 +881,27 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 
   <!-- TAB ANALISIS -->
   <div id="tab-analisis">
-    <div class="section-title"><span class="dot-sec"></span>Análisis General</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+      <div class="section-title" style="margin:0"><span class="dot-sec"></span>Análisis General</div>
+      <!-- Toggle vista OTS / Tareas / Ambos -->
+      <div style="display:flex;gap:0;border:1.5px solid rgba(0,176,240,.25);border-radius:20px;overflow:hidden">
+        <button id="av-btn-ots" onclick="switchAnalisisVista('ots')"
+          style="padding:5px 16px;border:none;background:rgba(0,176,240,.18);color:var(--turquesa);font-family:var(--font-cond);font-weight:700;font-size:11px;letter-spacing:1px;cursor:pointer;transition:all .18s">
+          📦 OTS
+        </button>
+        <button id="av-btn-tareas" onclick="switchAnalisisVista('tareas')"
+          style="padding:5px 16px;border:none;background:transparent;color:var(--muted);font-family:var(--font-cond);font-weight:700;font-size:11px;letter-spacing:1px;cursor:pointer;transition:all .18s">
+          🗂 Tareas
+        </button>
+        <button id="av-btn-ambos" onclick="switchAnalisisVista('ambos')"
+          style="padding:5px 16px;border:none;background:transparent;color:var(--muted);font-family:var(--font-cond);font-weight:700;font-size:11px;letter-spacing:1px;cursor:pointer;transition:all .18s">
+          ⚡ Ambos
+        </button>
+      </div>
+    </div>
+
+    <!-- Vista OTS (default) -->
+    <div id="av-ots">
 
     <!-- ── RESUMEN POR TIPO GESTIÓN ── -->
     <div class="tbl-card" style="margin-bottom:20px">
@@ -920,20 +1004,43 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
       </table>
     </div>
     </div><!-- /padding-top -->
+    </div><!-- /av-ots -->
 
-    <!-- ══ ANÁLISIS TAREAS ══ -->
-    <div id="tareas-analisis-wrap" style="margin-top:28px">
-      <div class="section-title" style="color:#FFA700">
+    <!-- Vista Tareas -->
+    <div id="av-tareas" style="display:none">
+      <div class="section-title" style="color:#FFA700;margin-bottom:16px">
         <span class="dot-sec" style="background:#FFA700"></span>
         Análisis Tareas Pendientes PEI
         <span id="tareas-badge-total" style="font-family:var(--font-cond);font-size:11px;background:rgba(255,167,0,.15);color:#FFA700;border:1px solid rgba(255,167,0,.3);padding:2px 10px;border-radius:20px;margin-left:8px"></span>
       </div>
       <div id="tareas-analisis-body">
         <div style="text-align:center;padding:30px;color:var(--muted)">
-          Ve a <b style="color:var(--turquesa)">Carga por Gestor → Tareas Operativo</b> para activar la carga de tareas.
+          <div style="font-size:24px;margin-bottom:8px">⏳</div>
+          Cargando tareas desde Google Sheets…
         </div>
       </div>
     </div>
+
+    <!-- Vista Ambos (side by side) -->
+    <div id="av-ambos" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+        <div>
+          <div class="section-title" style="margin-bottom:12px"><span class="dot-sec"></span>OTS · Resumen</div>
+          <div id="av-ambos-ots"></div>
+        </div>
+        <div>
+          <div class="section-title" style="color:#FFA700;margin-bottom:12px">
+            <span class="dot-sec" style="background:#FFA700"></span>Tareas PEI · Resumen
+            <span id="tareas-badge-total-b" style="font-family:var(--font-cond);font-size:11px;background:rgba(255,167,0,.15);color:#FFA700;border:1px solid rgba(255,167,0,.3);padding:2px 10px;border-radius:20px;margin-left:8px"></span>
+          </div>
+          <div id="av-ambos-tareas">
+            <div style="text-align:center;padding:30px;color:var(--muted)">⏳ Cargando tareas…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tab-analisis -->
 
 </main>
 <footer id="footer-txt">GTN · PEI PENDIENTES · Proyectos e Implementación</footer>
@@ -1303,6 +1410,27 @@ function setProgress(done,total){
 function switchTab(t){
   ['analisis','carga'].forEach(id=>document.getElementById('tab-'+id).style.display=id===t?'':'none');
   document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['analisis','carga'][i]===t));
+  const kpiWrap   = document.getElementById('kpi-sticky-wrap');
+  const otsStrip  = document.getElementById('kpi-strip-ots');
+  const tarStrip  = document.getElementById('kpi-strip-tareas');
+  const titulo    = document.getElementById('kpi-section-title');
+  const btnOts    = document.getElementById('btn-export-ots');
+  if(t==='analisis'){
+    // Mostrar AMBOS strips
+    if(kpiWrap)  kpiWrap.style.display  = '';
+    if(otsStrip) otsStrip.style.display = '';
+    if(tarStrip) tarStrip.style.display = _tareas.length ? '' : 'none';
+    if(titulo) titulo.innerHTML = '<span class="dot-sec"></span>Indicadores Clave · OTS &nbsp;|&nbsp; <span style="color:#FFA700">Tareas PEI</span>';
+    if(btnOts) btnOts.style.display = '';
+  } else {
+    // En Carga: depende de la sub-tab activa — se maneja en switchCargaSubTab
+    // Por defecto (primera vez entrando) mostrar OTS
+    if(kpiWrap)  kpiWrap.style.display  = '';
+    if(otsStrip) otsStrip.style.display = '';
+    if(tarStrip) tarStrip.style.display = 'none';
+    if(titulo) titulo.innerHTML = '<span class="dot-sec"></span>Indicadores Clave · OTS';
+    if(btnOts) btnOts.style.display = '';
+  }
 }
 
 // ── SEARCHABLE MULTI-SELECT FILTERS ────────────────────────────────────
@@ -3419,9 +3547,29 @@ switchCargaSubTab = function(tipo){
     const g=document.getElementById('gestores-grid-'+t);
     if(g) g.style.display = t===tipo?'':'none';
   });
-  if(tipo==='tareas-op'||tipo==='tareas-pr'){
+
+  // Cambiar KPI strip y título según si es OTS o Tareas
+  const esTareas = tipo==='tareas-op'||tipo==='tareas-pr';
+  const otsStrip   = document.getElementById('kpi-strip-ots');
+  const tareasStrip= document.getElementById('kpi-strip-tareas');
+  const titulo     = document.getElementById('kpi-section-title');
+  const btnOts     = document.getElementById('btn-export-ots');
+  const kpiWrap    = document.getElementById('kpi-sticky-wrap');
+
+  if(esTareas){
+    if(kpiWrap)     kpiWrap.style.display     = '';
+    if(otsStrip)    otsStrip.style.display    = 'none';
+    if(tareasStrip) tareasStrip.style.display = '';
+    if(titulo) titulo.innerHTML = '<span class="dot-sec" style="background:#FFA700"></span>Indicadores Clave · Tareas PEI';
+    if(btnOts) btnOts.style.display = 'none';
     if(!_tareas.length && !_tareasLoading) loadTareas();
-    else renderTareasGestores();
+    else { renderKpisTareas(); renderTareasGestores(); }
+  } else {
+    if(kpiWrap)     kpiWrap.style.display     = '';
+    if(otsStrip)    otsStrip.style.display    = '';
+    if(tareasStrip) tareasStrip.style.display = 'none';
+    if(titulo) titulo.innerHTML = '<span class="dot-sec"></span>Indicadores Clave · OTS';
+    if(btnOts) btnOts.style.display = '';
   }
 };
 
@@ -3439,65 +3587,73 @@ async function loadTareas(){
     const cols=json.table.cols.map(c=>(c.label||c.id||'').trim());
     console.log('[Tareas] Columnas:', cols);
 
-    // Detectar índice del campo login del gestor (ULT USUARIO ASIGNADO = login)
+
     const fi=fn=>cols.findIndex(fn);
-    const iLogin = fi(c=>c.includes('ULT USUARIO')||c==='ULT USUARIO ASIGNADO');
-    const iEstado= fi(c=>c==='ESTADO_TAREA');
-    const iJuris = fi(c=>c==='JURISDICCION_LOGIN_TAREA');
-    const iProceso=fi(c=>c==='NOMBRE_PROCESO');
-    const iTarea = fi(c=>c==='NOMBRE_TAREA');
-    const iId    = fi(c=>c==='ID_TAREA');
-    const iAnno  = fi(c=>c.includes('AÑO'));
-    const iMes   = fi(c=>c.includes('MES'));
+    // NOMBRE_USR_ULT_PLAN contiene el login directamente (hchiluisa, aarroyo, etc.)
+    // ULT USUARIO ASIGNADO contiene el nombre completo (fallback)
+    const iNombreUlt = fi(c=>c==="NOMBRE_USR_ULT_PLAN");
+    const iUltUser   = fi(c=>c==="ULT USUARIO ASIGNADO"||c==="ULT_USUARIO_ASIGNADO");
+    const iEstado    = fi(c=>c==="ESTADO_TAREA");
+    const iJuris     = fi(c=>c==="JURISDICCION_LOGIN_TAREA");
+    const iProceso   = fi(c=>c==="NOMBRE_PROCESO");
+    const iTarea     = fi(c=>c==="NOMBRE_TAREA");
+    const iId        = fi(c=>c==="ID_TAREA");
+    const iAnno      = fi(c=>c.includes("AÑO"));
+    const iMes       = fi(c=>c.includes("MES"));
+    console.log("[Tareas] Indices: nombreUlt="+iNombreUlt+" ultUser="+iUltUser+" estado="+iEstado);
 
-    const cv=(row,i)=>i>=0?(row.c?.[i]?.v!=null?String(row.c[i].v):(row.c?.[i]?.f||'')):'';
-
-    // Construir lookup inverso: nombre_completo_normalizado -> {login, ...datos}
-    const nombreToLogin = {};
+    // Construir lookup inverso nombre completo -> login (para fallback)
+    const _nameToLogin = {};
     Object.entries(PERSONAL_MAP_TAREAS).forEach(([login, d])=>{
-      // Normalizar: minúsculas, sin tildes, sin espacios extra
-      const norm = d.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
-      nombreToLogin[norm] = {login, ...d};
+      const words = d.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').split(/\s+/).filter(w=>w.length>2);
+      words.forEach(w=>{ if(!_nameToLogin[w]) _nameToLogin[w]=[]; _nameToLogin[w].push(login); });
     });
 
-    const resolveGestor = (rawVal) => {
-      const raw = rawVal.trim();
-      if(!raw) return {login:'sin-gestor', gestor:'Sin gestor', tipo:'OTROS', equipo:'—', ciudad:'—'};
-      // Intentar match directo por login (minúsculas)
-      const byLogin = getPM(raw.toLowerCase());
-      if(byLogin) return {login:raw.toLowerCase(), gestor:raw.toLowerCase(), tipo:byLogin.tipo, equipo:byLogin.equipo, ciudad:byLogin.ciudad};
-      // Intentar match por nombre completo normalizado
-      const norm = raw.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
-      const found = nombreToLogin[norm];
-      if(found) return {login:found.login, gestor:found.login, tipo:found.tipo, equipo:found.equipo, ciudad:found.ciudad};
-      // Fallback: usar el valor tal cual
-      return {login:raw, gestor:raw, tipo:'OTROS', equipo:'—', ciudad:'—'};
+    const resolveLogin = (rawLogin, rawNombre) => {
+      // 1. Match directo por login (NOMBRE_USR_ULT_PLAN ya trae el login)
+      const l = (rawLogin||'').trim().toLowerCase();
+      if(l && getPM(l)) return l;
+      // 2. Si no, intentar word-match con el nombre completo
+      const raw = (rawNombre||rawLogin||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      const words = raw.split(/\s+/).filter(w=>w.length>2);
+      const scores = {};
+      words.forEach(w=>{ (_nameToLogin[w]||[]).forEach(l2=>{ scores[l2]=(scores[l2]||0)+1; }); });
+      const best = Object.entries(scores).sort((a,b)=>b[1]-a[1])[0];
+      if(best && best[1]>=2) return best[0];
+      return null;
     };
 
+    const cv=(row,i)=>i>=0?(row.c?.[i]?.v!=null?String(row.c[i].v).trim():(row.c?.[i]?.f||"").trim()):"";
+
     _tareas=(json.table.rows||[]).map(row=>{
-      const rawGestor = cv(row,iLogin);
-      const g = resolveGestor(rawGestor);
+      const rawLogin  = cv(row,iNombreUlt);  // login directo: hchiluisa, aarroyo...
+      const rawNombre = cv(row,iUltUser);    // nombre completo: fallback
+      if(!rawLogin && !rawNombre) return null;
+      const login = resolveLogin(rawLogin, rawNombre);
+      if(!login) return null;
+      const pm = getPM(login);
       return {
-        login:   g.login,
-        gestor:  g.login,   // mostrar el login (aarroyo, morozco, etc.)
-        tipo:    g.tipo,
-        equipo:  g.equipo,
-        ciudad:  g.ciudad,
-        estado:  cv(row,iEstado).trim()  || 'Sin estado',
-        juris:   cv(row,iJuris).trim()   || '—',
-        proceso: cv(row,iProceso).trim() || '—',
-        tarea:   cv(row,iTarea).trim()   || '—',
-        id:      cv(row,iId).trim()      || '—',
-        anno:    cv(row,iAnno).trim(),
-        mes:     cv(row,iMes).trim(),
+        login,
+        gestor:  login,
+        tipo:    pm?.tipo   || "OTROS",
+        equipo:  pm?.equipo || "—",
+        ciudad:  pm?.ciudad || "—",
+        estado:  cv(row,iEstado)  || "Sin estado",
+        juris:   cv(row,iJuris)   || "—",
+        proceso: cv(row,iProceso) || "—",
+        tarea:   cv(row,iTarea)   || "—",
+        id:      cv(row,iId)      || "—",
+        anno:    cv(row,iAnno),
+        mes:     cv(row,iMes),
       };
-    }).filter(r=>r.login||r.estado);
+    }).filter(Boolean);
 
     console.log(`[Tareas] ${_tareas.length} tareas. Ejemplo gestor:`, _tareas[0]?.gestor, '| tipo:', _tareas[0]?.tipo);
 
     const badge=document.getElementById('tareas-badge-total');
     if(badge) badge.textContent=`${_tareas.length} tareas`;
 
+    renderKpisTareas();
     renderTareasGestores();
     renderTareasAnalisis();
 
@@ -3511,6 +3667,29 @@ async function loadTareas(){
       </div>`;
     });
   } finally { _tareasLoading=false; }
+}
+
+function renderKpisTareas(){
+  if(!_tareas.length) return;
+  const tot = _tareas.length;
+  const cnt = est => _tareas.filter(r=>r.estado===est).length;
+  const pct = n => tot ? Math.round(n/tot*100)+'% del total' : '';
+  const set = (id,v,s='')=>{ const e=document.getElementById(id); if(e) e.textContent=v; const es=document.getElementById(id+'-s'); if(es&&s) es.textContent=s; };
+
+  set('kt-total',       tot.toLocaleString('es-EC'), tot+' tareas cargadas');
+  set('kt-pendiente',   cnt('Pendiente'),   pct(cnt('Pendiente')));
+  set('kt-proceso',     cnt('En Proceso'),  pct(cnt('En Proceso')));
+  set('kt-completada',  cnt('Completada'),  pct(cnt('Completada')));
+  set('kt-cancelada',   cnt('Cancelada'));
+  set('kt-bloqueada',   cnt('Bloqueada'));
+  set('kt-revision',    cnt('En Revisión'));
+  set('kt-asignada',    cnt('Asignada'));
+  const gestoresUnicos = new Set(_tareas.map(r=>r.login).filter(Boolean)).size;
+  const procesosUnicos = new Set(_tareas.map(r=>r.proceso).filter(p=>p&&p!=='—')).size;
+  const jurisUnicas    = new Set(_tareas.map(r=>r.juris).filter(j=>j&&j!=='—')).size;
+  set('kt-gestores',      gestoresUnicos);
+  set('kt-procesos',      procesosUnicos);
+  set('kt-jurisdicciones',jurisUnicas);
 }
 
 function renderTareasGestores(){
@@ -3571,42 +3750,114 @@ function renderTareasGestores(){
   if(gPr) gPr.innerHTML=rowsPr.length?rowsPr.map(card).join(''):'<div class="empty">Sin gestores Proyectos</div>';
 }
 
-function renderTareasAnalisis(){
-  const body=document.getElementById('tareas-analisis-body');
-  if(!body||!_tareas.length) return;
+let _analisisVista = 'ots'; // 'ots' | 'tareas' | 'ambos'
+
+function switchAnalisisVista(v){
+  _analisisVista = v;
+  ['ots','tareas','ambos'].forEach(id=>{
+    const el=document.getElementById('av-'+id);
+    if(el) el.style.display = id===v?'':'none';
+    const btn=document.getElementById('av-btn-'+id);
+    if(btn){
+      btn.style.background = id===v ? (id==='tareas'?'rgba(255,167,0,.18)':'rgba(0,176,240,.18)') : 'transparent';
+      btn.style.color = id===v ? (id==='tareas'?'#FFA700':'var(--turquesa)') : 'var(--muted)';
+    }
+  });
+  // KPI strip: mostrar ambos en Análisis General según vista
+  const otsStrip = document.getElementById('kpi-strip-ots');
+  const tarStrip = document.getElementById('kpi-strip-tareas');
+  const titulo   = document.getElementById('kpi-section-title');
+  const btnOts   = document.getElementById('btn-export-ots');
+  if(v==='ots'){
+    if(otsStrip) otsStrip.style.display=''; if(tarStrip) tarStrip.style.display='none';
+    if(titulo) titulo.innerHTML='<span class="dot-sec"></span>Indicadores Clave · OTS';
+    if(btnOts) btnOts.style.display='';
+  } else if(v==='tareas'){
+    if(otsStrip) otsStrip.style.display='none'; if(tarStrip) tarStrip.style.display='';
+    if(titulo) titulo.innerHTML='<span class="dot-sec" style="background:#FFA700"></span>Indicadores Clave · Tareas PEI';
+    if(btnOts) btnOts.style.display='none';
+    if(!_tareas.length && !_tareasLoading) loadTareas(); else renderKpisTareas();
+  } else { // ambos
+    if(otsStrip) otsStrip.style.display=''; if(tarStrip) tarStrip.style.display='';
+    if(titulo) titulo.innerHTML='<span class="dot-sec"></span>Indicadores Clave · <span style="color:var(--turquesa)">OTS</span> &nbsp;+&nbsp; <span style="color:#FFA700">Tareas PEI</span>';
+    if(btnOts) btnOts.style.display='';
+    if(!_tareas.length && !_tareasLoading) loadTareas(); else { renderKpisTareas(); _renderAnalisisTareasEnContenedor('av-ambos-tareas'); _renderAnalisisTareasEnContenedor('av-ambos-ots', true); }
+  }
+  // Si es tareas o ambos y ya hay datos, renderizar
+  if((v==='tareas'||v==='ambos') && _tareas.length){
+    _renderAnalisisTareasEnContenedor('tareas-analisis-body');
+    _renderAnalisisTareasEnContenedor('av-ambos-tareas');
+    const b2=document.getElementById('tareas-badge-total-b');
+    if(b2) b2.textContent=`${_tareas.length} tareas`;
+    // Resumen OTS en "Ambos"
+    _renderResumenOTSEnContenedor('av-ambos-ots');
+  }
+}
+
+function _renderResumenOTSEnContenedor(containerId){
+  const el=document.getElementById(containerId);
+  if(!el||!filtered) return;
+  // Mini resumen OTS: totales por estado
+  const estados=['Planificada','Detenido','Replanificada','AsignadoTarea','EnPruebas','Asignada'];
+  const colores={'Planificada':'#34D399','Detenido':'#FF44B0','Replanificada':'#FFA700','AsignadoTarea':'#7ED957','EnPruebas':'#00B0F0','Asignada':'#6EBEEB'};
+  const tot=filtered.length;
+  const cnt=est=>filtered.filter(r=>(r[C.ESTADO]||'').trim()===est).length;
+  const max=Math.max(...estados.map(e=>cnt(e)),1);
+  el.innerHTML=`<div style="margin-bottom:12px;font-size:12px;color:var(--muted)">Total: <span style="font-family:var(--font-cond);font-weight:800;color:var(--turquesa);font-size:18px">${tot}</span> órdenes</div>`+
+    estados.map(e=>{const v=cnt(e),col=colores[e]||'#9BBCD8';return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <div style="width:110px;font-size:11px;color:#9BBCD8;text-align:right;flex-shrink:0">${e}</div>
+      <div style="flex:1;background:rgba(255,255,255,.06);border-radius:3px;height:16px">
+        <div style="width:${Math.round(v/max*100)}%;background:${col};border-radius:3px;height:100%"></div>
+      </div>
+      <div style="width:34px;font-family:var(--font-cond);font-weight:700;font-size:12px;color:${col};text-align:right">${v}</div>
+    </div>`;}).join('');
+}
+
+function _renderAnalisisTareasEnContenedor(containerId){
+  const el=document.getElementById(containerId);
+  if(!el||!_tareas.length) return;
   const tot=_tareas.length;
-  const cnt=(key)=>{const m={};_tareas.forEach(r=>{m[r[key]]=(m[r[key]]||0)+1;});return Object.entries(m).sort((a,b)=>b[1]-a[1]);};
-  const estArr=cnt('estado'), jurArr=cnt('juris').slice(0,8), procArr=cnt('proceso').slice(0,8);
-  // Donut SVG
-  const circ=2*Math.PI*54,cx=70,cy=70,r2=54,sw=20;
+  const cnt=key=>{const m={};_tareas.forEach(r=>{m[r[key]]=(m[r[key]]||0)+1;});return Object.entries(m).sort((a,b)=>b[1]-a[1]);};
+  const estArr=cnt('estado'), jurArr=cnt('juris').slice(0,6), procArr=cnt('proceso').slice(0,6);
+  const circ=2*Math.PI*48,cx=60,cy=60,r2=48,sw=16;
   let off=0,arcs='';
   estArr.forEach(([e,c])=>{const col=tcol(e),d=(c/tot)*circ;arcs+=`<circle cx="${cx}" cy="${cy}" r="${r2}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-dasharray="${d} ${circ}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})"/>`;off+=d;});
-  const bars=(arr,col)=>arr.map(([l,v])=>{const mx=arr[0][1]||1;return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
-    <div style="width:130px;font-size:11px;color:#9BBCD8;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0" title="${esc(l)}">${l.length>18?l.slice(0,16)+'...':l}</div>
-    <div style="flex:1;background:rgba(255,255,255,.06);border-radius:3px;height:15px"><div style="width:${Math.round(v/mx*100)}%;background:${col};border-radius:3px;height:100%"></div></div>
-    <div style="width:34px;font-family:var(--font-cond);font-weight:700;font-size:11px;color:${col};text-align:right">${v}</div>
+  const bars=(arr,col)=>arr.map(([l,v])=>{const mx=arr[0][1]||1;return`<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+    <div style="width:100px;font-size:10px;color:#9BBCD8;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0">${l.length>14?l.slice(0,12)+'...':l}</div>
+    <div style="flex:1;background:rgba(255,255,255,.06);border-radius:3px;height:14px"><div style="width:${Math.round(v/mx*100)}%;background:${col};border-radius:3px;height:100%"></div></div>
+    <div style="width:30px;font-family:var(--font-cond);font-weight:700;font-size:11px;color:${col};text-align:right">${v}</div>
   </div>`;}).join('');
-  body.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
-    <div class="chart-card"><div class="card-title">Por Estado</div>
-      <div style="display:flex;align-items:center;gap:12px;padding:6px 0">
-        <svg width="140" height="140" style="flex-shrink:0">
-          <circle cx="${cx}" cy="${cy}" r="${r2}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${sw}"/>${arcs}
-          <text x="${cx}" y="${cy-6}" text-anchor="middle" fill="#e8f0ff" font-size="22" font-weight="800" font-family="Barlow Condensed,sans-serif">${tot}</text>
-          <text x="${cx}" y="${cy+12}" text-anchor="middle" fill="#8899aa" font-size="11">tareas</text>
-        </svg>
-        <div>${estArr.map(([e,c])=>`<div style="display:flex;align-items:center;gap:5px;margin-bottom:4px">
-          <div style="width:8px;height:8px;border-radius:2px;background:${tcol(e)};flex-shrink:0"></div>
-          <span style="font-size:11px;color:#9BBCD8;flex:1">${e}</span>
-          <span style="font-family:var(--font-cond);font-weight:700;color:${tcol(e)};font-size:12px">${c}</span>
-        </div>`).join('')}</div>
-      </div>
+  el.innerHTML=`<div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:14px;align-items:start">
+    <div style="display:flex;align-items:center;gap:10px">
+      <svg width="120" height="120" style="flex-shrink:0">
+        <circle cx="${cx}" cy="${cy}" r="${r2}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${sw}"/>${arcs}
+        <text x="${cx}" y="${cy-4}" text-anchor="middle" fill="#e8f0ff" font-size="18" font-weight="800" font-family="Barlow Condensed,sans-serif">${tot}</text>
+        <text x="${cx}" y="${cy+12}" text-anchor="middle" fill="#8899aa" font-size="10">tareas</text>
+      </svg>
+      <div>${estArr.map(([e,c])=>`<div style="display:flex;align-items:center;gap:4px;margin-bottom:4px">
+        <div style="width:7px;height:7px;border-radius:2px;background:${tcol(e)};flex-shrink:0"></div>
+        <span style="font-size:10px;color:#9BBCD8;flex:1">${e}</span>
+        <span style="font-family:var(--font-cond);font-weight:700;color:${tcol(e)};font-size:11px">${c}</span>
+      </div>`).join('')}</div>
     </div>
-    <div class="chart-card"><div class="card-title">Por Jurisdiccion</div><div style="padding:6px 0">${bars(jurArr,'#8B6FE8')}</div></div>
-    <div class="chart-card"><div class="card-title">Por Proceso</div><div style="padding:6px 0">${bars(procArr,'#00B0F0')}</div></div>
+    <div><div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Jurisdicción</div>${bars(jurArr,'#8B6FE8')}</div>
+    <div><div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Proceso</div>${bars(procArr,'#00B0F0')}</div>
   </div>`;
 }
 
-</script>
+function renderTareasAnalisis(){
+  const badge=document.getElementById('tareas-badge-total');
+  if(badge) badge.textContent=`${_tareas.length} tareas`;
+  const b2=document.getElementById('tareas-badge-total-b');
+  if(b2) b2.textContent=`${_tareas.length} tareas`;
+  _renderAnalisisTareasEnContenedor('tareas-analisis-body');
+  _renderAnalisisTareasEnContenedor('av-ambos-tareas');
+  _renderResumenOTSEnContenedor('av-ambos-ots');
+  renderKpisTareas();
+  // Si la vista actual es tareas o ambos, mostrar KPIs de tareas
+  if(_analisisVista==='tareas'||_analisisVista==='ambos') renderKpisTareas();
+}
+
 </script>
 </body>
 </html>

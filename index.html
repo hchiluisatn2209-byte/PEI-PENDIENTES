@@ -616,9 +616,15 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 
   <div class="filter-sep"></div>
 
-  <!-- Mes Preplan siempre visible -->
-  <span class="filter-label">Mes Preplan.</span>
-  <div class="sf-wrap" id="sf-preplan-mes"></div>
+  <!-- Gestor siempre visible -->
+  <span class="filter-label">Gestor</span>
+  <div class="sf-wrap" id="sf-gestor"></div>
+
+  <div class="filter-sep"></div>
+
+  <!-- Tipo Gestión siempre visible -->
+  <span class="filter-label">Tipo Gestión</span>
+  <div class="sf-wrap" id="sf-tipo-gestion"></div>
 
   <div class="filter-sep"></div>
 
@@ -630,36 +636,28 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 <div class="filter-panel" id="filter-panel" style="display:none">
   <div class="filter-panel-grid">
     <div class="filter-panel-item">
+      <span class="filter-label">Corte</span>
+      <div class="sf-wrap" id="sf-fecha-panel"></div>
+    </div>
+    <div class="filter-panel-item">
       <span class="filter-label">Grupo</span>
       <div class="sf-wrap" id="sf-grupo"></div>
     </div>
     <div class="filter-panel-item">
-      <span class="filter-label">Tipo Gestión</span>
-      <div class="sf-wrap" id="sf-tipo-gestion"></div>
-    </div>
-    <div class="filter-panel-item">
-      <span class="filter-label">Gestor</span>
-      <div class="sf-wrap" id="sf-gestor"></div>
-    </div>
-    <div class="filter-panel-item">
-      <span class="filter-label">Estado</span>
+      <span class="filter-label">Estado OT</span>
       <div class="sf-wrap" id="sf-estado"></div>
-    </div>
-    <div class="filter-panel-item">
-      <span class="filter-label">Tipo Empresa</span>
-      <div class="sf-wrap" id="sf-empresa"></div>
-    </div>
-    <div class="filter-panel-item">
-      <span class="filter-label">Tipo Enlace</span>
-      <div class="sf-wrap" id="sf-enlace"></div>
-    </div>
-    <div class="filter-panel-item">
-      <span class="filter-label">User</span>
-      <div class="sf-wrap" id="sf-user"></div>
     </div>
     <div class="filter-panel-item">
       <span class="filter-label">Login</span>
       <div class="sf-wrap" id="sf-login"></div>
+    </div>
+    <div class="filter-panel-item">
+      <span class="filter-label">ID Tarea</span>
+      <div class="sf-wrap" id="sf-id-tarea"></div>
+    </div>
+    <div class="filter-panel-item">
+      <span class="filter-label">Estado Tarea</span>
+      <div class="sf-wrap" id="sf-estado-tarea"></div>
     </div>
   </div>
 </div>
@@ -1498,13 +1496,12 @@ function initFilters(){
   sfCreate('sf-grupo','Todos');
   sfCreate('sf-tipo-gestion','Todos');
   sfCreate('sf-gestor','Todos');
-  sfCreate('sf-user','Todos');
   sfCreate('sf-estado','Todos');
-  sfCreate('sf-empresa','Todos');
-  sfCreate('sf-enlace','Todos');
   sfCreate('sf-login','Buscar login...');
   sfCreate('sf-fecha','Todas');
-  sfCreate('sf-preplan-mes','Todos');
+  sfCreate('sf-preplan-mes','Todos'); // mantenido internamente para compatibilidad
+  sfCreate('sf-id-tarea','Buscar ID Tarea...');
+  sfCreate('sf-estado-tarea','Todos');
 }
 
 function populateSel(sfId,vals,desc=false,sortFn=null){
@@ -1512,25 +1509,19 @@ function populateSel(sfId,vals,desc=false,sortFn=null){
 }
 
 function applyFilters(){
-  const grp=sfGetVals('sf-grupo');
-  const tg =sfGetVals('sf-tipo-gestion');
-  const g  =sfGetVals('sf-gestor');
-  const us =sfGetVals('sf-user');
-  const e  =sfGetVals('sf-estado');
-  const t  =sfGetVals('sf-empresa');
-  const l  =sfGetVals('sf-enlace');
-  const lg =sfGetVals('sf-login');
-  const f  =sfGetVals('sf-fecha');
-  const pm =sfGetVals('sf-preplan-mes');
+  const grp = sfGetVals('sf-grupo');
+  const tg  = sfGetVals('sf-tipo-gestion');
+  const g   = sfGetVals('sf-gestor');
+  const e   = sfGetVals('sf-estado');
+  const lg  = sfGetVals('sf-login');
+  const f   = sfGetVals('sf-fecha');
+  const pm  = sfGetVals('sf-preplan-mes');
 
   filtered=allData.filter(r=>
     (!grp || grp.has(r[C.GRUPO]))&&
     (!tg  || tg.has(r[C.TIPO_GESTION]))&&
     (!g   || g.has(r[C.GESTOR]))&&
-    (!us  || us.has(r._user))&&
     (!e   || e.has(getEst(r)))&&
-    (!t   || t.has(r[C.EMPRESA]))&&
-    (!l   || l.has(r[C.ENLACE]))&&
     (!lg  || lg.has(r[C.LOGIN]))&&
     (!f   || f.has(r._fecha))&&
     (!pm  || pm.has(r._preplanMes))
@@ -1542,8 +1533,11 @@ function applyFilters(){
   updateFiltrosCount();
   renderAll();
 
-  // También aplicar filtro de gestor a Tareas (campo NOMBRE_USR_ULT_PLAN = login)
-  if(_tareas.length) setTimeout(()=>{ renderTareasGestores(); renderKpisTareas(); }, 50);
+  // Aplicar filtros a Tareas: gestor + estado_tarea + id_tarea
+  if(_tareas.length) setTimeout(()=>{
+    renderTareasGestores();
+    renderKpisTareas();
+  }, 50);
 }
 
 function toggleFiltrosPanel(){
@@ -1556,7 +1550,7 @@ function toggleFiltrosPanel(){
 }
 
 function updateFiltrosCount(){
-  const IDS=['sf-grupo','sf-tipo-gestion','sf-gestor','sf-estado','sf-empresa','sf-enlace','sf-user','sf-login'];
+  const IDS=['sf-grupo','sf-tipo-gestion','sf-gestor','sf-estado','sf-login','sf-id-tarea','sf-estado-tarea'];
   const count=IDS.reduce((s,id)=>s+(SF[id]&&SF[id].selected.size>0?1:0),0);
   const badge=document.getElementById('btn-filtros-count');
   if(badge){if(count>0){badge.textContent=count;badge.style.display='inline-block';}else{badge.style.display='none';}}
@@ -2973,16 +2967,10 @@ async function loadAll(){
   populateSel('sf-grupo',        allData.map(r=>r[C.GRUPO]));
   populateSel('sf-tipo-gestion', allData.map(r=>r[C.TIPO_GESTION]));
   populateSel('sf-gestor', allData.map(r=>r[C.GESTOR]).filter(g=>!GESTOR_EXCLUIDOS.includes((g||'').trim().toLowerCase())));
-  populateSel('sf-user',   allData.map(r=>r._user));
   const ESTADOS_OK=['Planificada','Detenido','Replanificada','AsignadoTarea','PrePlanificada','EnPruebas','EnVerificacion','Asignada'];
   populateSel('sf-estado', allData.map(r=>getEst(r)).filter(v=>ESTADOS_OK.includes(v)));
-  populateSel('sf-empresa',allData.map(r=>r[C.EMPRESA]));
-  populateSel('sf-enlace', allData.map(r=>r[C.ENLACE]));
   populateSel('sf-fecha',  allData.map(r=>r._fecha), true);
   populateSel('sf-login',  allData.map(r=>r[C.LOGIN]));
-  const _mesKeyMap={};
-  allData.forEach(r=>{if(r._preplanMes)_mesKeyMap[r._preplanMes]=r._preplanMesKey;});
-  populateSel('sf-preplan-mes', allData.map(r=>r._preplanMes), false, (a,b)=>_mesKeyMap[a]-_mesKeyMap[b]);
 
   filtered=[...allData];
   renderAll();
@@ -3600,6 +3588,14 @@ async function loadTareas(){
     renderTareasGestores();
     renderTareasAnalisis();
 
+    // Poblar filtros de tareas
+    if(typeof sfPopulate==='function'){
+      const ids    = [...new Set(_tareas.map(r=>r.id).filter(v=>v&&v!=='—'))].sort();
+      const estados= [...new Set(_tareas.map(r=>r.estado).filter(Boolean))].sort();
+      sfPopulate('sf-id-tarea',    ids);
+      sfPopulate('sf-estado-tarea',estados);
+    }
+
   } catch(e){
     console.error('[Tareas]',e);
     ['tareas-op','tareas-pr'].forEach(t=>{
@@ -3651,12 +3647,16 @@ function renderKpisTareas(){
 function _updateTareasKpiLabels(){} // no-op, ya no necesario
 
 function renderTareasGestores(){
-  // Respetar filtro de gestor si está activo
-  const gFiltro = typeof sfGetVals==='function' ? sfGetVals('sf-gestor') : null;
+  // Respetar filtro de gestor, estado_tarea e id_tarea
+  const gFiltro   = typeof sfGetVals==='function' ? sfGetVals('sf-gestor')      : null;
+  const estTFiltro= typeof sfGetVals==='function' ? sfGetVals('sf-estado-tarea'): null;
+  const idTFiltro = typeof sfGetVals==='function' ? sfGetVals('sf-id-tarea')    : null;
 
-  const source = gFiltro
-    ? _tareas.filter(r => gFiltro.has(r.login))
-    : _tareas;
+  const source = _tareas.filter(r=>
+    (!gFiltro    || gFiltro.has(r.login)) &&
+    (!estTFiltro || estTFiltro.has(r.estado)) &&
+    (!idTFiltro  || idTFiltro.has(r.id))
+  );
 
   const map={};
   source.forEach(r=>{

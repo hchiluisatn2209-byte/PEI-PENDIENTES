@@ -3687,17 +3687,16 @@ function renderTareasGestores(){
     const pm2 = getPM(d.login);
     const nombreCompleto = pm2 ? pm2.nombre : '';
 
-    // ── BLOQUE OTS DEL GESTOR (datos de OTS filtrados) ──────────────
+    // ── BLOQUE OTS DEL GESTOR (tamaño completo, igual que antes) ──
     const otsRows = (typeof filtered !== 'undefined' ? filtered : [])
       .filter(r => (r[C.GESTOR]||'').trim().toLowerCase() === g.toLowerCase());
 
     let otsBlock = '';
     if(otsRows.length){
-      // Contar estados OTS
+      const otsTot = otsRows.length;
       const otsEstMap = {};
       otsRows.forEach(r=>{ const e=getEst(r)||'Sin estado'; otsEstMap[e]=(otsEstMap[e]||0)+1; });
       const otsEstArr = Object.entries(otsEstMap).sort((a,b)=>b[1]-a[1]);
-      const otsTot = otsRows.length;
       const otsColOTS = est => {
         const n=est.toLowerCase();
         if(n.indexOf('plan')>=0&&n.indexOf('replan')<0) return '#34D399';
@@ -3710,52 +3709,93 @@ function renderTareasGestores(){
         if(n.indexOf('asig')>=0) return '#6EBEEB';
         return '#9BBCD8';
       };
-      // Mini donut OTS
-      const circ2=2*Math.PI*35,cx2=45,cy2=45,r4=35,sw3=13;
-      let off3=0,arcs3='';
-      otsEstArr.forEach(([e,c])=>{const col=otsColOTS(e),dash=(c/otsTot)*circ2;arcs3+=`<circle cx="${cx2}" cy="${cy2}" r="${r4}" fill="none" stroke="${col}" stroke-width="${sw3}" stroke-dasharray="${dash} ${circ2}" stroke-dashoffset="${-off3}" transform="rotate(-90 ${cx2} ${cy2})"/>`;off3+=dash;});
-      // Top 3 OTS más antiguas
-      const otsTop3 = otsRows
+
+      // Donut OTS (mismo tamaño que tareas)
+      const circ4=2*Math.PI*50,cx4=65,cy4=65,r5=50,sw4=18;
+      let off4=0,arcs4='';
+      otsEstArr.forEach(([e,c])=>{const col=otsColOTS(e),dash=(c/otsTot)*circ4;arcs4+=`<circle cx="${cx4}" cy="${cy4}" r="${r5}" fill="none" stroke="${col}" stroke-width="${sw4}" stroke-dasharray="${dash} ${circ4}" stroke-dashoffset="${-off4}" transform="rotate(-90 ${cx4} ${cy4})"/>`;off4+=dash;});
+
+      // Top 5 OTS más antiguas
+      const otsTop5 = otsRows
         .filter(r=>diasDesde(r[C.FE_PLAN])!==null)
         .sort((a,b)=>(diasDesde(b[C.FE_PLAN])||0)-(diasDesde(a[C.FE_PLAN])||0))
-        .slice(0,3);
-      const maxDiasGestor = otsTop3[0] ? (diasDesde(otsTop3[0][C.FE_PLAN])||0) : 0;
-      const alertCol = maxDiasGestor>30?'#FF44B0':maxDiasGestor>7?'#FFA700':'#34D399';
+        .slice(0,5);
 
-      otsBlock = `<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+      const otsAlertRows = otsTop5.map(r=>{
+        const dias=diasDesde(r[C.FE_PLAN])||0;
+        const ec=getEst(r); const col=otsColOTS(ec);
+        return `<div class="gc-alert-row">
+          <div class="gc-alert-semaforo" style="background:${col}"></div>
+          <div class="gc-alert-info">
+            <div class="gc-alert-cliente">${esc(r[C.CLIENTE]||'—')}</div>
+            <div class="gc-alert-login">🔑 ${esc(r[C.LOGIN]||'—')}</div>
+            <div class="gc-alert-motivo">📋 ${esc(r[C.MOTIVO]||r[C.MOTIVO_HIST]||'—')}</div>
+          </div>
+          <div class="gc-alert-right">
+            <div class="gc-alert-dias" style="color:${col}">${dias}d</div>
+            <div class="gc-alert-estado" style="color:${col}">${ec}</div>
+          </div>
+        </div>`;
+      }).join('');
+
+      // Motivos OTS
+      const otsMotMap={};
+      otsRows.forEach(r=>{
+        const est=getEst(r);
+        if(!esDet(r)&&!esRep(r)) return;
+        const m=r[C.MOTIVO]||r[C.MOTIVO_HIST]||'Sin motivo';
+        if(!otsMotMap[est]) otsMotMap[est]={};
+        otsMotMap[est][m]=(otsMotMap[est][m]||0)+1;
+      });
+      let otsMotHTML='';
+      Object.entries(otsMotMap).forEach(([est,mMap])=>{
+        const col=otsColOTS(est);
+        const mArr=Object.entries(mMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
+        otsMotHTML+=`<div style="margin-bottom:8px">
+          <div class="gc-motivos-title" style="color:${col};margin-bottom:4px">${est.toUpperCase()} · ${Object.values(mMap).reduce((a,b)=>a+b,0)} CAUSAS</div>
+          ${mArr.map(([m,c])=>`<div class="gc-mot-item" style="cursor:default">
+            <span class="gc-mot-num" style="color:${col}">${c}</span>
+            <span class="gc-mot-txt">${esc(m)}</span>
+          </div>`).join('')}
+        </div>`;
+      });
+
+      otsBlock = `<div style="margin-top:16px;padding-top:14px;border-top:2px solid rgba(0,176,240,.25)">
         <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--turquesa);margin-bottom:10px;font-weight:700">
-          📦 OTS · ${otsTot} órdenes
-          <span style="font-size:10px;color:${alertCol};font-family:var(--font-cond);font-weight:800;margin-left:8px">${maxDiasGestor>0?maxDiasGestor+'d sin gestión':''}</span>
+          📦 Órdenes OTS · ${otsTot} órdenes
         </div>
-        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
-            <svg width="90" height="90">
-              <circle cx="${cx2}" cy="${cy2}" r="${r4}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${sw3}"/>
-              ${arcs3}
-              <text x="${cx2}" y="${cy2-3}" text-anchor="middle" fill="#e8f0ff" font-size="14" font-weight="800" font-family="Barlow Condensed,sans-serif">${otsTot}</text>
-              <text x="${cx2}" y="${cy2+10}" text-anchor="middle" fill="#8899aa" font-size="9">OTS</text>
+        <!-- Barra de estados OTS -->
+        <div class="gc-bar" style="margin-bottom:8px">
+          ${otsEstArr.map(([e,c])=>`<div class="gc-seg" style="width:${Math.round(c/otsTot*100)}%;background:${otsColOTS(e)}" title="${e}:${c}"></div>`).join('')}
+        </div>
+        <div class="gc-estados" style="margin-bottom:12px">
+          ${otsEstArr.map(([e,c])=>`<div class="gc-est"><span class="gc-est-dot" style="background:${otsColOTS(e)}"></span><span class="gc-est-n" style="color:${otsColOTS(e)}">${c}</span> ${e}</div>`).join('')}
+        </div>
+        <div class="gc-analisis-grid">
+          <div class="gc-donut-wrap">
+            <div class="gc-donut-title">Distribución Estados · OTS</div>
+            <svg width="130" height="130">
+              <circle cx="${cx4}" cy="${cy4}" r="${r5}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${sw4}"/>
+              ${arcs4}
+              <text x="${cx4}" y="${cy4-6}" text-anchor="middle" fill="#e8f0ff" font-size="20" font-weight="800" font-family="Barlow Condensed,sans-serif">${otsTot}</text>
+              <text x="${cx4}" y="${cy4+11}" text-anchor="middle" fill="#8899aa" font-size="10">órdenes</text>
             </svg>
-            <div>${otsEstArr.map(([e,c])=>`
-              <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px">
-                <div style="width:7px;height:7px;border-radius:2px;background:${otsColOTS(e)};flex-shrink:0"></div>
-                <span style="font-size:10px;color:#9BBCD8;flex:1">${e}</span>
-                <span style="font-family:var(--font-cond);font-weight:700;color:${otsColOTS(e)};font-size:11px">${c}</span>
+            <div class="gc-donut-legend">
+              ${otsEstArr.map(([e,c])=>`<div class="gc-donut-legend-item">
+                <div class="gc-donut-legend-dot" style="background:${otsColOTS(e)}"></div>
+                <span>${e}</span>
+                <span class="gc-donut-legend-pct" style="color:${otsColOTS(e)}">${Math.round(c/otsTot*100)}%</span>
               </div>`).join('')}
             </div>
           </div>
-          ${otsTop3.length?`<div style="flex:1;min-width:180px">
-            <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px">Top antigüedad</div>
-            ${otsTop3.map(r=>{
-              const dias=diasDesde(r[C.FE_PLAN])||0;
-              const ec=getEst(r); const col=otsColOTS(ec);
-              return`<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--border)">
-                <div style="width:5px;height:5px;border-radius:50%;background:${col};flex-shrink:0"></div>
-                <div style="flex:1;font-size:11px;color:#e8f0ff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r[C.CLIENTE]||'—')}</div>
-                <span style="font-size:10px;color:${col};font-family:var(--font-cond);font-weight:700">${dias}d</span>
-                <span style="font-size:9px;color:${col}">${ec}</span>
-              </div>`;
-            }).join('')}
-          </div>`:''}
+          <div class="gc-alert-panel">
+            <div class="gc-alert-title">🔴 Top 5 · Mayor Antigüedad</div>
+            ${otsAlertRows||'<div style="color:#666;font-size:12px">Sin órdenes con fecha</div>'}
+          </div>
+          <div class="gc-motivos-panel">
+            <div class="gc-motivos-sub" style="color:#9BBCD8;margin-bottom:8px">Motivos de Gestión</div>
+            ${otsMotHTML||'<div style="color:var(--muted);font-size:11px">Sin motivos registrados</div>'}
+          </div>
         </div>
       </div>`;
     } else {

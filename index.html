@@ -3687,7 +3687,82 @@ function renderTareasGestores(){
     const pm2 = getPM(d.login);
     const nombreCompleto = pm2 ? pm2.nombre : '';
 
-    // ── PANEL ANÁLISIS (igual que OTS) ──────────────────
+    // ── BLOQUE OTS DEL GESTOR (datos de OTS filtrados) ──────────────
+    const otsRows = (typeof filtered !== 'undefined' ? filtered : [])
+      .filter(r => (r[C.GESTOR]||'').trim().toLowerCase() === g.toLowerCase());
+
+    let otsBlock = '';
+    if(otsRows.length){
+      // Contar estados OTS
+      const otsEstMap = {};
+      otsRows.forEach(r=>{ const e=getEst(r)||'Sin estado'; otsEstMap[e]=(otsEstMap[e]||0)+1; });
+      const otsEstArr = Object.entries(otsEstMap).sort((a,b)=>b[1]-a[1]);
+      const otsTot = otsRows.length;
+      const otsColOTS = est => {
+        const n=est.toLowerCase();
+        if(n.indexOf('plan')>=0&&n.indexOf('replan')<0) return '#34D399';
+        if(n.indexOf('deten')>=0) return '#FF44B0';
+        if(n.indexOf('replan')>=0) return '#FFA700';
+        if(n.indexOf('tarea')>=0) return '#7ED957';
+        if(n.indexOf('prueba')>=0) return '#00B0F0';
+        if(n.indexOf('verif')>=0) return '#FF8C42';
+        if(n.indexOf('preplan')>=0) return '#8B6FE8';
+        if(n.indexOf('asig')>=0) return '#6EBEEB';
+        return '#9BBCD8';
+      };
+      // Mini donut OTS
+      const circ2=2*Math.PI*35,cx2=45,cy2=45,r4=35,sw3=13;
+      let off3=0,arcs3='';
+      otsEstArr.forEach(([e,c])=>{const col=otsColOTS(e),dash=(c/otsTot)*circ2;arcs3+=`<circle cx="${cx2}" cy="${cy2}" r="${r4}" fill="none" stroke="${col}" stroke-width="${sw3}" stroke-dasharray="${dash} ${circ2}" stroke-dashoffset="${-off3}" transform="rotate(-90 ${cx2} ${cy2})"/>`;off3+=dash;});
+      // Top 3 OTS más antiguas
+      const otsTop3 = otsRows
+        .filter(r=>diasDesde(r[C.FE_PLAN])!==null)
+        .sort((a,b)=>(diasDesde(b[C.FE_PLAN])||0)-(diasDesde(a[C.FE_PLAN])||0))
+        .slice(0,3);
+      const maxDiasGestor = otsTop3[0] ? (diasDesde(otsTop3[0][C.FE_PLAN])||0) : 0;
+      const alertCol = maxDiasGestor>30?'#FF44B0':maxDiasGestor>7?'#FFA700':'#34D399';
+
+      otsBlock = `<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--turquesa);margin-bottom:10px;font-weight:700">
+          📦 OTS · ${otsTot} órdenes
+          <span style="font-size:10px;color:${alertCol};font-family:var(--font-cond);font-weight:800;margin-left:8px">${maxDiasGestor>0?maxDiasGestor+'d sin gestión':''}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+            <svg width="90" height="90">
+              <circle cx="${cx2}" cy="${cy2}" r="${r4}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${sw3}"/>
+              ${arcs3}
+              <text x="${cx2}" y="${cy2-3}" text-anchor="middle" fill="#e8f0ff" font-size="14" font-weight="800" font-family="Barlow Condensed,sans-serif">${otsTot}</text>
+              <text x="${cx2}" y="${cy2+10}" text-anchor="middle" fill="#8899aa" font-size="9">OTS</text>
+            </svg>
+            <div>${otsEstArr.map(([e,c])=>`
+              <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px">
+                <div style="width:7px;height:7px;border-radius:2px;background:${otsColOTS(e)};flex-shrink:0"></div>
+                <span style="font-size:10px;color:#9BBCD8;flex:1">${e}</span>
+                <span style="font-family:var(--font-cond);font-weight:700;color:${otsColOTS(e)};font-size:11px">${c}</span>
+              </div>`).join('')}
+            </div>
+          </div>
+          ${otsTop3.length?`<div style="flex:1;min-width:180px">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px">Top antigüedad</div>
+            ${otsTop3.map(r=>{
+              const dias=diasDesde(r[C.FE_PLAN])||0;
+              const ec=getEst(r); const col=otsColOTS(ec);
+              return`<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--border)">
+                <div style="width:5px;height:5px;border-radius:50%;background:${col};flex-shrink:0"></div>
+                <div style="flex:1;font-size:11px;color:#e8f0ff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r[C.CLIENTE]||'—')}</div>
+                <span style="font-size:10px;color:${col};font-family:var(--font-cond);font-weight:700">${dias}d</span>
+                <span style="font-size:9px;color:${col}">${ec}</span>
+              </div>`;
+            }).join('')}
+          </div>`:''}
+        </div>
+      </div>`;
+    } else {
+      otsBlock = `<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)">
+        📦 Sin órdenes OTS activas
+      </div>`;
+    }
     // Donut estados
     const circ=2*Math.PI*50,cx=65,cy=65,r3=50,sw2=18;
     let off2=0,arcs2='';
@@ -3730,7 +3805,7 @@ function renderTareasGestores(){
 
     const analisisHTML=`<div class="gc-analisis-grid">
       <div class="gc-donut-wrap">
-        <div class="gc-donut-title">Distribución Estados</div>
+        <div class="gc-donut-title">Distribución Estados · Tareas</div>
         ${donut}
         <div class="gc-donut-legend">${estArr.map(([e,c])=>`
           <div class="gc-donut-legend-item">
@@ -3749,7 +3824,8 @@ function renderTareasGestores(){
         <div class="gc-motivos-sub" style="color:#9BBCD8">${procSorted.length} procesos · ${tot} tareas</div>
         ${motivoItems}
       </div>
-    </div>`;
+    </div>
+    ${otsBlock}`;
 
     // Tabla detalle
     const detalleHTML=`<div class="gc-detail"><table><thead><tr>

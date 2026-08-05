@@ -1500,29 +1500,31 @@ function switchMainTab(t){
     if(el) el.style.display = s===t?'':'none';
     document.getElementById('main-tab-'+s)?.classList.toggle('active', s===t);
   });
-  if(t==='tareas'){
-    if(!allTareas.length){
-      // Mostrar spinner y disparar carga
-      const ph=document.getElementById('tareas-analisis-placeholder');
-      const ct=document.getElementById('tareas-analisis-content');
-      if(ph){ ph.style.display=''; ph.innerHTML=`
-        <div style="padding:40px;text-align:center;color:var(--muted)">
-          <div style="font-size:32px;margin-bottom:12px">⏳</div>
-          <div style="font-size:14px">Cargando tareas desde Google Sheets…</div>
-          <div style="font-size:11px;margin-top:6px">Espera unos segundos</div>
-        </div>`; }
-      if(ct) ct.style.display='none';
-      loadTareas().catch(e=>console.warn('[Tareas] Error:', e));
-    } else {
-      // Datos ya cargados — renderizar ahora que el div es visible
-      renderKPIsTareas();
-      setTimeout(()=>{
+
+  if(t !== 'tareas') return;
+
+  if(!allTareas.length){
+    // Mostrar spinner y cargar
+    const ph=document.getElementById('tareas-analisis-placeholder');
+    const ct=document.getElementById('tareas-analisis-content');
+    if(ph){ ph.style.display=''; ph.innerHTML=`
+      <div style="padding:40px;text-align:center;color:var(--muted)">
+        <div style="font-size:32px;margin-bottom:12px">⏳</div>
+        <div style="font-size:14px">Cargando tareas desde Google Sheets…</div>
+        <div style="font-size:11px;margin-top:6px">Espera unos segundos</div>
+      </div>`; }
+    if(ct) ct.style.display='none';
+    if(!_tareasLoading) loadTareas().catch(e=>console.warn('[Tareas] Error:', e));
+  } else {
+    // Datos ya disponibles: renderizar en el próximo frame de animación
+    // (garantiza que el div ya está visible en pantalla)
+    renderKPIsTareas();
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
         renderTareasAnalisis();
         renderGestoresTareasNew();
-        if(window.Chart) Object.values(Chart.instances||{}).forEach(c=>{ try{c.resize?.();}catch(e){} });
-        window._tareasPendienteRender = false;
-      }, 250);
-    }
+      });
+    });
   }
 }
 
@@ -3797,20 +3799,17 @@ async function loadTareas(){
   const mainTareas = document.getElementById('main-tareas');
   const isVisible = mainTareas && mainTareas.style.display !== 'none';
 
-  const doRender = () => {
-    console.log('[Tareas] Ejecutando render...');
-    renderTareasAnalisis();
-    renderGestoresTareasNew();
-    if(window.Chart) Object.values(Chart.instances||{}).forEach(c=>{ try{c.resize?.();}catch(e){} });
-    console.log('[Tareas] Render completado');
-  };
-
   if(isVisible){
-    setTimeout(doRender, 250);
+    // doble rAF: garantiza que el browser pintó el layout antes de crear Canvas
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      console.log('[Tareas] Ejecutando render...');
+      renderTareasAnalisis();
+      renderGestoresTareasNew();
+      console.log('[Tareas] Render completado');
+    }));
   } else {
-    // Datos listos — se renderizarán cuando el usuario abra la tab
     window._tareasPendienteRender = true;
-    console.log('[Tareas] Datos listos. Se renderizarán al abrir la tab Tareas.');
+    console.log('[Tareas] Datos listos, se renderizan al abrir la tab.');
   }
 }
 

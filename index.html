@@ -51,26 +51,27 @@
 
 /* ── LIGHT MODE ── */
 html.light{
-  --bg-body-1:#f0f4fa;--bg-body-2:#e8eef8;--bg-body-3:#dde5f5;
+  --bg-body-1:#ffffff;--bg-body-2:#f8f9fc;--bg-body-3:#f2f4f8;
   --text-main:#0d1f45;
   --header-bg-1:#1B3A70;--header-bg-2:#1e4a85;--header-bg-3:#245090;
-  --statusbar-bg:rgba(255,255,255,.97);
-  --filterbar-bg:rgba(255,255,255,.98);
-  --tabsbar-bg:linear-gradient(160deg,#dde5f5 0%,#e8eef8 100%);
-  --kpi-sticky-bg:linear-gradient(160deg,#dde5f5 0%,#e8eef8 100%);
-  --card-bg:rgba(255,255,255,0.92);
-  --border:rgba(0,130,200,0.2);
+  --statusbar-bg:rgba(255,255,255,.99);
+  --filterbar-bg:rgba(255,255,255,.99);
+  --tabsbar-bg:#ffffff;
+  --kpi-sticky-bg:#ffffff;
+  --card-bg:#ffffff;
+  --border:rgba(0,100,180,0.15);
   --muted:#5577aa;
-  --section-bg:rgba(0,0,0,.03);
-  --tbl-card-bg:rgba(255,255,255,.9);
+  --section-bg:rgba(0,0,0,.02);
+  --tbl-card-bg:#ffffff;
   --gc-donut-title-c:#3a5080;
   --text-secondary:#1B3A70;
-  --th-bg:#dde8f8;
-  --tr-odd:rgba(0,80,180,.04);
-  --tr-hover:rgba(0,80,180,.08);
+  --th-bg:#eef2fa;
+  --tr-odd:rgba(0,80,180,.03);
+  --tr-hover:rgba(0,80,180,.07);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--font);font-size:15px;background:linear-gradient(160deg,var(--bg-body-1) 0%,var(--bg-body-2) 50%,var(--bg-body-3) 100%);background-attachment:fixed;color:var(--text-main);min-height:100vh;overflow-x:hidden;transition:background .3s,color .3s}
+html.light body{background:#f8f9fc;background-attachment:initial}
 
 /* ── HEADER ── */
 header{background:linear-gradient(90deg,var(--header-bg-1),var(--header-bg-2) 70%,var(--header-bg-3));border-bottom:3px solid var(--turquesa);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 4px 28px rgba(0,0,0,.55);transition:background .3s}
@@ -216,7 +217,11 @@ html.light table thead th{background:var(--th-bg);color:var(--text-secondary)}
 html.light table tbody tr:nth-child(odd){background:var(--tr-odd)}
 html.light table tbody tr:hover td{background:var(--tr-hover)}
 html.light .td-login{color:#1a5fa8}
-html.light .kpi-card{background:rgba(255,255,255,.95);border-color:rgba(0,130,200,.18);box-shadow:0 2px 12px rgba(0,80,180,.12)}
+html.light .kpi-card{background:#ffffff;border-color:rgba(0,100,180,.14);box-shadow:0 1px 4px rgba(0,0,0,.07)}
+html.light .gestor-card{background:#ffffff;border-color:rgba(0,100,180,.14);box-shadow:0 1px 6px rgba(0,0,0,.07)}
+html.light .chart-card{background:#ffffff;border-color:rgba(0,100,180,.14);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+html.light .tbl-card{background:#ffffff;border-color:rgba(0,100,180,.14);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+html.light main{background:transparent}
 html.light .section-title{color:var(--text-secondary)}
 html.light .motivos-col-head{color:var(--text-secondary)}
 html.light .gc-alert-cliente{color:var(--text-secondary)}
@@ -303,7 +308,7 @@ html.light .empty{color:#8899aa}
 html.light .nota-corte{color:#1B3A70}
 
 /* ── LIGHT: panel de filtros desplegable ── */
-html.light .filter-panel{background:rgba(240,244,250,.99);border-bottom:1px solid rgba(0,130,200,.15);box-shadow:0 4px 20px rgba(0,80,180,.1)}
+html.light .filter-panel{background:rgba(255,255,255,.99);border-bottom:1px solid rgba(0,100,180,.12);box-shadow:0 4px 12px rgba(0,0,0,.06)}
 html.light .sf-input-row{background:rgba(255,255,255,.95);border-color:rgba(0,130,200,.3);color:#0d1f45}
 html.light .sf-dropdown{background:#ffffff;border-color:rgba(0,130,200,.25);box-shadow:0 8px 32px rgba(0,80,180,.15)}
 html.light .sf-option{color:#1B3A70}
@@ -3391,10 +3396,11 @@ function toggleTheme(){
   Object.values(charts).forEach(ch=>{ if(ch){ch.options.scales?.x&&(ch.options.scales.x.grid.color=GC);ch.options.scales?.y&&(ch.options.scales.y.grid.color=GC);ch.update('none');} });
 }
 
-// Restaurar tema guardado al cargar
+// Restaurar tema guardado al cargar (light por defecto)
 (function(){
   const saved=localStorage.getItem('pei-theme');
-  if(saved==='light'){
+  const isLight = saved ? saved==='light' : true; // light es el default
+  if(isLight){
     document.documentElement.classList.add('light');
     document.addEventListener('DOMContentLoaded',()=>{
       const di=document.getElementById('theme-icon-dark');

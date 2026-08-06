@@ -641,33 +641,26 @@ body.sb-collapsed .sidebar{width:56px}
   <!-- Nav -->
   <div class="sb-nav">
     <div class="sb-section">Principal</div>
-    <div class="sb-item active" id="snav-analisis" onclick="sbNav('analisis')">
+    <div class="sb-item active" id="snav-analisis" onclick="sbNav('analisis','ambos')">
       <span class="sb-ico">📊</span><span class="sb-lbl">Análisis General</span>
     </div>
-    <div class="sb-item" id="snav-carga" onclick="sbNav('carga')">
-      <span class="sb-ico">👥</span><span class="sb-lbl">Carga por Gestor</span>
+    <div class="sb-item" id="snav-t-ots" onclick="sbNav('analisis','ots')" style="padding-left:20px">
+      <span class="sb-ico" style="font-size:13px">📦</span><span class="sb-lbl" style="font-size:11px">Vista OTS</span>
     </div>
-
-    <div class="sb-section">Órdenes OTS</div>
-    <div class="sb-item" id="snav-op" onclick="sbNav('carga','tareas-op')" style="padding-left:14px">
-      <span class="sb-ico">🔧</span><span class="sb-lbl">Operativo</span>
-      <span class="sb-badge blue" id="snav-badge-op">—</span>
-    </div>
-    <div class="sb-item" id="snav-pr" onclick="sbNav('carga','tareas-pr')" style="padding-left:14px">
-      <span class="sb-ico">📐</span><span class="sb-lbl">Proyectos</span>
-      <span class="sb-badge blue" id="snav-badge-pr">—</span>
-    </div>
-
-    <div class="sb-section">Análisis Tareas</div>
-    <div class="sb-item" id="snav-t-ots" onclick="sbNav('analisis','ots')">
-      <span class="sb-ico">📦</span><span class="sb-lbl">Vista OTS</span>
-    </div>
-    <div class="sb-item" id="snav-t-tareas" onclick="sbNav('analisis','tareas')">
-      <span class="sb-ico">🗂</span><span class="sb-lbl">Vista Tareas</span>
+    <div class="sb-item" id="snav-t-tareas" onclick="sbNav('analisis','tareas')" style="padding-left:20px">
+      <span class="sb-ico" style="font-size:13px">🗂</span><span class="sb-lbl" style="font-size:11px">Vista Tareas</span>
       <span class="sb-badge" id="snav-badge-tareas">—</span>
     </div>
-    <div class="sb-item" id="snav-t-ambos" onclick="sbNav('analisis','ambos')">
-      <span class="sb-ico">⚡</span><span class="sb-lbl">Vista Ambos</span>
+
+    <div class="sb-section">Carga Pendientes</div>
+    <div class="sb-item" id="snav-carga" onclick="sbNav('carga','ambos-carga')">
+      <span class="sb-ico">👥</span><span class="sb-lbl">Carga General</span>
+    </div>
+    <div class="sb-item" id="snav-op" onclick="sbNav('carga','tareas-op')" style="padding-left:20px">
+      <span class="sb-ico" style="font-size:13px">🔧</span><span class="sb-lbl" style="font-size:11px">Carga Operativo</span>
+    </div>
+    <div class="sb-item" id="snav-pr" onclick="sbNav('carga','tareas-pr')" style="padding-left:20px">
+      <span class="sb-ico" style="font-size:13px">📐</span><span class="sb-lbl" style="font-size:11px">Carga Proyectos</span>
     </div>
 
     <div class="sb-section">Exportar</div>
@@ -676,7 +669,6 @@ body.sb-collapsed .sidebar{width:56px}
     </div>
     <div class="sb-item" onclick="exportarTareasExcel()">
       <span class="sb-ico">⬇</span><span class="sb-lbl">Excel Tareas</span>
-      <span class="sb-badge" style="background:rgba(255,167,0,.2);color:#F5A623">📋</span>
     </div>
   </div>
 
@@ -918,7 +910,7 @@ body.sb-collapsed .sidebar{width:56px}
   <!-- TAB CARGA -->
   <div id="tab-carga" style="display:none">
     <div class="section-title" style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="toggleSection('carga-body','btn-carga-toggle')">
-      <span><span class="dot-sec"></span>Carga por Gestor · Desglose de Estados</span>
+      <span><span class="dot-sec"></span>Carga por Gestor · <span id="carga-subtab-title">Desglose de Estados</span></span>
       <button id="btn-carga-toggle" style="background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:6px;color:var(--muted);padding:2px 8px;font-size:13px;cursor:pointer;line-height:1;transition:transform .2s">▲</button>
     </div>
     <div id="carga-body">
@@ -933,7 +925,6 @@ body.sb-collapsed .sidebar{width:56px}
       <div class="carga-subtab" id="cst-tareas-pr" onclick="switchCargaSubTab('tareas-pr')">
         📐 Carga Proyectos <span class="st-badge" id="cst-badge-tareas-pr" style="background:rgba(255,167,0,.2);color:#FFA700">0</span>
       </div>
-    </div>
     <!-- Grids OTS ocultos permanentemente (sus datos se renderizan dentro de las cards de Tareas) -->
     <div id="gestores-grid-operativo" style="display:none"></div>
     <div id="gestores-grid-proyectos" style="display:none"></div>
@@ -3610,17 +3601,28 @@ let _tareas = [], _tareasLoading = false, _analisisVista = 'ots';
 // Extender switchCargaSubTab para incluir tabs de tareas
 const _origSwitch = switchCargaSubTab;
 switchCargaSubTab = function(tipo){
-  // Solo 2 tabs: Carga Operativo (tareas-op) y Carga Proyectos (tareas-pr)
-  const t = (tipo==='operativo'||tipo==='tareas-op') ? 'tareas-op' : 'tareas-pr';
+  const isAmbos = tipo==='ambos-carga';
+  const t = (tipo==='operativo'||tipo==='tareas-op') ? 'tareas-op'
+           : tipo==='tareas-pr' ? 'tareas-pr'
+           : 'tareas-op'; // default for ambos-carga
   _cargaSubTab = t;
 
+  // Subtabs visibility: en ambos-carga se muestran ambas tabs, sino solo la activa
   ['tareas-op','tareas-pr'].forEach(id=>{
-    document.getElementById('cst-'+id)?.classList.toggle('active', id===t);
-    const g=document.getElementById('gestores-grid-'+id);
-    if(g) g.style.display = id===t?'':'none';
+    const tab = document.getElementById('cst-'+id);
+    const grid = document.getElementById('gestores-grid-'+id);
+    if(isAmbos){
+      // Mostrar ambas tabs, activar tareas-op
+      if(tab){ tab.style.display=''; tab.classList.toggle('active', id===t); }
+      if(grid) grid.style.display = id===t?'':'none';
+    } else {
+      // Mostrar solo la tab seleccionada (ocultar la otra)
+      if(tab){ tab.style.display = id===tipo?'':'none'; tab.classList.toggle('active', id===tipo); }
+      if(grid) grid.style.display = id===tipo?'':'none';
+    }
   });
 
-  // Siempre KPIs de Tareas en esta sección
+  // KPIs: siempre OTS + Tareas en Carga
   const kpiWrap    = document.getElementById('kpi-sticky-wrap');
   const otsStrip   = document.getElementById('kpi-strip-ots');
   const tareasStrip= document.getElementById('kpi-strip-tareas');
@@ -4523,16 +4525,38 @@ function toggleSidebar(){
 function sbNav(tab,subTab){
   switchTab(tab);
   if(subTab){
-    if(tab==='carga')switchCargaSubTab(subTab);
-    if(tab==='analisis'&&typeof switchAnalisisVista==='function')setTimeout(()=>switchAnalisisVista(subTab),0);
+    if(tab==='carga'){
+      switchCargaSubTab(subTab); // ambos-carga, tareas-op, or tareas-pr handled in switchCargaSubTab
+    }
+    if(tab==='analisis'&&typeof switchAnalisisVista==='function'){
+      setTimeout(()=>switchAnalisisVista(subTab),0);
+    }
   }
+  // Update active highlight
   document.querySelectorAll('.sb-item').forEach(el=>el.classList.remove('active'));
-  const activeId={'analisis':'snav-analisis','carga':'snav-carga','tareas-op':'snav-op','tareas-pr':'snav-pr','ots':'snav-t-ots','tareas':'snav-t-tareas','ambos':'snav-t-ambos'}[subTab||tab];
-  if(activeId)document.getElementById(activeId)?.classList.add('active');
+  const activeId={
+    'analisis':'snav-analisis','ambos':'snav-analisis',
+    'ots':'snav-t-ots','tareas':'snav-t-tareas',
+    'carga':'snav-carga','ambos-carga':'snav-carga',
+    'tareas-op':'snav-op','tareas-pr':'snav-pr'
+  }[subTab||tab];
+  if(activeId) document.getElementById(activeId)?.classList.add('active');
   // Update breadcrumb
-  const labels={'analisis':'Análisis General','carga':'Carga por Gestor','tareas-op':'Carga Operativo','tareas-pr':'Carga Proyectos','ots':'Vista OTS','tareas':'Vista Tareas','ambos':'Vista Ambos'};
+  const labels={
+    'analisis':'Análisis General','ambos':'Análisis General',
+    'ots':'Análisis General · Vista OTS','tareas':'Análisis General · Vista Tareas',
+    'carga':'Carga Pendientes','ambos-carga':'Carga Pendientes · Carga General',
+    'tareas-op':'Carga Pendientes · Carga Operativo','tareas-pr':'Carga Pendientes · Carga Proyectos'
+  };
   const bc=document.getElementById('page-breadcrumb');
-  if(bc)bc.textContent=labels[subTab||tab]||'Dashboard';
+  if(bc) bc.textContent=labels[subTab||tab]||'Dashboard';
+  // Update carga section subtitle
+  const cst=document.getElementById('carga-subtab-title');
+  if(cst){
+    if(subTab==='tareas-op') cst.textContent='Carga Operativo';
+    else if(subTab==='tareas-pr') cst.textContent='Carga Proyectos';
+    else if(subTab==='ambos-carga') cst.textContent='Carga General';
+  }
 }
 
 function updateSidebarBadges(){
@@ -4552,8 +4576,8 @@ function updateSidebarBadges(){
     if(sb)sb.classList.add('collapsed');
     if(btn)btn.textContent='❯';
   }
-  // Start on Análisis General
-  switchTab('analisis');
+  // Start on Análisis General → Vista Ambos
+  document.addEventListener('DOMContentLoaded', ()=>sbNav('analisis','ambos'));
 })();
 
 </script>

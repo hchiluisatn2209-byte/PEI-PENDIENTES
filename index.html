@@ -649,24 +649,24 @@ body.sb-collapsed .sidebar{width:56px}
     </div>
 
     <div class="sb-section">Órdenes OTS</div>
-    <div class="sb-item" id="snav-op" onclick="sbNav('carga');switchCargaSubTab('tareas-op')" style="padding-left:14px">
+    <div class="sb-item" id="snav-op" onclick="sbNav('carga','tareas-op')" style="padding-left:14px">
       <span class="sb-ico">🔧</span><span class="sb-lbl">Operativo</span>
       <span class="sb-badge blue" id="snav-badge-op">—</span>
     </div>
-    <div class="sb-item" id="snav-pr" onclick="sbNav('carga');switchCargaSubTab('tareas-pr')" style="padding-left:14px">
+    <div class="sb-item" id="snav-pr" onclick="sbNav('carga','tareas-pr')" style="padding-left:14px">
       <span class="sb-ico">📐</span><span class="sb-lbl">Proyectos</span>
       <span class="sb-badge blue" id="snav-badge-pr">—</span>
     </div>
 
     <div class="sb-section">Análisis Tareas</div>
-    <div class="sb-item" id="snav-t-ots" onclick="sbNav('analisis');switchAnalisisVista('ots')">
+    <div class="sb-item" id="snav-t-ots" onclick="sbNav('analisis','ots')">
       <span class="sb-ico">📦</span><span class="sb-lbl">Vista OTS</span>
     </div>
-    <div class="sb-item" id="snav-t-tareas" onclick="sbNav('analisis');switchAnalisisVista('tareas')">
+    <div class="sb-item" id="snav-t-tareas" onclick="sbNav('analisis','tareas')">
       <span class="sb-ico">🗂</span><span class="sb-lbl">Vista Tareas</span>
       <span class="sb-badge" id="snav-badge-tareas">—</span>
     </div>
-    <div class="sb-item" id="snav-t-ambos" onclick="sbNav('analisis');switchAnalisisVista('ambos')">
+    <div class="sb-item" id="snav-t-ambos" onclick="sbNav('analisis','ambos')">
       <span class="sb-ico">⚡</span><span class="sb-lbl">Vista Ambos</span>
     </div>
 
@@ -703,9 +703,10 @@ body.sb-collapsed .sidebar{width:56px}
 <!-- HEADER -->
 <header>
   <div class="header-left">
-    <div class="logo-badge">PEI</div>
-    <div class="header-titles">
-      <h1>Dashboard Ejecutivo · <span style="color:var(--turquesa)">Órdenes y Tareas PEI</span></h1>
+    <div style="display:flex;flex-direction:column">
+      <div style="font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase" id="page-breadcrumb">Análisis General</div>
+      <div class="header-titles" style="margin:0">
+        <h1 id="page-title">Dashboard Ejecutivo · <span style="color:var(--turquesa)">Órdenes y Tareas PEI</span></h1>
       <p>Proyectos e Implementación · Gestión de Pendientes</p>
     </div>
   </div>
@@ -795,7 +796,7 @@ body.sb-collapsed .sidebar{width:56px}
 </div>
 
 <!-- TABS -->
-<div class="tabs-bar">
+<div class="tabs-bar" style="display:none">
   <div class="tab active" onclick="switchTab('analisis')">Análisis General</div>
   <div class="tab" onclick="switchTab('carga')">Carga por Gestor</div>
 </div>
@@ -4508,6 +4509,52 @@ function renderTareasAnalisis(){
   // Si la vista actual es tareas o ambos, mostrar KPIs de tareas
   if(_analisisVista==='tareas'||_analisisVista==='ambos') renderKpisTareas();
 }
+
+// ── SIDEBAR NAVIGATION ─────────────────────────────────────────────────
+function toggleSidebar(){
+  const collapsed=document.body.classList.toggle('sb-collapsed');
+  const sb=document.getElementById('app-sidebar');
+  const btn=sb?.querySelector('.sb-collapse-btn');
+  if(sb)sb.classList.toggle('collapsed',collapsed);
+  if(btn)btn.textContent=collapsed?'❯':'❮';
+  localStorage.setItem('pei-sb',collapsed?'1':'0');
+}
+
+function sbNav(tab,subTab){
+  switchTab(tab);
+  if(subTab){
+    if(tab==='carga')switchCargaSubTab(subTab);
+    if(tab==='analisis'&&typeof switchAnalisisVista==='function')setTimeout(()=>switchAnalisisVista(subTab),0);
+  }
+  document.querySelectorAll('.sb-item').forEach(el=>el.classList.remove('active'));
+  const activeId={'analisis':'snav-analisis','carga':'snav-carga','tareas-op':'snav-op','tareas-pr':'snav-pr','ots':'snav-t-ots','tareas':'snav-t-tareas','ambos':'snav-t-ambos'}[subTab||tab];
+  if(activeId)document.getElementById(activeId)?.classList.add('active');
+  // Update breadcrumb
+  const labels={'analisis':'Análisis General','carga':'Carga por Gestor','tareas-op':'Carga Operativo','tareas-pr':'Carga Proyectos','ots':'Vista OTS','tareas':'Vista Tareas','ambos':'Vista Ambos'};
+  const bc=document.getElementById('page-breadcrumb');
+  if(bc)bc.textContent=labels[subTab||tab]||'Dashboard';
+}
+
+function updateSidebarBadges(){
+  const bT=document.getElementById('snav-badge-tareas');
+  if(bT&&typeof _tareas!=='undefined')bT.textContent=_tareas.length||'—';
+  const uname=document.getElementById('sb-user-name');
+  const saved=localStorage.getItem('ia_user')||'';
+  if(uname&&saved)uname.textContent=saved.split('@')[0];
+}
+
+(function initSidebar(){
+  const collapsed=localStorage.getItem('pei-sb')==='1';
+  if(collapsed){
+    document.body.classList.add('sb-collapsed');
+    const sb=document.getElementById('app-sidebar');
+    const btn=sb?.querySelector('.sb-collapse-btn');
+    if(sb)sb.classList.add('collapsed');
+    if(btn)btn.textContent='❯';
+  }
+  // Start on Análisis General
+  switchTab('analisis');
+})();
 
 </script>
 </div><!-- /app-main -->

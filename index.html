@@ -553,24 +553,127 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 /* tabla detalle dentro panel */
 .gp-panel .gc-detail{display:block;border:none;padding:0;background:none}
 
+/* ── SIDEBAR ── */
+.app-layout{display:flex;min-height:100vh}
+.sidebar{width:220px;min-height:100vh;background:#1B3A70;display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:300;transition:width .2s}
+.sidebar.collapsed{width:56px}
+.sb-brand{padding:14px 14px 12px;border-bottom:1px solid rgba(255,255,255,.1);flex-shrink:0}
+.sb-logo{display:flex;align-items:center;gap:10px;overflow:hidden}
+.sb-icon{width:34px;height:34px;background:#F5A623;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-cond);font-weight:900;font-size:13px;color:#fff;letter-spacing:1px;flex-shrink:0}
+.sb-title-wrap{overflow:hidden;transition:opacity .15s,width .15s;white-space:nowrap}
+.sidebar.collapsed .sb-title-wrap{opacity:0;width:0}
+.sb-title{font-size:12px;font-weight:700;color:#fff;line-height:1.3}
+.sb-sub{font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.sb-nav{flex:1;padding:8px 6px;display:flex;flex-direction:column;gap:1px;overflow-y:auto;overflow-x:hidden}
+.sb-section{font-size:9px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:1.5px;text-transform:uppercase;padding:10px 8px 4px;white-space:nowrap;overflow:hidden;transition:opacity .15s}
+.sidebar.collapsed .sb-section{opacity:0;pointer-events:none}
+.sb-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;color:rgba(255,255,255,.6);cursor:pointer;transition:all .15s;white-space:nowrap;overflow:hidden;position:relative}
+.sb-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.sb-item.active{background:rgba(0,176,240,.18);color:#00B0F0;font-weight:700}
+.sb-ico{font-size:16px;flex-shrink:0;width:18px;text-align:center}
+.sb-lbl{font-size:12px;transition:opacity .15s,width .15s;white-space:nowrap}
+.sidebar.collapsed .sb-lbl{opacity:0;width:0;overflow:hidden}
+.sb-badge{background:rgba(255,167,0,.25);color:#F5A623;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;margin-left:auto;flex-shrink:0;transition:opacity .15s}
+.sb-badge.blue{background:rgba(0,176,240,.2);color:#00B0F0}
+.sb-badge.green{background:rgba(52,211,153,.2);color:#34D399}
+.sidebar.collapsed .sb-badge{opacity:0;pointer-events:none}
+.sb-footer{padding:8px 6px 12px;border-top:1px solid rgba(255,255,255,.1);flex-shrink:0}
+.sb-user{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);overflow:hidden;margin-bottom:4px}
+.sb-avatar{width:28px;height:28px;border-radius:50%;background:#F5A623;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.sb-user-info{overflow:hidden;transition:opacity .15s,width .15s;white-space:nowrap}
+.sidebar.collapsed .sb-user-info{opacity:0;width:0}
+.sb-uname{font-size:11px;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis}
+.sb-uemail{font-size:9px;color:rgba(255,255,255,.35);overflow:hidden;text-overflow:ellipsis}
+.sb-toggle{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:7px;color:rgba(255,255,255,.4);cursor:pointer;font-size:11px;transition:all .15s}
+.sb-toggle:hover{background:rgba(255,255,255,.07);color:#fff}
+.sb-toggle-lbl{transition:opacity .15s;white-space:nowrap;overflow:hidden}
+.sidebar.collapsed .sb-toggle-lbl{opacity:0;width:0}
+.sb-collapse-btn{position:absolute;top:50%;right:-12px;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;background:#1B3A70;border:2px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;transition:all .2s;z-index:10}
+.sb-collapse-btn:hover{background:#245090;color:#fff;border-color:rgba(255,255,255,.5)}
+.app-main{margin-left:220px;display:flex;flex-direction:column;min-height:100vh;transition:margin-left .2s;width:calc(100% - 220px)}
+body.sb-collapsed .app-main{margin-left:56px;width:calc(100% - 56px)}
+body.sb-collapsed .sidebar{width:56px}
+.sidebar{box-shadow:2px 0 12px rgba(0,0,0,.08)}
+.sb-collapse-btn{background:#1B3A70;border-color:rgba(255,255,255,.3)}
+
 </style>
 </head>
 <body>
+<div class="app-layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="app-sidebar">
+  <div class="sb-collapse-btn" onclick="toggleSidebar()" title="Colapsar/Expandir" style="position:absolute;top:18px;right:-12px">❮</div>
+  <div class="sb-brand">
+    <div class="sb-logo">
+      <div class="sb-icon">PEI</div>
+      <div class="sb-title-wrap">
+        <div class="sb-title">Dashboard Ejecutivo</div>
+        <div class="sb-sub">Proyectos e Impl.</div>
+      </div>
+    </div>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-section">Análisis General</div>
+    <div class="sb-item active" id="snav-t-ots" onclick="sbNav('analisis','ots')">
+      <span class="sb-ico">📦</span><span class="sb-lbl">Vista OTS</span>
+      <span class="sb-badge green" id="snav-badge-ots">—</span>
+    </div>
+    <div class="sb-item" id="snav-t-tareas" onclick="sbNav('analisis','tareas')">
+      <span class="sb-ico">🗂</span><span class="sb-lbl">Vista Tareas</span>
+      <span class="sb-badge" id="snav-badge-tareas">—</span>
+    </div>
+    <div class="sb-item" id="snav-t-ambos" onclick="sbNav('analisis','ambos')">
+      <span class="sb-ico">⚡</span><span class="sb-lbl">Vista Ambos</span>
+    </div>
+    <div class="sb-section">Carga Pendientes</div>
+    <div class="sb-item" id="snav-op" onclick="sbNav('carga','operativo')" style="padding-left:14px">
+      <span class="sb-ico">🔧</span><span class="sb-lbl">Operativo</span>
+      <span class="sb-badge blue" id="snav-badge-op">—</span>
+    </div>
+    <div class="sb-item" id="snav-pr" onclick="sbNav('carga','proyectos')" style="padding-left:14px">
+      <span class="sb-ico">📐</span><span class="sb-lbl">Proyectos</span>
+      <span class="sb-badge blue" id="snav-badge-pr">—</span>
+    </div>
+    <div class="sb-section">Exportar</div>
+    <div class="sb-item" onclick="exportKpiExcel()">
+      <span class="sb-ico">⬇</span><span class="sb-lbl">Excel OTS</span>
+    </div>
+    <div class="sb-item" onclick="typeof exportarTareasExcel==='function'&&exportarTareasExcel()">
+      <span class="sb-ico">⬇</span><span class="sb-lbl">Excel Tareas</span>
+      <span class="sb-badge" style="background:rgba(255,167,0,.2);color:#F5A623">📋</span>
+    </div>
+  </div>
+  <div class="sb-footer">
+    <div class="sb-user">
+      <div class="sb-avatar">H</div>
+      <div class="sb-user-info">
+        <div class="sb-uname" id="sb-user-name">hchiluisatn2209</div>
+        <div class="sb-uemail">hchiluisatn@gmail.com</div>
+      </div>
+    </div>
+    <div class="sb-toggle" onclick="loadAll()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+      <span class="sb-toggle-lbl">Actualizar datos</span>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN WRAPPER -->
+<div class="app-main" id="app-main">
 
 <!-- HEADER -->
 <header>
   <div class="header-left">
-    <div class="logo-badge">PEI</div>
-    <div class="header-titles">
-      <h1>Dashboard Ejecutivo · <span style="color:var(--turquesa)">Órdenes PYL</span></h1>
-      <p>Proyectos e Implementación · Gestión de Pendientes</p>
+    <div style="display:flex;flex-direction:column">
+      <div style="font-size:11px;color:rgba(255,255,255,.5);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px" id="page-breadcrumb">Vista OTS</div>
+      <div class="header-titles" style="margin:0">
+        <h1 id="page-title">Dashboard Ejecutivo · <span style="color:var(--turquesa)">Órdenes y Tareas PEI</span></h1>
+        <p>Proyectos e Implementación · Gestión de Pendientes</p>
+      </div>
     </div>
   </div>
   <div class="header-right">
-    <button class="btn-theme" id="btn-theme" onclick="toggleTheme()" title="Cambiar tema" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;border:1.5px solid rgba(0,176,240,.4);background:rgba(0,176,240,.1);color:var(--turquesa);cursor:pointer;transition:all .2s;flex-shrink:0">
-      <svg id="theme-icon-dark" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-      <svg id="theme-icon-light" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    </button>
     <button class="btn-update" onclick="loadAll()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
       Actualizar
@@ -2791,6 +2894,7 @@ function renderAll(){
   }catch(e){console.error('[doughnut-empresa]',e);}
   try{renderTendPrePlan();}catch(e){console.error('[renderTendPrePlan]',e);}
   try{renderResumen();}catch(e){console.error('[renderResumen]',e);}
+  try{updateSidebarBadges();}catch(e){}
   _renderAllRunning=false;
 }
 
@@ -3651,7 +3755,71 @@ function renderTareasAnalisis(){
   </div>`;
 }
 
+// ── SIDEBAR NAVIGATION ─────────────────────────────────────────────────
+function toggleSidebar(){
+  const collapsed=document.body.classList.toggle('sb-collapsed');
+  const sb=document.getElementById('app-sidebar');
+  const btn=sb?.querySelector('.sb-collapse-btn');
+  if(sb)sb.classList.toggle('collapsed',collapsed);
+  if(btn)btn.textContent=collapsed?'❯':'❮';
+  localStorage.setItem('pei-sb',collapsed?'1':'0');
+}
+
+function sbNav(tab,subTab){
+  switchTab(tab);
+  if(subTab){
+    if(tab==='carga'){
+      if(subTab==='operativo')switchCargaSubTab('operativo');
+      else if(subTab==='proyectos')switchCargaSubTab('proyectos');
+    }
+    if(tab==='analisis'&&typeof switchAnalisisVista==='function')setTimeout(()=>switchAnalisisVista(subTab),0);
+  }
+  document.querySelectorAll('.sb-item').forEach(el=>el.classList.remove('active'));
+  const activeId={
+    'analisis':'snav-analisis','carga':'snav-carga',
+    'operativo':'snav-op','proyectos':'snav-pr',
+    'ots':'snav-t-ots','tareas':'snav-t-tareas','ambos':'snav-t-ambos'
+  }[subTab||tab];
+  if(activeId)document.getElementById(activeId)?.classList.add('active');
+  const labels={
+    'analisis':'Análisis General','carga':'Carga por Gestor',
+    'operativo':'Carga Operativo','proyectos':'Carga Proyectos',
+    'ots':'Vista OTS','tareas':'Vista Tareas','ambos':'Vista Ambos'
+  };
+  const bc=document.getElementById('page-breadcrumb');
+  if(bc)bc.textContent=labels[subTab||tab]||'Dashboard';
+}
+
+function updateSidebarBadges(){
+  // Badge OTS total
+  const bOts=document.getElementById('snav-badge-ots');
+  if(bOts)bOts.textContent=filtered.length||'—';
+  // Badge Tareas
+  const bT=document.getElementById('snav-badge-tareas');
+  if(bT&&typeof _tareas!=='undefined')bT.textContent=_tareas.length||'—';
+  // Badge Operativo
+  const bOp=document.getElementById('snav-badge-op');
+  if(bOp){const el=document.getElementById('cst-badge-operativo');if(el)bOp.textContent=el.textContent||'—';}
+  // Badge Proyectos
+  const bPr=document.getElementById('snav-badge-pr');
+  if(bPr){const el=document.getElementById('cst-badge-proyectos');if(el)bPr.textContent=el.textContent||'—';}
+}
+
+(function initSidebar(){
+  const collapsed=localStorage.getItem('pei-sb')==='1';
+  if(collapsed){
+    document.body.classList.add('sb-collapsed');
+    const sb=document.getElementById('app-sidebar');
+    const btn=sb?.querySelector('.sb-collapse-btn');
+    if(sb)sb.classList.add('collapsed');
+    if(btn)btn.textContent='❯';
+  }
+  // Marcar Vista OTS como activo por defecto
+  document.getElementById('snav-t-ots')?.classList.add('active');
+})();
+
 </script>
-</script>
+</div><!-- /app-main -->
+</div><!-- /app-layout -->
 </body>
 </html>

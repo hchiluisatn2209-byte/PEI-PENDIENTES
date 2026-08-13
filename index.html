@@ -2083,9 +2083,26 @@ function renderTendPrePlan(){
     ?new Set([...SF['sf-preplan-mes'].selected]):null;
 
   // Solo los mismos estados que el KPI Total: Plan+Det+Replan+PrePlan
+  // IMPORTANTE: usar allData filtrado solo por los otros filtros activos (no por sf-preplan-mes)
+  // para que el gráfico siempre muestre todos los meses y resalte los seleccionados
   const mapFiltered={};
-  const filteredBase=filtered.filter(r=>esPlan(r)||esDet(r)||esRep(r)||esPre(r)||esAsig(r)||esPrueba(r)||esVerif(r)||esAsignada(r));
-  filteredBase.forEach(r=>{
+  const grp = sfGetVals('sf-grupo');
+  const tg  = sfGetVals('sf-tipo-gestion');
+  const g   = sfGetVals('sf-gestor');
+  const e   = sfGetVals('sf-estado');
+  const lg  = sfGetVals('sf-login');
+  const f   = sfGetVals('sf-fecha');
+  const baseParaGrafico = allData.filter(r=>
+    (esPlan(r)||esDet(r)||esRep(r)||esPre(r)||esAsig(r)||esPrueba(r)||esVerif(r)||esAsignada(r)) &&
+    (!grp || grp.has(r[C.GRUPO])) &&
+    (!tg  || tg.has(r[C.TIPO_GESTION])) &&
+    (!g   || g.has(r[C.GESTOR])) &&
+    (!e   || e.has(getEst(r))) &&
+    (!lg  || lg.has(r[C.LOGIN])) &&
+    (!f   || f.has(r._fecha))
+    // NO filtra por sf-preplan-mes aquí
+  );
+  baseParaGrafico.forEach(r=>{
     const d=parseDate(r[C.FE_PREPLANIFICADA_DMA]);
     if(!d)return;
     const key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');

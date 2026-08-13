@@ -571,6 +571,10 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 /* tabla detalle dentro panel */
 .gp-panel .gc-detail{display:block;border:none;padding:0;background:none}
 
+/* hover en tabla resumen de gestores */
+#tbl-resumen tr:hover{background:rgba(0,176,240,.06) !important;}
+#tbl-resumen tr:hover td:nth-child(2){text-decoration:underline;}
+
 /* ── SIDEBAR LAYOUT ────────────────────────────────────────────── */
 .app-layout{display:flex;min-height:100vh}
 .sidebar{width:220px;min-height:100vh;background:#1B3A70;display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:300;transition:width .2s}
@@ -1135,9 +1139,7 @@ const KNOWN_SHEETS = [
   //  {fecha:'08-07-26',gid:1901801479},
   //  {fecha:'17-07-26',gid:1731121928},
   //  {fecha:'23-07-26',gid:306558480},
-  //    {fecha:'05-08-26',gid:1874107970},
-    {fecha:'13-08-26',gid:1756847995},
-
+      {fecha:'05-08-26',gid:1874107970},
 ];
 
 const C={
@@ -2550,7 +2552,7 @@ function renderResumen(){
       :d.tipo==='OTROS'
       ?`<span style="background:rgba(255,154,68,.18);color:#FF9A44;border:1px solid rgba(255,154,68,.35);padding:2px 8px;border-radius:20px;font-size:10px;font-family:var(--font-cond);letter-spacing:.5px">OTROS</span>`
       :`<span style="color:var(--muted);font-size:11px">${d.tipo}</span>`;
-    return`<tr>
+    return`<tr data-gestor="${g.replace(/"/g,'&quot;')}" style="cursor:pointer;border-left:3px solid transparent;transition:background .15s,border-left .15s" onclick="cargarDetalleGestor('${g.replace(/'/g,"\\'")}',true)" title="Ver detalle de ${g}">
       <td style="color:var(--muted);font-family:var(--font-cond)">${i+1}</td>
       <td style="font-weight:700;color:var(--turquesa);font-family:var(--font-cond)" data-tip="${esc(g)}">${g}</td>
       <td style="font-size:11px;color:#9BBCD8;font-family:var(--font-cond)">${d.equipo}</td>
@@ -2783,7 +2785,7 @@ function renderGcRows(rows){
 // Sin deduplicación: el gráfico refleja exactamente los registros de filtered
 
 
-function cargarDetalleGestor(nombre){
+function cargarDetalleGestor(nombre, fromResumen=false){
   _gestorSeleccionado=nombre;
   _detalleEstadoFil='all';
   _detalleSortCol=null;
@@ -2791,8 +2793,16 @@ function cargarDetalleGestor(nombre){
   const wrap=document.getElementById('detalle-gestor-wrap');
   wrap.style.display='';
   document.getElementById('detalle-gestor-nombre').textContent=nombre;
-  setTimeout(()=>wrap.scrollIntoView({behavior:'smooth',block:'start'}),80);
+
+  // Resaltar fila activa en la tabla de resumen
+  document.querySelectorAll('#tbl-resumen tr').forEach(tr=>{
+    const isActive=tr.getAttribute('data-gestor')===nombre;
+    tr.style.background=isActive?'rgba(0,176,240,.08)':'';
+    tr.style.borderLeft=isActive?'3px solid var(--turquesa)':'3px solid transparent';
+  });
+
   renderDetalleTabla();
+  setTimeout(()=>wrap.scrollIntoView({behavior:'smooth',block:'start'}),80);
 }
 
 // Sin deduplicación: el detalle muestra TODAS las filas del gestor en filtered
@@ -3553,7 +3563,7 @@ document.addEventListener('mousedown',function(ev){
 // ════════════════════════════════════════════════════════════════
 
 const SHEET_ID_TAREAS = '1SMRqn8HFhbZW0HhDdoK--9Met-sBfg2gcsse4Niaa64';
-const GID_TAREAS      = 825576758;
+const GID_TAREAS      = 88454513;
 const tcol = e => ({
   // Estados reales de ESTADO_TAREA
   'Asignada':      '#6EBEEB',

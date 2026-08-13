@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Ejecutivo · Órdenes Pendientes PYL | GTN</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Dashboard PEI v2 · OTS + Tareas</title>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QV3G7TBFC6"></script>
 <script>
@@ -46,35 +49,36 @@
   --tr-hover:#ffffff0d;
 }
 
-/* ── LIGHT MODE ── */
-html.light{
-  --bg-body-1:#f0f4fa;--bg-body-2:#e8eef8;--bg-body-3:#dde5f5;
+/* ── LIGHT MODE (default) ── */
+:root{
+  --bg-body-1:#ffffff;--bg-body-2:#f8f9fc;--bg-body-3:#f2f4f8;
   --text-main:#0d1f45;
   --header-bg-1:#1B3A70;--header-bg-2:#1e4a85;--header-bg-3:#245090;
-  --statusbar-bg:rgba(255,255,255,.97);
-  --filterbar-bg:rgba(255,255,255,.98);
-  --tabsbar-bg:linear-gradient(160deg,#dde5f5 0%,#e8eef8 100%);
-  --kpi-sticky-bg:linear-gradient(160deg,#dde5f5 0%,#e8eef8 100%);
-  --card-bg:rgba(255,255,255,0.92);
-  --border:rgba(0,130,200,0.2);
+  --statusbar-bg:rgba(255,255,255,.99);
+  --filterbar-bg:rgba(255,255,255,.99);
+  --tabsbar-bg:#ffffff;
+  --kpi-sticky-bg:#ffffff;
+  --card-bg:#ffffff;
+  --border:rgba(0,100,180,0.15);
   --muted:#5577aa;
-  --section-bg:rgba(0,0,0,.03);
-  --tbl-card-bg:rgba(255,255,255,.9);
+  --section-bg:rgba(0,0,0,.02);
+  --tbl-card-bg:#ffffff;
   --gc-donut-title-c:#3a5080;
   --text-secondary:#1B3A70;
-  --th-bg:#dde8f8;
-  --tr-odd:rgba(0,80,180,.04);
-  --tr-hover:rgba(0,80,180,.08);
+  --th-bg:#eef2fa;
+  --tr-odd:rgba(0,80,180,.03);
+  --tr-hover:rgba(0,80,180,.07);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--font);font-size:15px;background:linear-gradient(160deg,var(--bg-body-1) 0%,var(--bg-body-2) 50%,var(--bg-body-3) 100%);background-attachment:fixed;color:var(--text-main);min-height:100vh;overflow-x:hidden;transition:background .3s,color .3s}
+body{background:#f8f9fc!important;background-attachment:initial!important}
 
 /* ── HEADER ── */
 header{background:linear-gradient(90deg,var(--header-bg-1),var(--header-bg-2) 70%,var(--header-bg-3));border-bottom:3px solid var(--turquesa);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 4px 28px rgba(0,0,0,.55);transition:background .3s}
 .logo-badge{width:44px;height:44px;background:linear-gradient(135deg,var(--turquesa),#5D34B0);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--font-cond);font-weight:800;font-size:16px;color:#fff;letter-spacing:1px;box-shadow:0 4px 16px rgba(0,176,240,.4);flex-shrink:0}
 .header-left{display:flex;align-items:center;gap:14px}
 .header-titles h1{font-family:var(--font-cond);font-weight:800;font-size:20px;letter-spacing:2px;text-transform:uppercase;line-height:1;color:#ffffff}
-.header-titles p{font-size:10px;color:var(--turquesa);letter-spacing:2.5px;text-transform:uppercase;margin-top:3px}html.light .header-titles p{color:var(--turquesa)}
+.header-titles p{font-size:10px;color:var(--turquesa);letter-spacing:2.5px;text-transform:uppercase;margin-top:3px}.header-titles p{color:var(--turquesa)}
 .header-right{display:flex;align-items:center;gap:14px}
 .corte-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
 .corte-date{font-family:var(--font-cond);font-weight:800;font-size:20px;color:var(--amarillo);line-height:1}
@@ -168,8 +172,8 @@ main{padding:0 16px 44px}
 .carga-subtab.active{color:var(--turquesa);border-bottom-color:var(--turquesa)}
 .carga-subtab .st-badge{font-size:10px;font-weight:800;padding:1px 7px;border-radius:10px;background:rgba(0,176,240,.15);color:var(--turquesa);transition:background .2s}
 .carga-subtab.active .st-badge{background:rgba(0,176,240,.3)}
-html.light .carga-subtab{color:#5577aa}
-html.light .carga-subtab.active{color:var(--turquesa)}
+.carga-subtab{color:#5577aa}
+.carga-subtab.active{color:var(--turquesa)}
 .gestor-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:16px 20px;transition:transform .18s,box-shadow .18s;backdrop-filter:blur(6px);box-shadow:0 2px 16px rgba(0,0,0,.2)}
 .gestor-card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.4)}
 .gc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
@@ -208,126 +212,140 @@ html.light .carga-subtab.active{color:var(--turquesa)}
 .ab-nd   {background:rgba(155,188,216,.08);color:var(--muted);border:1px solid var(--border)}
 
 /* ── TABLES ── */
-html.light .tbl-card,.light .chart-card,.light .gestor-panel-wrap{box-shadow:0 2px 16px rgba(0,80,180,.10);border-color:rgba(0,130,200,.15)}
-html.light table thead th{background:var(--th-bg);color:var(--text-secondary)}
-html.light table tbody tr:nth-child(odd){background:var(--tr-odd)}
-html.light table tbody tr:hover td{background:var(--tr-hover)}
-html.light .td-login{color:#1a5fa8}
-html.light .kpi-card{background:rgba(255,255,255,.95);border-color:rgba(0,130,200,.18);box-shadow:0 2px 12px rgba(0,80,180,.12)}
-html.light .section-title{color:var(--text-secondary)}
-html.light .motivos-col-head{color:var(--text-secondary)}
-html.light .gc-alert-cliente{color:var(--text-secondary)}
-html.light body{color:var(--text-main)}
-html.light .filter-label{color:#3a5080}
-html.light .sf-input-row{background:rgba(0,80,180,.06);border-color:rgba(0,130,200,.3);color:#0d1f45}
-html.light .sf-chip{background:rgba(0,176,240,.15);color:#005580}
-html.light .btn-filtros{background:rgba(0,80,180,.07);border-color:rgba(0,130,200,.3);color:#005580}
-html.light .filter-reset{color:#cc2244}
-html.light .gestor-nav-item{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.08);color:var(--text-secondary)}
-html.light .gestor-nav-item.active{background:rgba(0,176,240,.12);border-color:rgba(0,176,240,.4)}
-html.light .gp-tab{color:#5577aa}
-html.light .gp-tab.active{color:var(--turquesa);border-color:var(--turquesa)}
-html.light .gc-alert-row{background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.06)}
-html.light .motivo-item{background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.07)}
-html.light .motivo-item:hover{background:rgba(0,80,180,.06)}
-html.light .gc-mot-item{background:rgba(0,0,0,.03)}
-html.light .footer{color:#5577aa;background:rgba(0,0,0,.04)}
+.tbl-card,.light .chart-card,.light .gestor-panel-wrap{box-shadow:0 2px 16px rgba(0,80,180,.10);border-color:rgba(0,130,200,.15)}
+table thead th{background:var(--th-bg);color:var(--text-secondary)}
+table tbody tr:nth-child(odd){background:var(--tr-odd)}
+table tbody tr:hover td{background:var(--tr-hover)}
+.td-login{color:#1a5fa8}
+.kpi-card{background:#ffffff;border-color:rgba(0,100,180,.14);box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.gestor-card{background:#ffffff;border-color:rgba(0,100,180,.14);box-shadow:0 1px 6px rgba(0,0,0,.07)}
+.chart-card{background:#ffffff;border-color:rgba(0,100,180,.14);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.tbl-card{background:#ffffff;border-color:rgba(0,100,180,.14);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+main{background:transparent}
+.section-title{color:var(--text-secondary)}
+.motivos-col-head{color:var(--text-secondary)}
+.gc-alert-cliente{color:var(--text-secondary)}
+body{color:var(--text-main)}
+.filter-label{color:#3a5080}
+.sf-input-row{background:rgba(0,80,180,.06);border-color:rgba(0,130,200,.3);color:#0d1f45}
+.sf-chip{background:rgba(0,176,240,.15);color:#005580}
+.btn-filtros{background:rgba(0,80,180,.07);border-color:rgba(0,130,200,.3);color:#005580}
+.filter-reset{color:#cc2244}
+.gestor-nav-item{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.08);color:var(--text-secondary)}
+.gestor-nav-item.active{background:rgba(0,176,240,.12);border-color:rgba(0,176,240,.4)}
+.gp-tab{color:#5577aa}
+.gp-tab.active{color:var(--turquesa);border-color:var(--turquesa)}
+.gc-alert-row{background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.06)}
+.motivo-item{background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.07)}
+.motivo-item:hover{background:rgba(0,80,180,.06)}
+.gc-mot-item{background:rgba(0,0,0,.03)}
+.footer{color:#5577aa;background:rgba(0,0,0,.04)}
 
 /* ── LIGHT: textos específicos invisibles ── */
 /* Números motivos (magenta/amarillo se mantienen, solo el txt) */
-html.light .motivo-item .txt{color:#1B3A70}
-html.light .motivos-col-head{color:#1B3A70}
-html.light .motivos-badge{color:#fff}
+.motivo-item .txt{color:#1B3A70}
+.motivos-col-head{color:#1B3A70}
+.motivos-badge{color:#fff}
 
 /* td-num (fechas, índices) */
-html.light .td-num{color:#3a5580}
+.td-num{color:#3a5580}
 
 /* Carga total y clientes en tablas (#e8f0ff → oscuro) */
-html.light td[style*="color:#e8f0ff"]{color:#0d1f45 !important}
-html.light td[style*="color:#9BBCD8"]{color:#5577aa !important}
+td[style*="color:#e8f0ff"]{color:#0d1f45 !important}
+td[style*="color:#9BBCD8"]{color:#5577aa !important}
 
 /* Carga total con barrita (font-family cond sin color explícito) */
-html.light table tbody td{color:#1a2f50}
+table tbody td{color:#1a2f50}
 
 /* Clientes col en detalle consolidado */
-html.light .td-client{color:#1a2f50}
-html.light .td-muted{color:#4a6080}
+.td-client{color:#1a2f50}
+.td-muted{color:#4a6080}
 
 /* Gestor name turquesa se mantiene, equipo y % */
-html.light td[style*="color:#9BBCD8"]{color:#5577aa !important}
+td[style*="color:#9BBCD8"]{color:#5577aa !important}
 
 /* gc-donut-legend */
-html.light .gc-donut-legend-item{color:#1B3A70}
-html.light .gc-donut-title{color:#3a5080}
+.gc-donut-legend-item{color:#1B3A70}
+.gc-donut-title{color:#3a5080}
 
 /* Alert panel */
-html.light .gc-alert-login{color:#3a6090}
-html.light .gc-alert-motivo{color:#5577aa}
-html.light .gc-alert-dias{font-weight:700}
+.gc-alert-login{color:var(--text-main)}
+.gc-alert-motivo{color:var(--text-main)}
+.gc-alert-dias{font-weight:700}
 
 /* Motivo detalle tabla */
-html.light .motivo-tbl td{color:#1a2f50}
-html.light .motivo-tbl-header{color:#5577aa;background:#f0f4fa}
-html.light .motivo-tbl-scroll{background:#fff}
+.motivo-tbl td{color:#1a2f50}
+.motivo-tbl-header{color:#5577aa;background:#f0f4fa}
+.motivo-tbl-scroll{background:#fff}
 
 /* gc-mot tabla */
-html.light .gc-mot-tbl td{color:#1a2f50}
-html.light .gc-mot-detail{background:#f8faff;border-color:rgba(0,130,200,.2)}
-html.light .gc-mot-detail-hdr{color:#5577aa;background:#edf2fb;border-color:rgba(0,130,200,.15)}
+.gc-mot-tbl td{color:#1a2f50}
+.gc-mot-detail{background:#f8faff;border-color:rgba(0,130,200,.2)}
+.gc-mot-detail-hdr{color:#5577aa;background:#edf2fb;border-color:rgba(0,130,200,.15)}
 
 /* Gestor panel textos */
-html.light .gestor-panel-name{color:#0d1f45}
-html.light .gc-badge.gb-total{background:rgba(0,80,180,.08);color:#1B3A70;border-color:rgba(0,80,180,.2)}
-html.light .gc-est{color:#1B3A70}
+.gestor-panel-name{color:#0d1f45}
+.gc-badge.gb-total{background:rgba(0,80,180,.08);color:#1B3A70;border-color:rgba(0,80,180,.2)}
+.gc-est{color:#1B3A70}
 
 /* Section titles */
-html.light .card-title{color:#1B3A70}
-html.light .card-sub{color:#5577aa}
-html.light .dot-sec{background:#00B0F0}
+.card-title{color:#1B3A70}
+.card-sub{color:#5577aa}
+.dot-sec{background:#00B0F0}
 
 /* Resumen tipo gestión */
-html.light .tbl-card table td{color:#1a2f50}
-html.light .tbl-card table td[style*="#9BBCD8"]{color:#5577aa !important}
+.tbl-card table td{color:#1a2f50}
+.tbl-card table td[style*="#9BBCD8"]{color:#5577aa !important}
 
 /* Detalle gestor */
-html.light #tbl-detalle-body td{color:#1a2f50}
-html.light .gc-detail td{color:#1a2f50}
+#tbl-detalle-body td{color:#1a2f50}
+.gc-detail td{color:#1a2f50}
 
 /* Empty states */
-html.light .empty{color:#8899aa}
+.empty{color:#8899aa}
 
 /* Nota corte */
-html.light .nota-corte{color:#1B3A70}
+.nota-corte{color:#1B3A70}
 
 /* ── LIGHT: panel de filtros desplegable ── */
-html.light .filter-panel{background:rgba(240,244,250,.99);border-bottom:1px solid rgba(0,130,200,.15);box-shadow:0 4px 20px rgba(0,80,180,.1)}
-html.light .sf-input-row{background:rgba(255,255,255,.95);border-color:rgba(0,130,200,.3);color:#0d1f45}
-html.light .sf-dropdown{background:#ffffff;border-color:rgba(0,130,200,.25);box-shadow:0 8px 32px rgba(0,80,180,.15)}
-html.light .sf-option{color:#1B3A70}
-html.light .sf-option:hover{background:rgba(0,130,200,.08)}
-html.light .sf-option.selected{background:rgba(0,176,240,.12);color:#005580}
-html.light .sf-chip{background:rgba(0,176,240,.15);color:#005580;border-color:rgba(0,176,240,.3)}
-html.light .sf-chip-x{color:#005580}
-html.light .btn-filtros{background:rgba(255,255,255,.9);border-color:rgba(0,130,200,.3);color:#1B3A70}
-html.light .filter-label{color:#3a5080}
-html.light .filter-sep{background:rgba(0,0,0,.12)}
-html.light .filter-reset{color:#cc2244;background:rgba(200,0,50,.06)}
+.filter-panel{background:rgba(255,255,255,.99);border-bottom:1px solid rgba(0,100,180,.12);box-shadow:0 4px 12px rgba(0,0,0,.06)}
+.sf-input-row{background:rgba(255,255,255,.95);border-color:rgba(0,130,200,.3);color:#0d1f45}
+.sf-input{color:#0d1f45}
+.sf-input::placeholder{color:#7a8599}
+.sf-dropdown{background:#ffffff;border-color:rgba(0,130,200,.25);box-shadow:0 8px 32px rgba(0,80,180,.15)}
+.sf-search input{background:#f5f7fa;border-color:rgba(0,130,200,.2);color:#0d1f45}
+.sf-search input::placeholder{color:#7a8599}
+.sf-opt{color:#0d1f45}
+.sf-opt:hover{background:rgba(0,130,200,.08)}
+.sf-opt.selected{color:#1a73c8;background:rgba(0,130,200,.1)}
+.sf-opt-all{color:#1B3A70;border-bottom-color:rgba(0,130,200,.15)}
+.sf-arrow{color:#5577aa}
+.sf-chip{background:rgba(0,130,200,.12);border-color:rgba(0,130,200,.3);color:#1a5fa8}
+.sf-option{color:#1B3A70}
+.sf-option:hover{background:rgba(0,130,200,.08)}
+.sf-option.selected{background:rgba(0,176,240,.12);color:#005580}
+.sf-chip{background:rgba(0,176,240,.15);color:#005580;border-color:rgba(0,176,240,.3)}
+.sf-chip-x{color:#005580}
+.btn-filtros{background:rgba(255,255,255,.9);border-color:rgba(0,130,200,.3);color:#1B3A70}
+.filter-label{color:#3a5080}
+.filter-sep{background:rgba(0,0,0,.12)}
+.filter-reset{color:#cc2244;background:rgba(200,0,50,.06)}
 
 /* ── LIGHT: motivos de gestión en panel gestor ── */
-html.light .gc-mot-txt{color:#1B3A70}
-html.light .gc-mot-item{background:rgba(255,255,255,.9);border-color:rgba(0,0,0,.08)}
-html.light .gc-mot-item:hover{background:rgba(0,80,180,.05);border-color:rgba(0,130,200,.2)}
-html.light .gc-mot-arrow{color:#5577aa}
-html.light .gc-motivos-title{color:var(--naranja)}
-html.light .gc-motivos-sub{color:#3a5080;border-bottom-color:rgba(0,0,0,.1)}
+.gc-mot-txt{color:var(--text-main)}
+.gc-mot-item{background:rgba(255,255,255,.9);border-color:rgba(0,0,0,.08)}
+.gc-mot-item:hover{background:rgba(0,80,180,.05);border-color:rgba(0,130,200,.2)}
+.gc-mot-arrow{color:#5577aa}
+.gc-motivos-title{color:var(--naranja)}
+.gc-motivos-sub{color:#3a5080;border-bottom-color:rgba(0,0,0,.1)}
 
 /* ── LIGHT: motivos análisis general ── */
-html.light .motivo-item .txt{color:#1B3A70}
-html.light .motivo-item{background:rgba(255,255,255,.9);border-color:rgba(0,0,0,.08)}
-html.light .motivo-item:hover{background:rgba(0,80,180,.05);border-color:rgba(0,130,200,.2)}
-html.light .motivo-item.motivo-active{background:rgba(52,211,153,.06);border-color:rgba(52,211,153,.4)}
-html.light .motivo-arrow{color:#5577aa}
-html.light .motivos-badge{color:#fff}
+.motivo-item .txt{color:#1B3A70}
+.motivo-item{background:rgba(255,255,255,.9);border-color:rgba(0,0,0,.08)}
+.motivo-item:hover{background:rgba(0,80,180,.05);border-color:rgba(0,130,200,.2)}
+.motivo-item.motivo-active{background:rgba(52,211,153,.06);border-color:rgba(52,211,153,.4)}
+.motivo-arrow{color:#5577aa}
+.motivos-badge{color:#fff}
 .tbl-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:20px;backdrop-filter:blur(6px);box-shadow:0 2px 16px rgba(0,0,0,.2)}
 .tbl-scroll{overflow-x:auto;overflow-y:auto;max-height:520px;}
 .tbl-scroll::-webkit-scrollbar{width:6px;height:6px}
@@ -365,7 +383,7 @@ tr:hover td{background:rgba(0,176,240,.06)}
 .motivos-list{display:flex;flex-direction:column;gap:4px}
 .motivo-item{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .15s,border-color .15s;user-select:none}.motivo-item:hover{background:rgba(255,255,255,.08);border-color:rgba(52,211,153,.3)}.motivo-item.motivo-active{background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.5)}
 .motivo-item .num{font-family:var(--font-cond);font-weight:800;font-size:16px;line-height:1;min-width:24px;flex-shrink:0}
-.motivo-item .txt{font-size:11.5px;color:#cfe0f5;line-height:1.35}
+.motivo-item .txt{font-size:11.5px;color:var(--text-main);line-height:1.35}
 .motivo-arrow{margin-left:auto;font-size:9px;color:var(--muted);transition:transform .2s;flex-shrink:0}
 .motivo-item.motivo-active .motivo-arrow{transform:rotate(180deg);color:var(--turquesa)}
 .motivo-detalle-wrap{border-radius:0 0 8px 8px;overflow:hidden;border:1px solid rgba(52,211,153,.25);border-top:none;background:rgba(0,5,20,.4);margin-top:-4px;margin-bottom:4px}
@@ -523,7 +541,7 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 .gc-mot-item.gc-mot-active{background:rgba(255,167,0,.08);border-color:rgba(255,167,0,.3)}
 .gc-mot-item.gc-mot-active-det{background:rgba(255,68,176,.08);border-color:rgba(255,68,176,.3)}
 .gc-mot-num{font-family:var(--font-cond);font-weight:800;font-size:15px;line-height:1;min-width:20px;flex-shrink:0}
-.gc-mot-txt{font-size:10.5px;color:#cfe0f5;line-height:1.3;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gc-mot-txt{font-size:10.5px;color:var(--text-main);line-height:1.3;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .gc-mot-arrow{font-size:8px;color:var(--muted);transition:transform .2s;flex-shrink:0}
 .gc-mot-item.gc-mot-active .gc-mot-arrow,.gc-mot-item.gc-mot-active-det .gc-mot-arrow{transform:rotate(180deg);color:var(--turquesa)}
 .gc-mot-detail{background:rgba(0,5,20,.5);border:1px solid rgba(52,211,153,.2);border-radius:0 0 6px 6px;margin-top:-3px;margin-bottom:4px;overflow:hidden}
@@ -538,7 +556,7 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 .gc-alert-row{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)}
 .gc-alert-semaforo{width:11px;height:11px;border-radius:50%;flex-shrink:0;margin-top:3px}
 .gc-alert-info{flex:1;min-width:0}
-.gc-alert-cliente{font-size:14px;color:#e8f0ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:.03em}
+.gc-alert-cliente{font-size:14px;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:.03em}
 .gc-alert-login{font-size:12px;color:var(--azul-c);font-weight:700;margin-top:2px}
 .gc-alert-motivo{font-size:11px;color:var(--amarillo);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gc-alert-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
@@ -553,9 +571,9 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 /* tabla detalle dentro panel */
 .gp-panel .gc-detail{display:block;border:none;padding:0;background:none}
 
-/* ── SIDEBAR ── */
+/* ── SIDEBAR LAYOUT ────────────────────────────────────────────── */
 .app-layout{display:flex;min-height:100vh}
-.sidebar{width:220px;min-height:100vh;background:#1B3A70;display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:300;transition:width .2s;box-shadow:2px 0 12px rgba(0,0,0,.18)}
+.sidebar{width:220px;min-height:100vh;background:#1B3A70;display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:300;transition:width .2s}
 .sidebar.collapsed{width:56px}
 .sb-brand{padding:14px 14px 12px;border-bottom:1px solid rgba(255,255,255,.1);flex-shrink:0}
 .sb-logo{display:flex;align-items:center;gap:10px;overflow:hidden}
@@ -588,11 +606,16 @@ thead th.sortable.sort-asc,thead th.sortable.sort-desc{color:var(--turquesa)}
 .sb-toggle:hover{background:rgba(255,255,255,.07);color:#fff}
 .sb-toggle-lbl{transition:opacity .15s;white-space:nowrap;overflow:hidden}
 .sidebar.collapsed .sb-toggle-lbl{opacity:0;width:0}
-.sb-collapse-btn{position:absolute;top:18px;right:-12px;width:24px;height:24px;border-radius:50%;background:#1B3A70;border:2px solid rgba(255,255,255,.3);color:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;transition:all .2s;z-index:10}
-.sb-collapse-btn:hover{background:#245090;color:#fff;border-color:rgba(255,255,255,.6)}
+/* collapse button */
+.sb-collapse-btn{position:absolute;top:50%;right:-12px;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;background:#1B3A70;border:2px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;transition:all .2s;z-index:10}
+.sb-collapse-btn:hover{background:#245090;color:#fff;border-color:rgba(255,255,255,.5)}
+/* Main area shifts right */
 .app-main{margin-left:220px;display:flex;flex-direction:column;min-height:100vh;transition:margin-left .2s;width:calc(100% - 220px)}
 body.sb-collapsed .app-main{margin-left:56px;width:calc(100% - 56px)}
 body.sb-collapsed .sidebar{width:56px}
+/* Light mode sidebar adjustments */
+.sidebar{box-shadow:2px 0 12px rgba(0,0,0,.08)}
+.sb-collapse-btn{background:#1B3A70;border-color:rgba(255,255,255,.3)}
 
 </style>
 </head>
@@ -601,7 +624,10 @@ body.sb-collapsed .sidebar{width:56px}
 
 <!-- SIDEBAR -->
 <nav class="sidebar" id="app-sidebar">
-  <div class="sb-collapse-btn" onclick="toggleSidebar()" title="Colapsar/Expandir">❮</div>
+  <!-- Collapse button -->
+  <div class="sb-collapse-btn" onclick="toggleSidebar()" title="Colapsar/Expandir" style="position:absolute;top:18px;right:-12px">❮</div>
+
+  <!-- Brand -->
   <div class="sb-brand">
     <div class="sb-logo">
       <div class="sb-icon">PEI</div>
@@ -611,11 +637,13 @@ body.sb-collapsed .sidebar{width:56px}
       </div>
     </div>
   </div>
+
+  <!-- Nav -->
   <div class="sb-nav">
     <div class="sb-section">Análisis General</div>
-    <div class="sb-item active" id="snav-t-ots" onclick="sbNav('analisis','ots')">
+    <div class="sb-item" id="snav-t-ots" onclick="sbNav('analisis','ots')">
       <span class="sb-ico">📦</span><span class="sb-lbl">Vista OTS</span>
-      <span class="sb-badge green" id="snav-badge-ots">—</span>
+      <span class="sb-badge" id="snav-badge-ots">—</span>
     </div>
     <div class="sb-item" id="snav-t-tareas" onclick="sbNav('analisis','tareas')">
       <span class="sb-ico">🗂</span><span class="sb-lbl">Vista Tareas</span>
@@ -624,29 +652,39 @@ body.sb-collapsed .sidebar{width:56px}
     <div class="sb-item" id="snav-t-ambos" onclick="sbNav('analisis','ambos')">
       <span class="sb-ico">⚡</span><span class="sb-lbl">Vista Ambos</span>
     </div>
+
     <div class="sb-section">Carga Pendientes</div>
-    <div class="sb-item" id="snav-op" onclick="sbNav('carga','operativo')" style="padding-left:14px">
+    <div class="sb-item" id="snav-op" onclick="sbNav('carga','tareas-op')" style="padding-left:14px">
       <span class="sb-ico">🔧</span><span class="sb-lbl">Operativo</span>
       <span class="sb-badge blue" id="snav-badge-op">—</span>
     </div>
-    <div class="sb-item" id="snav-pr" onclick="sbNav('carga','proyectos')" style="padding-left:14px">
+    <div class="sb-item" id="snav-pr" onclick="sbNav('carga','tareas-pr')" style="padding-left:14px">
       <span class="sb-ico">📐</span><span class="sb-lbl">Proyectos</span>
       <span class="sb-badge blue" id="snav-badge-pr">—</span>
     </div>
+
     <div class="sb-section">Exportar</div>
     <div class="sb-item" onclick="exportKpiExcel()">
       <span class="sb-ico">⬇</span><span class="sb-lbl">Excel OTS</span>
+      <span class="sb-badge" style="background:rgba(0,176,240,.2);color:var(--turquesa)">📋</span>
+    </div>
+    <div class="sb-item" onclick="exportarTareasExcel()">
+      <span class="sb-ico">⬇</span><span class="sb-lbl">Excel Tareas</span>
+      <span class="sb-badge" style="background:rgba(255,167,0,.2);color:#F5A623">📋</span>
     </div>
   </div>
+
+  <!-- Footer -->
   <div class="sb-footer">
     <div class="sb-user">
       <div class="sb-avatar">H</div>
       <div class="sb-user-info">
-        <div class="sb-uname">hchiluisatn2209</div>
-        <div class="sb-uemail">hchiluisatn@gmail.com</div>
+        <div class="sb-uname" id="sb-user-name">—</div>
+        <div class="sb-uemail" id="sb-user-email">hchiluisatn@gmail.com</div>
       </div>
     </div>
-    <div class="sb-toggle" onclick="loadAll()">
+
+    <div class="sb-toggle" onclick="loadAll()" style="color:rgba(255,255,255,.5)">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
       <span class="sb-toggle-lbl">Actualizar datos</span>
     </div>
@@ -659,17 +697,14 @@ body.sb-collapsed .sidebar{width:56px}
 <!-- HEADER -->
 <header>
   <div class="header-left">
-    <div class="logo-badge">PEI</div>
-    <div class="header-titles">
-      <h1>Dashboard Ejecutivo · <span style="color:var(--turquesa)">Órdenes PYL</span></h1>
+    <div style="display:flex;flex-direction:column">
+      <div style="font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase" id="page-breadcrumb">Análisis General</div>
+      <div class="header-titles" style="margin:0">
+        <h1 id="page-title">Dashboard Ejecutivo · <span style="color:var(--turquesa)">Órdenes y Tareas PEI</span></h1>
       <p>Proyectos e Implementación · Gestión de Pendientes</p>
     </div>
   </div>
   <div class="header-right">
-    <button class="btn-theme" id="btn-theme" onclick="toggleTheme()" title="Cambiar tema" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;border:1.5px solid rgba(0,176,240,.4);background:rgba(0,176,240,.1);color:var(--turquesa);cursor:pointer;transition:all .2s;flex-shrink:0">
-      <svg id="theme-icon-dark" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-      <svg id="theme-icon-light" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    </button>
     <button class="btn-update" onclick="loadAll()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
       Actualizar
@@ -712,9 +747,15 @@ body.sb-collapsed .sidebar{width:56px}
 
   <div class="filter-sep"></div>
 
-  <!-- Mes Preplan siempre visible -->
-  <span class="filter-label">Mes Preplan.</span>
-  <div class="sf-wrap" id="sf-preplan-mes"></div>
+  <!-- Gestor siempre visible -->
+  <span class="filter-label">Gestor</span>
+  <div class="sf-wrap" id="sf-gestor"></div>
+
+  <div class="filter-sep"></div>
+
+  <!-- Tipo Gestión siempre visible -->
+  <span class="filter-label">Tipo Gestión</span>
+  <div class="sf-wrap" id="sf-tipo-gestion"></div>
 
   <div class="filter-sep"></div>
 
@@ -730,193 +771,204 @@ body.sb-collapsed .sidebar{width:56px}
       <div class="sf-wrap" id="sf-grupo"></div>
     </div>
     <div class="filter-panel-item">
-      <span class="filter-label">Tipo Gestión</span>
-      <div class="sf-wrap" id="sf-tipo-gestion"></div>
-    </div>
-    <div class="filter-panel-item">
-      <span class="filter-label">Gestor</span>
-      <div class="sf-wrap" id="sf-gestor"></div>
-    </div>
-    <div class="filter-panel-item">
-      <span class="filter-label">Estado</span>
+      <span class="filter-label">Estado OT</span>
       <div class="sf-wrap" id="sf-estado"></div>
-    </div>
-    <div class="filter-panel-item">
-      <span class="filter-label">Tipo Empresa</span>
-      <div class="sf-wrap" id="sf-empresa"></div>
-    </div>
-    <div class="filter-panel-item">
-      <span class="filter-label">Tipo Enlace</span>
-      <div class="sf-wrap" id="sf-enlace"></div>
-    </div>
-    <div class="filter-panel-item">
-      <span class="filter-label">User</span>
-      <div class="sf-wrap" id="sf-user"></div>
     </div>
     <div class="filter-panel-item">
       <span class="filter-label">Login</span>
       <div class="sf-wrap" id="sf-login"></div>
     </div>
+    <div class="filter-panel-item">
+      <span class="filter-label">ID Tarea</span>
+      <div class="sf-wrap" id="sf-id-tarea"></div>
+    </div>
+    <div class="filter-panel-item">
+      <span class="filter-label">Estado Tarea</span>
+      <div class="sf-wrap" id="sf-estado-tarea"></div>
+    </div>
   </div>
 </div>
 
 <!-- TABS -->
-<div class="tabs-bar">
+<div class="tabs-bar" style="display:none">
   <div class="tab active" onclick="switchTab('analisis')">Análisis General</div>
   <div class="tab" onclick="switchTab('carga')">Carga por Gestor</div>
 </div>
 
 <main>
-  <!-- KPIs STICKY -->
-  <div class="kpi-sticky-wrap">
+  <!-- KPIs STICKY — solo visible en tab Análisis General y en sub-tabs de Tareas -->
+  <div class="kpi-sticky-wrap" id="kpi-sticky-wrap">
     <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
-      <span><span class="dot-sec"></span>Indicadores Clave · Estado Servicio</span>
-      <button class="btn-export-kpi" onclick="exportKpiExcel()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Exportar Excel
-      </button>
+      <span style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="toggleSection('kpi-body','btn-kpi-toggle')">
+        <span id="kpi-section-title"><span class="dot-sec"></span>Indicadores Clave · OTS</span>
+        <button id="btn-kpi-toggle" style="background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:6px;color:var(--muted);padding:2px 8px;font-size:13px;cursor:pointer;line-height:1;transition:transform .2s">▲</button>
+      </span>
+      <div style="display:flex;gap:8px">
+        <button class="btn-export-kpi" id="btn-export-ots" onclick="exportKpiExcel()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Excel OTS
+        </button>
+        <button class="btn-export-kpi" id="btn-export-tareas" onclick="exportarTareasExcel()" style="border-color:rgba(255,167,0,.4);background:rgba(255,167,0,.1);color:#FFA700;display:none">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Excel Tareas
+        </button>
+      </div>
     </div>
-  <div class="kpi-strip">
-    <div class="kpi-card" style="--ak:var(--turquesa)">
-      <div class="kpi-lbl">Total Órdenes</div>
-      <div class="kpi-val" id="k-total">—</div>
-      <div class="kpi-sub" id="k-total-s">registros cargados</div>
+    <div id="kpi-body">
+    <div id="kpi-strip-ots" class="kpi-strip">
+      <div class="kpi-card" style="--ak:var(--turquesa)">
+        <div class="kpi-lbl">Total Órdenes</div>
+        <div class="kpi-val" id="k-total">—</div>
+        <div class="kpi-sub" id="k-total-s">registros cargados</div>
+      </div>
+      <div class="kpi-card" style="--ak:#34D399">
+        <div class="kpi-lbl">Planificada</div>
+        <div class="kpi-val" id="k-plan">—</div>
+        <div class="kpi-sub" id="k-plan-s">coordinó actividad</div>
+      </div>
+      <div class="kpi-card" style="--ak:var(--magenta)">
+        <div class="kpi-lbl">Detenido</div>
+        <div class="kpi-val" id="k-det">—</div>
+        <div class="kpi-sub" id="k-det-s">cliente detuvo</div>
+      </div>
+      <div class="kpi-card" style="--ak:var(--amarillo)">
+        <div class="kpi-lbl">Replanificada</div>
+        <div class="kpi-val" id="k-rep">—</div>
+        <div class="kpi-sub" id="k-rep-s">no avanzó</div>
+      </div>
+      <div class="kpi-card" style="--ak:#7ED957">
+        <div class="kpi-lbl">AsignadoTarea</div>
+        <div class="kpi-val" id="k-asig">—</div>
+        <div class="kpi-sub" id="k-asig-s">listo a ejecutar</div>
+      </div>
+      <div class="kpi-card" style="--ak:var(--morado)">
+        <div class="kpi-lbl">PrePlanificada</div>
+        <div class="kpi-val" id="k-pre">—</div>
+        <div class="kpi-sub">sin gestor aún</div>
+      </div>
+      <div class="kpi-card" style="--ak:#00B0F0">
+        <div class="kpi-lbl">EnPruebas</div>
+        <div class="kpi-val" id="k-prueba">—</div>
+        <div class="kpi-sub" id="k-prueba-s">en validación</div>
+      </div>
+      <div class="kpi-card" style="--ak:#FF8C42">
+        <div class="kpi-lbl">EnVerificacion</div>
+        <div class="kpi-val" id="k-verif">—</div>
+        <div class="kpi-sub" id="k-verif-s">en revisión</div>
+      </div>
+      <div class="kpi-card" style="--ak:#6EBEEB">
+        <div class="kpi-lbl">Asignada</div>
+        <div class="kpi-val" id="k-asignada">—</div>
+        <div class="kpi-sub" id="k-asignada-s">asignada</div>
+      </div>
+      <div class="kpi-card" style="--ak:var(--azul-c)">
+        <div class="kpi-lbl">Gestores con Carga</div>
+        <div class="kpi-val" id="k-gest">—</div>
+        <div class="kpi-sub">Plan · Det · Replan · Asig</div>
+      </div>
+      <div class="kpi-card" style="--ak:var(--naranja)">
+        <div class="kpi-lbl">Hojas · Clientes</div>
+        <div class="kpi-val" id="k-misc">—</div>
+        <div class="kpi-sub" id="k-misc-s">fechas · empresas</div>
+      </div>
     </div>
-    <div class="kpi-card" style="--ak:#34D399">
-      <div class="kpi-lbl">Planificada</div>
-      <div class="kpi-val" id="k-plan">—</div>
-      <div class="kpi-sub" id="k-plan-s">coordinó actividad</div>
+    <!-- KPI Strip TAREAS — estados se renderizan dinámicamente -->
+    <div id="kpi-strip-tareas" class="kpi-strip" style="display:none">
+      <div class="kpi-card" style="--ak:#FFA700">
+        <div class="kpi-lbl">Total Tareas</div>
+        <div class="kpi-val" id="kt-total">—</div>
+        <div class="kpi-sub" id="kt-sub">tareas cargadas</div>
+      </div>
+      <!-- Los siguientes 7 cards se llenan dinámicamente con los estados reales -->
+      <div class="kpi-card" id="kt-est-0" style="--ak:#9BBCD8"><div class="kpi-lbl" id="kt-lbl-0">—</div><div class="kpi-val" id="kt-val-0">—</div><div class="kpi-sub" id="kt-pct-0"></div></div>
+      <div class="kpi-card" id="kt-est-1" style="--ak:#9BBCD8"><div class="kpi-lbl" id="kt-lbl-1">—</div><div class="kpi-val" id="kt-val-1">—</div><div class="kpi-sub" id="kt-pct-1"></div></div>
+      <div class="kpi-card" id="kt-est-2" style="--ak:#9BBCD8"><div class="kpi-lbl" id="kt-lbl-2">—</div><div class="kpi-val" id="kt-val-2">—</div><div class="kpi-sub" id="kt-pct-2"></div></div>
+      <div class="kpi-card" id="kt-est-3" style="--ak:#9BBCD8"><div class="kpi-lbl" id="kt-lbl-3">—</div><div class="kpi-val" id="kt-val-3">—</div><div class="kpi-sub" id="kt-pct-3"></div></div>
+      <div class="kpi-card" id="kt-est-4" style="--ak:#9BBCD8"><div class="kpi-lbl" id="kt-lbl-4">—</div><div class="kpi-val" id="kt-val-4">—</div><div class="kpi-sub" id="kt-pct-4"></div></div>
+      <div class="kpi-card" id="kt-est-5" style="--ak:#9BBCD8"><div class="kpi-lbl" id="kt-lbl-5">—</div><div class="kpi-val" id="kt-val-5">—</div><div class="kpi-sub" id="kt-pct-5"></div></div>
+      <div class="kpi-card" id="kt-est-6" style="--ak:#9BBCD8"><div class="kpi-lbl" id="kt-lbl-6">—</div><div class="kpi-val" id="kt-val-6">—</div><div class="kpi-sub" id="kt-pct-6"></div></div>
+      <!-- Cards fijos -->
+      <div class="kpi-card" style="--ak:var(--azul-c)">
+        <div class="kpi-lbl">Gestores</div>
+        <div class="kpi-val" id="kt-gestores">—</div>
+        <div class="kpi-sub">con tareas</div>
+      </div>
+      <div class="kpi-card" style="--ak:#00B0F0">
+        <div class="kpi-lbl">Procesos</div>
+        <div class="kpi-val" id="kt-procesos">—</div>
+        <div class="kpi-sub">distintos</div>
+      </div>
+      <div class="kpi-card" style="--ak:#8B6FE8">
+        <div class="kpi-lbl">Jurisdicciones</div>
+        <div class="kpi-val" id="kt-jurisdicciones">—</div>
+        <div class="kpi-sub">activas</div>
+      </div>
     </div>
-    <div class="kpi-card" style="--ak:var(--magenta)">
-      <div class="kpi-lbl">Detenido</div>
-      <div class="kpi-val" id="k-det">—</div>
-      <div class="kpi-sub" id="k-det-s">cliente detuvo</div>
-    </div>
-    <div class="kpi-card" style="--ak:var(--amarillo)">
-      <div class="kpi-lbl">Replanificada</div>
-      <div class="kpi-val" id="k-rep">—</div>
-      <div class="kpi-sub" id="k-rep-s">no avanzó</div>
-    </div>
-    <div class="kpi-card" style="--ak:#7ED957">
-      <div class="kpi-lbl">AsignadoTarea</div>
-      <div class="kpi-val" id="k-asig">—</div>
-      <div class="kpi-sub" id="k-asig-s">listo a ejecutar</div>
-    </div>
-    <div class="kpi-card" style="--ak:var(--morado)">
-      <div class="kpi-lbl">PrePlanificada</div>
-      <div class="kpi-val" id="k-pre">—</div>
-      <div class="kpi-sub">sin gestor aún</div>
-    </div>
-    <div class="kpi-card" style="--ak:#00B0F0">
-      <div class="kpi-lbl">EnPruebas</div>
-      <div class="kpi-val" id="k-prueba">—</div>
-      <div class="kpi-sub" id="k-prueba-s">en validación</div>
-    </div>
-    <div class="kpi-card" style="--ak:#FF8C42">
-      <div class="kpi-lbl">EnVerificacion</div>
-      <div class="kpi-val" id="k-verif">—</div>
-      <div class="kpi-sub" id="k-verif-s">en revisión</div>
-    </div>
-    <div class="kpi-card" style="--ak:#6EBEEB">
-      <div class="kpi-lbl">Asignada</div>
-      <div class="kpi-val" id="k-asignada">—</div>
-      <div class="kpi-sub" id="k-asignada-s">asignada</div>
-    </div>
-    <div class="kpi-card" style="--ak:var(--azul-c)">
-      <div class="kpi-lbl">Gestores con Carga</div>
-      <div class="kpi-val" id="k-gest">—</div>
-      <div class="kpi-sub">Plan · Det · Replan · Asig</div>
-    </div>
-    <div class="kpi-card" style="--ak:var(--naranja)">
-      <div class="kpi-lbl">Hojas · Clientes</div>
-      <div class="kpi-val" id="k-misc">—</div>
-      <div class="kpi-sub" id="k-misc-s">fechas · empresas</div>
-    </div>
-  </div>
+  </div><!-- /kpi-body -->
   </div><!-- /kpi-sticky-wrap -->
 
   <div style="padding-top:22px">
 
   <!-- TAB CARGA -->
   <div id="tab-carga" style="display:none">
-    <div class="section-title"><span class="dot-sec"></span>Carga por Gestor · Desglose de Estados</div>
+    <div class="section-title" style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="toggleSection('carga-body','btn-carga-toggle')">
+      <span><span class="dot-sec"></span>Carga por Gestor · Desglose de Estados</span>
+      <button id="btn-carga-toggle" style="background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:6px;color:var(--muted);padding:2px 8px;font-size:13px;cursor:pointer;line-height:1;transition:transform .2s">▲</button>
+    </div>
+    <div id="carga-body">
     <div id="nota-corte" style="display:none;margin-bottom:10px;padding:8px 16px;background:rgba(0,176,240,.07);border:1px solid rgba(0,176,240,.2);border-radius:8px;font-size:13px;color:var(--azul-c)">
       📅 <strong>Corte activo</strong> — mostrando registros de la hoja seleccionada.
     </div>
     <!-- Sub-pestañas por tipo de gestión -->
     <div class="carga-subtabs">
-      <div class="carga-subtab active" id="cst-operativo" onclick="switchCargaSubTab('operativo')">
-        🔧 OTS Operativo <span class="st-badge" id="cst-badge-operativo">0</span>
-      </div>
-      <div class="carga-subtab" id="cst-proyectos" onclick="switchCargaSubTab('proyectos')">
-        📐 OTS Proyectos <span class="st-badge" id="cst-badge-proyectos">0</span>
-      </div>
-      <div class="carga-subtab" id="cst-tareas-op" onclick="switchCargaSubTab('tareas-op')">
-        🗂 Tareas Operativo <span class="st-badge" id="cst-badge-tareas-op" style="background:rgba(255,167,0,.2);color:#FFA700">0</span>
+      <div class="carga-subtab active" id="cst-tareas-op" onclick="switchCargaSubTab('tareas-op')">
+        🔧 Carga Operativo <span class="st-badge" id="cst-badge-tareas-op" style="background:rgba(255,167,0,.2);color:#FFA700">0</span>
       </div>
       <div class="carga-subtab" id="cst-tareas-pr" onclick="switchCargaSubTab('tareas-pr')">
-        📋 Tareas Proyectos <span class="st-badge" id="cst-badge-tareas-pr" style="background:rgba(255,167,0,.2);color:#FFA700">0</span>
+        📐 Carga Proyectos <span class="st-badge" id="cst-badge-tareas-pr" style="background:rgba(255,167,0,.2);color:#FFA700">0</span>
       </div>
     </div>
-    <div id="gestores-grid-operativo"><div class="empty">Cargando...</div></div>
-    <div id="gestores-grid-proyectos" style="display:none"><div class="empty">Cargando...</div></div>
-    <div id="gestores-grid-tareas-op" style="display:none">
-      <div style="padding:20px;text-align:center;color:var(--muted)">⏳ Cargando tareas…</div>
+    <!-- Grids OTS ocultos permanentemente (sus datos se renderizan dentro de las cards de Tareas) -->
+    <div id="gestores-grid-operativo" style="display:none"></div>
+    <div id="gestores-grid-proyectos" style="display:none"></div>
+    <div id="gestores-grid-tareas-op">
+      <div style="padding:20px;text-align:center;color:var(--muted)">⏳ Cargando…</div>
     </div>
     <div id="gestores-grid-tareas-pr" style="display:none">
-      <div style="padding:20px;text-align:center;color:var(--muted)">⏳ Cargando tareas…</div>
+      <div style="padding:20px;text-align:center;color:var(--muted)">⏳ Cargando…</div>
     </div>
-    <!-- Panel compartido de análisis/detalle del gestor seleccionado -->
-    <div class="gestor-panel" id="gestor-panel"></div>
-    <!-- alias para compatibilidad -->
+    <!-- Panel OTS individual oculto permanentemente -->
+    <div class="gestor-panel" id="gestor-panel" style="display:none"></div>
     <div id="gestores-grid" style="display:none"></div>
-
-    <!-- DETALLE GESTOR SELECCIONADO -->
-    <div id="detalle-gestor-wrap" style="display:none">
-      <div class="section-title"><span class="dot-sec" style="background:var(--magenta)"></span>
-        Detalle de órdenes · <span id="detalle-gestor-nombre" style="color:var(--turquesa)">—</span>
-        <button onclick="exportarExcel()" style="margin-left:auto;display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1.5px solid rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#34D399;font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;letter-spacing:.5px;white-space:nowrap">
-          ⬇ Exportar Excel
-        </button>
-      </div>
-      <div class="tbl-card" style="margin-bottom:20px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
-          <span id="detalle-count" style="font-family:var(--font-cond);font-size:11px;color:var(--muted);letter-spacing:1px"></span>
-          <div style="display:flex;gap:6px;flex-wrap:wrap" id="detalle-estado-filtros"></div>
-        </div>
-        <div class="tbl-scroll">
-          <table id="tbl-detalle">
-            <thead><tr>
-              <th>#</th>
-              <th class="sortable" data-col="FE_PREPLANIFICADA_DMA" onclick="sortDetalle(this)">Fec. Solicitud</th>
-              <th class="sortable" data-col="EMPRESA" onclick="sortDetalle(this)">Tipo Empresa</th>
-              <th>User</th>
-              <th class="sortable" data-col="LOGIN" onclick="sortDetalle(this)">Login</th>
-              <th class="sortable" data-col="CLIENTE" onclick="sortDetalle(this)">Cliente</th>
-              <th class="sortable" data-col="EST" onclick="sortDetalle(this)">Estado Servicio</th>
-              <th class="sortable" data-col="PRODUCTO" onclick="sortDetalle(this)">Producto</th>
-              <th class="sortable" data-col="TIPO_ORDEN" onclick="sortDetalle(this)">Tipo Orden</th>
-              <th class="sortable" data-col="SUCURSAL" onclick="sortDetalle(this)">Téc. Sucursal</th>
-              <th class="sortable" data-col="FE_PLAN" onclick="sortDetalle(this)">FE Últ Plan</th>
-              <th class="sortable" data-col="DIAS" onclick="sortDetalle(this)">Días sin gestión</th>
-              <th>Obs Últ Plan</th>
-              <th class="sortable" data-col="MOTIVO" onclick="sortDetalle(this)">Motivo</th>
-              <th>Obs Replanif.</th>
-              <th class="sortable" data-col="CONTRATO" onclick="sortDetalle(this)">Est. Contrato</th>
-              <th class="sortable" data-col="VENDEDOR" onclick="sortDetalle(this)">Vendedor</th>
-            </tr></thead>
-            <tbody id="tbl-detalle-body"><tr><td colspan="17" class="empty">Selecciona un gestor en el gráfico</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
+    <div id="detalle-gestor-wrap" style="display:none"></div>
+  </div><!-- /carga-body -->
+  </div><!-- /padding-top -->
 
 
 
   <!-- TAB ANALISIS -->
   <div id="tab-analisis">
-    <div class="section-title"><span class="dot-sec"></span>Análisis General</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+      <div class="section-title" style="margin:0"><span class="dot-sec"></span>Análisis General</div>
+      <!-- Toggle vista OTS / Tareas / Ambos -->
+      <div style="display:flex;gap:0;border:1.5px solid rgba(0,176,240,.25);border-radius:20px;overflow:hidden">
+        <button id="av-btn-ots" onclick="switchAnalisisVista('ots')"
+          style="padding:5px 16px;border:none;background:rgba(0,176,240,.18);color:var(--turquesa);font-family:var(--font-cond);font-weight:700;font-size:11px;letter-spacing:1px;cursor:pointer;transition:all .18s">
+          📦 OTS
+        </button>
+        <button id="av-btn-tareas" onclick="switchAnalisisVista('tareas')"
+          style="padding:5px 16px;border:none;background:transparent;color:var(--muted);font-family:var(--font-cond);font-weight:700;font-size:11px;letter-spacing:1px;cursor:pointer;transition:all .18s">
+          🗂 Tareas
+        </button>
+        <button id="av-btn-ambos" onclick="switchAnalisisVista('ambos')"
+          style="padding:5px 16px;border:none;background:transparent;color:var(--muted);font-family:var(--font-cond);font-weight:700;font-size:11px;letter-spacing:1px;cursor:pointer;transition:all .18s">
+          ⚡ Ambos
+        </button>
+      </div>
+    </div>
+
+    <!-- Vista OTS (default) -->
+    <div id="av-ots">
 
     <!-- ── RESUMEN POR TIPO GESTIÓN ── -->
     <div class="tbl-card" style="margin-bottom:20px">
@@ -1019,20 +1071,43 @@ body.sb-collapsed .sidebar{width:56px}
       </table>
     </div>
     </div><!-- /padding-top -->
+    </div><!-- /av-ots -->
 
-    <!-- ══ ANÁLISIS TAREAS ══ -->
-    <div id="tareas-analisis-wrap" style="margin-top:28px">
-      <div class="section-title" style="color:#FFA700">
+    <!-- Vista Tareas -->
+    <div id="av-tareas" style="display:none">
+      <div class="section-title" style="color:#FFA700;margin-bottom:16px">
         <span class="dot-sec" style="background:#FFA700"></span>
         Análisis Tareas Pendientes PEI
         <span id="tareas-badge-total" style="font-family:var(--font-cond);font-size:11px;background:rgba(255,167,0,.15);color:#FFA700;border:1px solid rgba(255,167,0,.3);padding:2px 10px;border-radius:20px;margin-left:8px"></span>
       </div>
       <div id="tareas-analisis-body">
         <div style="text-align:center;padding:30px;color:var(--muted)">
-          Ve a <b style="color:var(--turquesa)">Carga por Gestor → Tareas Operativo</b> para activar la carga de tareas.
+          <div style="font-size:24px;margin-bottom:8px">⏳</div>
+          Cargando tareas desde Google Sheets…
         </div>
       </div>
     </div>
+
+    <!-- Vista Ambos (side by side) -->
+    <div id="av-ambos" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+        <div>
+          <div class="section-title" style="margin-bottom:12px"><span class="dot-sec"></span>OTS · Resumen</div>
+          <div id="av-ambos-ots"></div>
+        </div>
+        <div>
+          <div class="section-title" style="color:#FFA700;margin-bottom:12px">
+            <span class="dot-sec" style="background:#FFA700"></span>Tareas PEI · Resumen
+            <span id="tareas-badge-total-b" style="font-family:var(--font-cond);font-size:11px;background:rgba(255,167,0,.15);color:#FFA700;border:1px solid rgba(255,167,0,.3);padding:2px 10px;border-radius:20px;margin-left:8px"></span>
+          </div>
+          <div id="av-ambos-tareas">
+            <div style="text-align:center;padding:30px;color:var(--muted)">⏳ Cargando tareas…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tab-analisis -->
 
 </main>
 <footer id="footer-txt">GTN · PEI PENDIENTES · Proyectos e Implementación</footer>
@@ -1059,7 +1134,8 @@ const KNOWN_SHEETS = [
   //  {fecha:'07-07-26',gid:494955224},
   //  {fecha:'08-07-26',gid:1901801479},
   //  {fecha:'17-07-26',gid:1731121928},
-    {fecha:'23-07-26',gid:306558480},
+  //  {fecha:'23-07-26',gid:306558480},
+      {fecha:'05-08-26',gid:1874107970},
 ];
 
 const C={
@@ -1398,10 +1474,41 @@ function setProgress(done,total){
   document.getElementById('prog-bar').style.width=(done/total*100)+'%';
 }
 
+// ── COLAPSAR / EXPANDIR SECCIONES ──────────────────────────────────────
+function toggleSection(bodyId, btnId){
+  const body = document.getElementById(bodyId);
+  const btn  = document.getElementById(btnId);
+  if(!body) return;
+  const collapsed = body.style.display === 'none';
+  body.style.display = collapsed ? '' : 'none';
+  if(btn){ btn.textContent = collapsed ? '▲' : '▼'; }
+}
+
 // ── TABS ───────────────────────────────────────────────────────────────
 function switchTab(t){
   ['analisis','carga'].forEach(id=>document.getElementById('tab-'+id).style.display=id===t?'':'none');
   document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['analisis','carga'][i]===t));
+  const kpiWrap   = document.getElementById('kpi-sticky-wrap');
+  const otsStrip  = document.getElementById('kpi-strip-ots');
+  const tarStrip  = document.getElementById('kpi-strip-tareas');
+  const titulo    = document.getElementById('kpi-section-title');
+  const btnOts    = document.getElementById('btn-export-ots');
+  if(t==='analisis'){
+    // Mostrar AMBOS strips
+    if(kpiWrap)  kpiWrap.style.display  = '';
+    if(otsStrip) otsStrip.style.display = '';
+    if(tarStrip) tarStrip.style.display = _tareas.length ? '' : 'none';
+    if(titulo) titulo.innerHTML = '<span class="dot-sec"></span>Indicadores Clave · OTS &nbsp;|&nbsp; <span style="color:#FFA700">Tareas PEI</span>';
+    if(btnOts) btnOts.style.display = '';
+  } else {
+    // Carga por Gestor: mostrar KPIs de OTS + Tareas
+    if(kpiWrap)  kpiWrap.style.display  = '';
+    if(otsStrip) otsStrip.style.display = '';
+    if(tarStrip) tarStrip.style.display = '';
+    if(titulo) titulo.innerHTML = '<span class="dot-sec"></span>Indicadores Clave · <span style="color:var(--turquesa)">Órdenes</span> &nbsp;+&nbsp; <span style="color:#FFA700">Tareas PEI</span>';
+    if(btnOts) btnOts.style.display = '';
+    switchCargaSubTab('tareas-op');
+  }
 }
 
 // ── SEARCHABLE MULTI-SELECT FILTERS ────────────────────────────────────
@@ -1540,13 +1647,12 @@ function initFilters(){
   sfCreate('sf-grupo','Todos');
   sfCreate('sf-tipo-gestion','Todos');
   sfCreate('sf-gestor','Todos');
-  sfCreate('sf-user','Todos');
   sfCreate('sf-estado','Todos');
-  sfCreate('sf-empresa','Todos');
-  sfCreate('sf-enlace','Todos');
   sfCreate('sf-login','Buscar login...');
   sfCreate('sf-fecha','Todas');
-  sfCreate('sf-preplan-mes','Todos');
+  sfCreate('sf-preplan-mes','Todos'); // mantenido internamente para compatibilidad
+  sfCreate('sf-id-tarea','Buscar ID Tarea...');
+  sfCreate('sf-estado-tarea','Todos');
 }
 
 function populateSel(sfId,vals,desc=false,sortFn=null){
@@ -1554,25 +1660,19 @@ function populateSel(sfId,vals,desc=false,sortFn=null){
 }
 
 function applyFilters(){
-  const grp=sfGetVals('sf-grupo');
-  const tg =sfGetVals('sf-tipo-gestion');
-  const g  =sfGetVals('sf-gestor');
-  const us =sfGetVals('sf-user');
-  const e  =sfGetVals('sf-estado');
-  const t  =sfGetVals('sf-empresa');
-  const l  =sfGetVals('sf-enlace');
-  const lg =sfGetVals('sf-login');
-  const f  =sfGetVals('sf-fecha');
-  const pm =sfGetVals('sf-preplan-mes');
+  const grp = sfGetVals('sf-grupo');
+  const tg  = sfGetVals('sf-tipo-gestion');
+  const g   = sfGetVals('sf-gestor');
+  const e   = sfGetVals('sf-estado');
+  const lg  = sfGetVals('sf-login');
+  const f   = sfGetVals('sf-fecha');
+  const pm  = sfGetVals('sf-preplan-mes');
 
   filtered=allData.filter(r=>
     (!grp || grp.has(r[C.GRUPO]))&&
     (!tg  || tg.has(r[C.TIPO_GESTION]))&&
     (!g   || g.has(r[C.GESTOR]))&&
-    (!us  || us.has(r._user))&&
     (!e   || e.has(getEst(r)))&&
-    (!t   || t.has(r[C.EMPRESA]))&&
-    (!l   || l.has(r[C.ENLACE]))&&
     (!lg  || lg.has(r[C.LOGIN]))&&
     (!f   || f.has(r._fecha))&&
     (!pm  || pm.has(r._preplanMes))
@@ -1583,6 +1683,17 @@ function applyFilters(){
 
   updateFiltrosCount();
   renderAll();
+  if(typeof updateSidebarBadges==="function") updateSidebarBadges();
+
+  // Aplicar filtros a Tareas: gestor + tipo gestión + estado_tarea + id_tarea
+  if(_tareas.length) setTimeout(()=>{
+    renderTareasGestores();
+    renderKpisTareas();
+    if(_analisisVista==='tareas'||_analisisVista==='ambos'){
+      _renderAnalisisTareasEnContenedor('tareas-analisis-body');
+      _renderAnalisisTareasEnContenedor('av-ambos-tareas');
+    }
+  }, 50);
 }
 
 function toggleFiltrosPanel(){
@@ -1595,7 +1706,7 @@ function toggleFiltrosPanel(){
 }
 
 function updateFiltrosCount(){
-  const IDS=['sf-grupo','sf-tipo-gestion','sf-gestor','sf-estado','sf-empresa','sf-enlace','sf-user','sf-login'];
+  const IDS=['sf-grupo','sf-tipo-gestion','sf-gestor','sf-estado','sf-login','sf-id-tarea','sf-estado-tarea'];
   const count=IDS.reduce((s,id)=>s+(SF[id]&&SF[id].selected.size>0?1:0),0);
   const badge=document.getElementById('btn-filtros-count');
   if(badge){if(count>0){badge.textContent=count;badge.style.display='inline-block';}else{badge.style.display='none';}}
@@ -1612,6 +1723,7 @@ function clearFilters(){
   if(notaCorte)notaCorte.style.display='none';
   updateFiltrosCount();
   renderAll();
+  if(_tareas.length) setTimeout(()=>{ renderTareasGestores(); renderKpisTareas(); }, 50);
 }
 
 // ── KPIs ───────────────────────────────────────────────────────────────
@@ -1632,6 +1744,8 @@ function renderKPIs(){
   const pct  =v=>n?Math.round(v/n*100)+'%':'—';
 
   document.getElementById('k-total').textContent=n.toLocaleString('es-EC');
+  const _bOts=document.getElementById('snav-badge-ots');
+  if(_bOts) _bOts.textContent=n||'—';
   document.getElementById('k-gest').textContent=gest;
   document.getElementById('k-plan').textContent=plan.toLocaleString('es-EC');
   document.getElementById('k-det').textContent=det.toLocaleString('es-EC');
@@ -2828,6 +2942,7 @@ function renderAll(){
   _renderAllRunning=true;
   try{renderKPIs();}catch(e){console.error('[renderKPIs]',e);}
   try{renderGestores();}catch(e){console.error('[renderGestores]',e);}
+  // Si hay un gestor seleccionado, mantener y refrescar su detalle con los nuevos filtros
   if(_gestorSeleccionado){
     const wrap=document.getElementById('detalle-gestor-wrap');
     if(wrap)wrap.style.display='';
@@ -2836,6 +2951,7 @@ function renderAll(){
     const wrap=document.getElementById('detalle-gestor-wrap');
     if(wrap)wrap.style.display='none';
   }
+  // Gráficos de análisis — sin deduplicación
   try{segmentedHBar('ch-gestores',10);}catch(e){console.error('[segmentedHBar]',e);}
   try{doughnut('ch-estado',topN(count(filtered,C.EST),8),'leg-estado',(v)=>filterByClick('sf-estado',v));}catch(e){console.error('[doughnut-estado]',e);}
   try{renderMotivos();}catch(e){console.error('[renderMotivos]',e);}
@@ -2848,7 +2964,6 @@ function renderAll(){
   }catch(e){console.error('[doughnut-empresa]',e);}
   try{renderTendPrePlan();}catch(e){console.error('[renderTendPrePlan]',e);}
   try{renderResumen();}catch(e){console.error('[renderResumen]',e);}
-  try{updateSidebarBadges();}catch(e){}
   _renderAllRunning=false;
 }
 
@@ -3016,16 +3131,10 @@ async function loadAll(){
   populateSel('sf-grupo',        allData.map(r=>r[C.GRUPO]));
   populateSel('sf-tipo-gestion', allData.map(r=>r[C.TIPO_GESTION]));
   populateSel('sf-gestor', allData.map(r=>r[C.GESTOR]).filter(g=>!GESTOR_EXCLUIDOS.includes((g||'').trim().toLowerCase())));
-  populateSel('sf-user',   allData.map(r=>r._user));
   const ESTADOS_OK=['Planificada','Detenido','Replanificada','AsignadoTarea','PrePlanificada','EnPruebas','EnVerificacion','Asignada'];
   populateSel('sf-estado', allData.map(r=>getEst(r)).filter(v=>ESTADOS_OK.includes(v)));
-  populateSel('sf-empresa',allData.map(r=>r[C.EMPRESA]));
-  populateSel('sf-enlace', allData.map(r=>r[C.ENLACE]));
   populateSel('sf-fecha',  allData.map(r=>r._fecha), true);
   populateSel('sf-login',  allData.map(r=>r[C.LOGIN]));
-  const _mesKeyMap={};
-  allData.forEach(r=>{if(r._preplanMes)_mesKeyMap[r._preplanMes]=r._preplanMesKey;});
-  populateSel('sf-preplan-mes', allData.map(r=>r._preplanMes), false, (a,b)=>_mesKeyMap[a]-_mesKeyMap[b]);
 
   filtered=[...allData];
   renderAll();
@@ -3416,29 +3525,7 @@ function switchGpTab(tab){
 }
 
 // ── TOGGLE DARK / LIGHT ──────────────────────────────────────────────────
-function toggleTheme(){
-  const isLight=document.documentElement.classList.toggle('light');
-  document.getElementById('theme-icon-dark').style.display=isLight?'none':'block';
-  document.getElementById('theme-icon-light').style.display=isLight?'block':'none';
-  localStorage.setItem('pei-theme', isLight?'light':'dark');
-  // Re-renderizar charts para que tomen los colores correctos del nuevo tema
-  const gc=Chart.getChart?undefined:undefined;
-  Object.values(charts).forEach(ch=>{ if(ch){ch.options.scales?.x&&(ch.options.scales.x.grid.color=GC);ch.options.scales?.y&&(ch.options.scales.y.grid.color=GC);ch.update('none');} });
-}
-
-// Restaurar tema guardado al cargar
-(function(){
-  const saved=localStorage.getItem('pei-theme');
-  if(saved==='light'){
-    document.documentElement.classList.add('light');
-    document.addEventListener('DOMContentLoaded',()=>{
-      const di=document.getElementById('theme-icon-dark');
-      const li=document.getElementById('theme-icon-light');
-      if(di)di.style.display='none';
-      if(li)li.style.display='block';
-    });
-  }
-})();
+// Light mode siempre activo
 
 
 
@@ -3456,7 +3543,21 @@ document.addEventListener('mousedown',function(ev){
 
 const SHEET_ID_TAREAS = '1SMRqn8HFhbZW0HhDdoK--9Met-sBfg2gcsse4Niaa64';
 const GID_TAREAS      = 88454513;
-const tcol = e => ({'Pendiente':'#FFA700','En Proceso':'#00B0F0','Completada':'#34D399','Cancelada':'#FF44B0','Bloqueada':'#FF6F42','En Revision':'#8B6FE8','Asignada':'#6EBEEB'}[e]||'#9BBCD8');
+const tcol = e => ({
+  // Estados reales de ESTADO_TAREA
+  'Asignada':      '#6EBEEB',
+  'Aceptada':      '#34D399',
+  'Pausada':       '#FF6F42',
+  'Reprogramada':  '#FFA700',
+  // Otros posibles
+  'Pendiente':     '#FFA700',
+  'En Proceso':    '#00B0F0',
+  'Completada':    '#34D399',
+  'Cancelada':     '#FF44B0',
+  'Bloqueada':     '#FF6F42',
+  'En Revision':   '#8B6FE8',
+  'En Revisión':   '#8B6FE8',
+}[e] || '#9BBCD8');
 
 // Mapeo login -> nombre completo, equipo, tipo, ciudad
 const PERSONAL_MAP_TAREAS = {
@@ -3510,22 +3611,47 @@ const PERSONAL_MAP_TAREAS = {
 
 const getPM = login => PERSONAL_MAP_TAREAS[(login||'').toLowerCase().trim()] || null;
 
-let _tareas = [], _tareasLoading = false;
+let _tareas = [], _tareasLoading = false, _analisisVista = 'ots';
 
 // Extender switchCargaSubTab para incluir tabs de tareas
 const _origSwitch = switchCargaSubTab;
-switchCargaSubTab = function(tipo){
-  const all = ['operativo','proyectos','tareas-op','tareas-pr'];
-  _cargaSubTab = tipo;
-  all.forEach(t=>{
-    document.getElementById('cst-'+t)?.classList.toggle('active', t===tipo);
-    const g=document.getElementById('gestores-grid-'+t);
-    if(g) g.style.display = t===tipo?'':'none';
+switchCargaSubTab = function(tipo, fromSidebar){
+  // Solo 2 tabs: Carga Operativo (tareas-op) y Carga Proyectos (tareas-pr)
+  const t = (tipo==='operativo'||tipo==='tareas-op') ? 'tareas-op' : 'tareas-pr';
+  _cargaSubTab = t;
+
+  ['tareas-op','tareas-pr'].forEach(id=>{
+    document.getElementById('cst-'+id)?.classList.toggle('active', id===t);
+    const g=document.getElementById('gestores-grid-'+id);
+    if(g) g.style.display = id===t?'':'none';
   });
-  if(tipo==='tareas-op'||tipo==='tareas-pr'){
-    if(!_tareas.length && !_tareasLoading) loadTareas();
-    else renderTareasGestores();
+
+  // Si viene del sidebar, ocultar la sub-tab que no corresponde y mostrar solo la activa
+  const subtabsWrap = document.querySelector('.carga-subtabs');
+  if(fromSidebar && subtabsWrap){
+    subtabsWrap.querySelectorAll('.carga-subtab').forEach(el=>{
+      el.style.display = el.id === 'cst-'+t ? '' : 'none';
+    });
+  } else if(subtabsWrap){
+    subtabsWrap.querySelectorAll('.carga-subtab').forEach(el=>{
+      el.style.display = '';
+    });
   }
+
+  // Siempre KPIs de Tareas en esta sección
+  const kpiWrap    = document.getElementById('kpi-sticky-wrap');
+  const otsStrip   = document.getElementById('kpi-strip-ots');
+  const tareasStrip= document.getElementById('kpi-strip-tareas');
+  const titulo     = document.getElementById('kpi-section-title');
+  const btnOts     = document.getElementById('btn-export-ots');
+  if(kpiWrap)     kpiWrap.style.display     = '';
+  if(otsStrip)    otsStrip.style.display    = '';
+  if(tareasStrip) tareasStrip.style.display = '';
+  if(titulo) titulo.innerHTML = '<span class="dot-sec"></span>Indicadores Clave · <span style="color:var(--turquesa)">Órdenes</span> &nbsp;+&nbsp; <span style="color:#FFA700">Tareas PEI</span>';
+  if(btnOts) btnOts.style.display = '';
+
+  if(!_tareas.length && !_tareasLoading) loadTareas();
+  else { renderKpisTareas(); renderTareasGestores(); }
 };
 
 async function loadTareas(){
@@ -3542,67 +3668,88 @@ async function loadTareas(){
     const cols=json.table.cols.map(c=>(c.label||c.id||'').trim());
     console.log('[Tareas] Columnas:', cols);
 
-    // Detectar índice del campo login del gestor (ULT USUARIO ASIGNADO = login)
+
     const fi=fn=>cols.findIndex(fn);
-    const iLogin = fi(c=>c.includes('ULT USUARIO')||c==='ULT USUARIO ASIGNADO');
-    const iEstado= fi(c=>c==='ESTADO_TAREA');
-    const iJuris = fi(c=>c==='JURISDICCION_LOGIN_TAREA');
-    const iProceso=fi(c=>c==='NOMBRE_PROCESO');
-    const iTarea = fi(c=>c==='NOMBRE_TAREA');
-    const iId    = fi(c=>c==='ID_TAREA');
-    const iAnno  = fi(c=>c.includes('AÑO'));
-    const iMes   = fi(c=>c.includes('MES'));
+    // NOMBRE_USR_ULT_PLAN contiene el login directamente (hchiluisa, aarroyo, etc.)
+    // ULT USUARIO ASIGNADO contiene el nombre completo (fallback)
+    const iNombreUlt  = fi(c=>c==="NOMBRE_USR_ULT_PLAN");
+    const iUltUser    = fi(c=>c==="ULT USUARIO ASIGNADO"||c==="ULT_USUARIO_ASIGNADO");
+    const iEstado     = fi(c=>c==="ESTADO_TAREA");
+    const iJuris      = fi(c=>c==="JURISDICCION_LOGIN_TAREA");
+    const iProceso    = fi(c=>c==="NOMBRE_PROCESO");
+    const iTarea      = fi(c=>c==="NOMBRE_TAREA");
+    const iId         = fi(c=>c==="ID_TAREA");
+    const iAnno       = fi(c=>c.includes("AÑO"));
+    const iMes        = fi(c=>c.includes("MES"));
+    const iLogin      = fi(c=>c==="LOGIN.TAREA"||c==="LOGIN_TAREA"||c==="LOGIN");
+    const iFechaAsig  = fi(c=>c==="FECHA_ASIGNADA");
+    console.log("[Tareas] Indices: nombreUlt="+iNombreUlt+" estado="+iEstado+" fechaAsig="+iFechaAsig);
 
-    const cv=(row,i)=>i>=0?(row.c?.[i]?.v!=null?String(row.c[i].v):(row.c?.[i]?.f||'')):'';
-
-    // Construir lookup inverso: nombre_completo_normalizado -> {login, ...datos}
-    const nombreToLogin = {};
+    // Construir lookup inverso nombre completo -> login (para fallback)
+    const _nameToLogin = {};
     Object.entries(PERSONAL_MAP_TAREAS).forEach(([login, d])=>{
-      // Normalizar: minúsculas, sin tildes, sin espacios extra
-      const norm = d.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
-      nombreToLogin[norm] = {login, ...d};
+      const words = d.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').split(/\s+/).filter(w=>w.length>2);
+      words.forEach(w=>{ if(!_nameToLogin[w]) _nameToLogin[w]=[]; _nameToLogin[w].push(login); });
     });
 
-    const resolveGestor = (rawVal) => {
-      const raw = rawVal.trim();
-      if(!raw) return {login:'sin-gestor', gestor:'Sin gestor', tipo:'OTROS', equipo:'—', ciudad:'—'};
-      // Intentar match directo por login (minúsculas)
-      const byLogin = getPM(raw.toLowerCase());
-      if(byLogin) return {login:raw.toLowerCase(), gestor:raw.toLowerCase(), tipo:byLogin.tipo, equipo:byLogin.equipo, ciudad:byLogin.ciudad};
-      // Intentar match por nombre completo normalizado
-      const norm = raw.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
-      const found = nombreToLogin[norm];
-      if(found) return {login:found.login, gestor:found.login, tipo:found.tipo, equipo:found.equipo, ciudad:found.ciudad};
-      // Fallback: usar el valor tal cual
-      return {login:raw, gestor:raw, tipo:'OTROS', equipo:'—', ciudad:'—'};
+    const resolveLogin = (rawLogin, rawNombre) => {
+      // 1. Match directo por login (NOMBRE_USR_ULT_PLAN ya trae el login)
+      const l = (rawLogin||'').trim().toLowerCase();
+      if(l && getPM(l)) return l;
+      // 2. Si no, intentar word-match con el nombre completo
+      const raw = (rawNombre||rawLogin||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      const words = raw.split(/\s+/).filter(w=>w.length>2);
+      const scores = {};
+      words.forEach(w=>{ (_nameToLogin[w]||[]).forEach(l2=>{ scores[l2]=(scores[l2]||0)+1; }); });
+      const best = Object.entries(scores).sort((a,b)=>b[1]-a[1])[0];
+      if(best && best[1]>=2) return best[0];
+      return null;
     };
 
+    const cv=(row,i)=>i>=0?(row.c?.[i]?.v!=null?String(row.c[i].v).trim():(row.c?.[i]?.f||"").trim()):"";
+
     _tareas=(json.table.rows||[]).map(row=>{
-      const rawGestor = cv(row,iLogin);
-      const g = resolveGestor(rawGestor);
+      const rawLogin  = cv(row,iNombreUlt);  // login directo: hchiluisa, aarroyo...
+      const rawNombre = cv(row,iUltUser);    // nombre completo: fallback
+      if(!rawLogin && !rawNombre) return null;
+      const login = resolveLogin(rawLogin, rawNombre);
+      if(!login) return null;
+      const pm = getPM(login);
       return {
-        login:   g.login,
-        gestor:  g.login,   // mostrar el login (aarroyo, morozco, etc.)
-        tipo:    g.tipo,
-        equipo:  g.equipo,
-        ciudad:  g.ciudad,
-        estado:  cv(row,iEstado).trim()  || 'Sin estado',
-        juris:   cv(row,iJuris).trim()   || '—',
-        proceso: cv(row,iProceso).trim() || '—',
-        tarea:   cv(row,iTarea).trim()   || '—',
-        id:      cv(row,iId).trim()      || '—',
-        anno:    cv(row,iAnno).trim(),
-        mes:     cv(row,iMes).trim(),
+        login,
+        gestor:      login,
+        tipo:        pm?.tipo   || "OTROS",
+        equipo:      pm?.equipo || "—",
+        ciudad:      pm?.ciudad || "—",
+        estado:      cv(row,iEstado)    || "Sin estado",
+        juris:       cv(row,iJuris)     || "—",
+        proceso:     cv(row,iProceso)   || "—",
+        tarea:       cv(row,iTarea)     || "—",
+        id:          cv(row,iId)        || "—",
+        anno:        cv(row,iAnno),
+        mes:         cv(row,iMes),
+        loginTarea:  cv(row,iLogin)     || "—",
+        fechaAsig:   cv(row,iFechaAsig) || "—",
       };
-    }).filter(r=>r.login||r.estado);
+    }).filter(Boolean);
 
     console.log(`[Tareas] ${_tareas.length} tareas. Ejemplo gestor:`, _tareas[0]?.gestor, '| tipo:', _tareas[0]?.tipo);
 
     const badge=document.getElementById('tareas-badge-total');
     if(badge) badge.textContent=`${_tareas.length} tareas`;
 
+    renderKpisTareas();
     renderTareasGestores();
     renderTareasAnalisis();
+    if(typeof updateSidebarBadges==='function') updateSidebarBadges();
+
+    // Poblar filtros de tareas
+    if(typeof sfPopulate==='function'){
+      const ids    = [...new Set(_tareas.map(r=>r.id).filter(v=>v&&v!=='—'))].sort();
+      const estados= [...new Set(_tareas.map(r=>r.estado).filter(Boolean))].sort();
+      sfPopulate('sf-id-tarea',    ids);
+      sfPopulate('sf-estado-tarea',estados);
+    }
 
   } catch(e){
     console.error('[Tareas]',e);
@@ -3616,13 +3763,69 @@ async function loadTareas(){
   } finally { _tareasLoading=false; }
 }
 
+function renderKpisTareas(){
+  // Respetar filtros activos: gestor + tipo gestión
+  const gFiltro  = typeof sfGetVals==='function' ? sfGetVals('sf-gestor')       : null;
+  const tgFiltro = typeof sfGetVals==='function' ? sfGetVals('sf-tipo-gestion') : null;
+  const source = _tareas.filter(r=>
+    (!gFiltro  || gFiltro.has(r.login)) &&
+    (!tgFiltro || tgFiltro.has(r.tipo))
+  );
+  if(!source.length) return;
+  const tot = source.length;
+  const set = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+
+  set('kt-total', tot.toLocaleString('es-EC'));
+  set('kt-sub',   tot+' tareas cargadas');
+
+  const estMap = {};
+  source.forEach(r=>{ const e=r.estado||'Sin estado'; estMap[e]=(estMap[e]||0)+1; });
+  const estArr = Object.entries(estMap).sort((a,b)=>b[1]-a[1]);
+  console.log('[Tareas] Estados:', estArr.map(([k,v])=>k+'='+v).join(', '));
+
+  estArr.slice(0,7).forEach(([est,cnt], i)=>{
+    const col = tcol(est);
+    const card = document.getElementById('kt-est-'+i);
+    if(card){ card.style.setProperty('--ak', col); card.style.display=''; }
+    set('kt-lbl-'+i, est);
+    set('kt-val-'+i, cnt);
+    set('kt-pct-'+i, Math.round(cnt/tot*100)+'% del total');
+    const valEl = document.getElementById('kt-val-'+i);
+    if(valEl) valEl.style.color = col;
+  });
+  for(let i=estArr.length; i<7; i++){
+    const card = document.getElementById('kt-est-'+i);
+    if(card) card.style.display='none';
+  }
+
+  set('kt-gestores',       new Set(source.map(r=>r.login).filter(Boolean)).size);
+  set('kt-procesos',       new Set(source.map(r=>r.proceso).filter(p=>p&&p!=='—')).size);
+  set('kt-jurisdicciones', new Set(source.map(r=>r.juris).filter(j=>j&&j!=='—')).size);
+}
+
+function _updateTareasKpiLabels(){} // no-op, ya no necesario
+
 function renderTareasGestores(){
+  // Respetar filtro de gestor, estado_tarea e id_tarea
+  const gFiltro   = typeof sfGetVals==='function' ? sfGetVals('sf-gestor')       : null;
+  const tgFiltro  = typeof sfGetVals==='function' ? sfGetVals('sf-tipo-gestion') : null;
+  const estTFiltro= typeof sfGetVals==='function' ? sfGetVals('sf-estado-tarea') : null;
+  const idTFiltro = typeof sfGetVals==='function' ? sfGetVals('sf-id-tarea')     : null;
+
+  const source = _tareas.filter(r=>
+    (!gFiltro    || gFiltro.has(r.login)) &&
+    (!tgFiltro   || tgFiltro.has(r.tipo)) &&
+    (!estTFiltro || estTFiltro.has(r.estado)) &&
+    (!idTFiltro  || idTFiltro.has(r.id))
+  );
+
   const map={};
-  _tareas.forEach(r=>{
+  source.forEach(r=>{
     const key=r.gestor;
-    if(!map[key]) map[key]={login:r.login,tipo:r.tipo,equipo:r.equipo,ciudad:r.ciudad,estados:{},juriSet:new Set(),rows:[]};
+    if(!map[key]) map[key]={login:r.login,tipo:r.tipo,equipo:r.equipo,ciudad:r.ciudad,estados:{},juriSet:new Set(),procMap:{},rows:[]};
     map[key].estados[r.estado]=(map[key].estados[r.estado]||0)+1;
     map[key].juriSet.add(r.juris);
+    map[key].procMap[r.proceso]=(map[key].procMap[r.proceso]||0)+1;
     map[key].rows.push(r);
   });
   const sorted=Object.entries(map).map(([g,d])=>({g,d,tot:d.rows.length})).sort((a,b)=>b.tot-a.tot);
@@ -3634,22 +3837,257 @@ function renderTareasGestores(){
   if(bOp) bOp.textContent=rowsOp.reduce((s,{tot})=>s+tot,0);
   if(bPr) bPr.textContent=rowsPr.reduce((s,{tot})=>s+tot,0);
 
+  let _tcardUid = 0;
+
   const card=({g,d,tot})=>{
+    const uid = ++_tcardUid;
     const estArr=Object.entries(d.estados).sort((a,b)=>b[1]-a[1]);
     const bar=estArr.map(([e,c])=>`<div class="gc-seg" style="width:${Math.round(c/tot*100)}%;background:${tcol(e)}" title="${e}:${c}"></div>`).join('');
     const pills=estArr.map(([e,c])=>`<div class="gc-est"><span class="gc-est-dot" style="background:${tcol(e)}"></span><span class="gc-est-n" style="color:${tcol(e)}">${c}</span> ${e}</div>`).join('');
-    const top3=d.rows.filter(r=>r.anno).sort((a,b)=>a.anno.localeCompare(b.anno)).slice(0,3);
-    const alerts=top3.map(r=>`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)">
-      <div style="width:6px;height:6px;border-radius:50%;background:${tcol(r.estado)};flex-shrink:0"></div>
-      <div style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:#e8f0ff">${r.tarea||r.id}</div>
-      <span style="font-size:10px;color:${tcol(r.estado)};font-family:var(--font-cond);font-weight:700;flex-shrink:0">${r.anno} ${r.mes}</span>
-    </div>`).join('');
+
     // Pill tipo
     const tipoPill = d.tipo==='PROYECTOS'
       ? `<span style="background:rgba(110,190,235,.18);color:#6EBEEB;border:1px solid rgba(110,190,235,.35);padding:2px 8px;border-radius:20px;font-size:10px;font-family:var(--font-cond)">${d.tipo}</span>`
       : `<span style="background:rgba(52,211,153,.18);color:#34D399;border:1px solid rgba(52,211,153,.35);padding:2px 8px;border-radius:20px;font-size:10px;font-family:var(--font-cond)">${d.tipo}</span>`;
     const pm2 = getPM(d.login);
     const nombreCompleto = pm2 ? pm2.nombre : '';
+
+    // ── BLOQUE OTS DEL GESTOR (tamaño completo, igual que antes) ──
+    const otsRows = (typeof filtered !== 'undefined' ? filtered : [])
+      .filter(r => (r[C.GESTOR]||'').trim().toLowerCase() === g.toLowerCase());
+
+    let otsBlock = '';
+    if(otsRows.length){
+      const otsTot = otsRows.length;
+      const otsEstMap = {};
+      otsRows.forEach(r=>{ const e=getEst(r)||'Sin estado'; otsEstMap[e]=(otsEstMap[e]||0)+1; });
+      const otsEstArr = Object.entries(otsEstMap).sort((a,b)=>b[1]-a[1]);
+      const otsColOTS = est => {
+        const n=est.toLowerCase();
+        if(n.indexOf('plan')>=0&&n.indexOf('replan')<0) return '#34D399';
+        if(n.indexOf('deten')>=0) return '#FF44B0';
+        if(n.indexOf('replan')>=0) return '#FFA700';
+        if(n.indexOf('tarea')>=0) return '#7ED957';
+        if(n.indexOf('prueba')>=0) return '#00B0F0';
+        if(n.indexOf('verif')>=0) return '#FF8C42';
+        if(n.indexOf('preplan')>=0) return '#8B6FE8';
+        if(n.indexOf('asig')>=0) return '#6EBEEB';
+        return '#9BBCD8';
+      };
+
+      // Donut OTS (mismo tamaño que tareas)
+      const circ4=2*Math.PI*50,cx4=65,cy4=65,r5=50,sw4=18;
+      let off4=0,arcs4='';
+      otsEstArr.forEach(([e,c])=>{const col=otsColOTS(e),dash=(c/otsTot)*circ4;arcs4+=`<circle cx="${cx4}" cy="${cy4}" r="${r5}" fill="none" stroke="${col}" stroke-width="${sw4}" stroke-dasharray="${dash} ${circ4}" stroke-dashoffset="${-off4}" transform="rotate(-90 ${cx4} ${cy4})"/>`;off4+=dash;});
+
+      // Top 5 OTS más antiguas
+      const otsTop5 = otsRows
+        .filter(r=>diasDesde(r[C.FE_PLAN])!==null)
+        .sort((a,b)=>(diasDesde(b[C.FE_PLAN])||0)-(diasDesde(a[C.FE_PLAN])||0))
+        .slice(0,5);
+
+      const otsAlertRows = otsTop5.map(r=>{
+        const dias=diasDesde(r[C.FE_PLAN])||0;
+        const ec=getEst(r); const col=otsColOTS(ec);
+        return `<div class="gc-alert-row">
+          <div class="gc-alert-semaforo" style="background:${col}"></div>
+          <div class="gc-alert-info">
+            <div class="gc-alert-cliente">${esc(r[C.CLIENTE]||'—')}</div>
+            <div class="gc-alert-login">🔑 ${esc(r[C.LOGIN]||'—')}</div>
+            <div class="gc-alert-motivo">📋 ${esc(r[C.MOTIVO]||r[C.MOTIVO_HIST]||'—')}</div>
+          </div>
+          <div class="gc-alert-right">
+            <div class="gc-alert-dias" style="color:${col}">${dias}d</div>
+            <div class="gc-alert-estado" style="color:${col}">${ec}</div>
+          </div>
+        </div>`;
+      }).join('');
+
+      // Motivos OTS
+      const otsMotMap={};
+      otsRows.forEach(r=>{
+        const est=getEst(r);
+        if(!esDet(r)&&!esRep(r)) return;
+        const m=r[C.MOTIVO]||r[C.MOTIVO_HIST]||'Sin motivo';
+        if(!otsMotMap[est]) otsMotMap[est]={};
+        otsMotMap[est][m]=(otsMotMap[est][m]||0)+1;
+      });
+      let otsMotHTML='';
+      Object.entries(otsMotMap).forEach(([est,mMap])=>{
+        const col=otsColOTS(est);
+        const mArr=Object.entries(mMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
+        otsMotHTML+=`<div style="margin-bottom:8px">
+          <div class="gc-motivos-title" style="color:${col};margin-bottom:4px">${est.toUpperCase()} · ${Object.values(mMap).reduce((a,b)=>a+b,0)} CAUSAS</div>
+          ${mArr.map(([m,c])=>`<div class="gc-mot-item" style="cursor:default">
+            <span class="gc-mot-num" style="color:${col}">${c}</span>
+            <span class="gc-mot-txt">${esc(m)}</span>
+          </div>`).join('')}
+        </div>`;
+      });
+
+      const otsUid = uid + '_ots';
+      // Tabla detalle OTS
+      const otsDetalleHTML = `<div class="gc-detail"><table><thead><tr>
+        <th>#</th><th>Cliente</th><th>Login</th><th>Estado</th><th>Días</th><th>Motivo</th><th>Fec. Plan</th>
+      </tr></thead><tbody>${otsRows.map((r,i)=>{
+        const dias=diasDesde(r[C.FE_PLAN])||0; const ec=getEst(r); const col=otsColOTS(ec);
+        return `<tr>
+          <td class="td-num" style="color:var(--text-main)">${i+1}</td>
+          <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:600;color:var(--text-main)">${esc(r[C.CLIENTE]||'—')}</td>
+          <td style="font-size:12px;color:var(--text-main)">${esc(r[C.LOGIN]||'—')}</td>
+          <td><span style="color:${col};font-weight:700;font-family:var(--font-cond);font-size:11px">${ec}</span></td>
+          <td class="td-num" style="color:${col}">${dias}d</td>
+          <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--text-main)">${esc(r[C.MOTIVO]||r[C.MOTIVO_HIST]||'—')}</td>
+          <td style="font-size:12px;color:var(--text-main)">${r[C.FE_PLAN]||'—'}</td>
+        </tr>`;
+      }).join('')||'<tr><td colspan="7" class="empty">Sin órdenes</td></tr>'}</tbody></table></div>`;
+
+      otsBlock = `<div style="margin-top:16px;padding-top:14px;border-top:2px solid rgba(0,176,240,.25)">
+        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--turquesa);margin-bottom:10px;font-weight:700">
+          📦 Órdenes OTS · ${otsTot} órdenes
+        </div>
+        <div class="gc-bar" style="margin-bottom:8px">
+          ${otsEstArr.map(([e,c])=>`<div class="gc-seg" style="width:${Math.round(c/otsTot*100)}%;background:${otsColOTS(e)}" title="${e}:${c}"></div>`).join('')}
+        </div>
+        <div class="gc-estados" style="margin-bottom:10px">
+          ${otsEstArr.map(([e,c])=>`<div class="gc-est"><span class="gc-est-dot" style="background:${otsColOTS(e)}"></span><span class="gc-est-n" style="color:${otsColOTS(e)}">${c}</span> ${e}</div>`).join('')}
+        </div>
+        <div class="gp-tabs">
+          <div class="gp-tab active" id="tgpt-${otsUid}-analisis" onclick="switchTareaGpTab('${otsUid}','analisis')">📊 Análisis</div>
+          <div class="gp-tab" id="tgpt-${otsUid}-detalle" onclick="switchTareaGpTab('${otsUid}','detalle')">📋 Detalle · ${otsTot}</div>
+          <div style="flex:1"></div>
+          <button onclick="exportarOTSGestorCSV('${encodeURIComponent(g)}')"
+            style="display:flex;align-items:center;gap:5px;padding:4px 12px;border-radius:16px;
+                   border:1.5px solid rgba(0,176,240,.4);background:rgba(0,176,240,.1);
+                   color:var(--turquesa);font-family:var(--font);font-size:11px;font-weight:600;
+                   cursor:pointer;white-space:nowrap;margin-bottom:2px">
+            ⬇ Excel
+          </button>
+        </div>
+        <div class="gp-panel active" id="tgpp-${otsUid}-analisis">
+          <div class="gc-analisis-grid">
+            <div class="gc-donut-wrap">
+              <div class="gc-donut-title">Distribución Estados · OTS</div>
+              <svg width="130" height="130">
+                <circle cx="${cx4}" cy="${cy4}" r="${r5}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${sw4}"/>
+                ${arcs4}
+                <text x="${cx4}" y="${cy4-6}" text-anchor="middle" fill="#e8f0ff" font-size="20" font-weight="800" font-family="Barlow Condensed,sans-serif">${otsTot}</text>
+                <text x="${cx4}" y="${cy4+11}" text-anchor="middle" fill="#8899aa" font-size="10">órdenes</text>
+              </svg>
+              <div class="gc-donut-legend">
+                ${otsEstArr.map(([e,c])=>`<div class="gc-donut-legend-item">
+                  <div class="gc-donut-legend-dot" style="background:${otsColOTS(e)}"></div>
+                  <span>${e}</span>
+                  <span class="gc-donut-legend-pct" style="color:${otsColOTS(e)}">${Math.round(c/otsTot*100)}%</span>
+                </div>`).join('')}
+              </div>
+            </div>
+            <div class="gc-alert-panel">
+              <div class="gc-alert-title">🔴 Top 5 · Mayor Antigüedad</div>
+              ${otsAlertRows||'<div style="color:#666;font-size:12px">Sin órdenes con fecha</div>'}
+            </div>
+            <div class="gc-motivos-panel">
+              <div class="gc-motivos-sub" style="color:#9BBCD8;margin-bottom:8px">Motivos de Gestión</div>
+              ${otsMotHTML||'<div style="color:var(--muted);font-size:11px">Sin motivos registrados</div>'}
+            </div>
+          </div>
+        </div>
+        <div class="gp-panel" id="tgpp-${otsUid}-detalle">
+          ${otsDetalleHTML}
+        </div>
+      </div>`;
+    } else {
+      otsBlock = `<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)">
+        📦 Sin órdenes OTS activas
+      </div>`;
+    }
+    // Donut estados
+    const circ=2*Math.PI*50,cx=65,cy=65,r3=50,sw2=18;
+    let off2=0,arcs2='';
+    estArr.forEach(([e,c])=>{const col=tcol(e),dash=(c/tot)*circ;arcs2+=`<circle cx="${cx}" cy="${cy}" r="${r3}" fill="none" stroke="${col}" stroke-width="${sw2}" stroke-dasharray="${dash} ${circ}" stroke-dashoffset="${-off2}" transform="rotate(-90 ${cx} ${cy})"/>`;off2+=dash;});
+    const donut=`<svg width="130" height="130">
+      <circle cx="${cx}" cy="${cy}" r="${r3}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${sw2}"/>
+      ${arcs2}
+      <text x="${cx}" y="${cy-6}" text-anchor="middle" fill="#e8f0ff" font-size="20" font-weight="800" font-family="Barlow Condensed,sans-serif">${tot}</text>
+      <text x="${cx}" y="${cy+11}" text-anchor="middle" fill="#8899aa" font-size="10">tareas</text>
+    </svg>`;
+
+    // Top 5 más antiguas
+    const top5=d.rows.filter(r=>r.anno).sort((a,b)=>a.anno.localeCompare(b.anno)||a.mes.localeCompare(b.mes)).slice(0,5);
+    const alertRows=top5.map(r=>`<div class="gc-alert-row">
+      <div class="gc-alert-semaforo" style="background:${tcol(r.estado)}"></div>
+      <div class="gc-alert-info">
+        <div class="gc-alert-cliente" style="color:var(--turquesa);font-weight:600">🔑 ${esc(r.id)}</div>
+        <div class="gc-alert-login">📂 ${esc(r.tarea||r.id)}</div>
+        <div class="gc-alert-login">📂 ${esc(r.proceso)}</div>
+        <div class="gc-alert-motivo">🌐 ${esc(r.juris)}</div>
+      </div>
+      <div class="gc-alert-right">
+        <div class="gc-alert-dias" style="color:${tcol(r.estado)};font-size:11px">${r.anno} ${r.mes}</div>
+        <div class="gc-alert-estado" style="color:${tcol(r.estado)}">${r.estado}</div>
+      </div>
+    </div>`).join('');
+
+    // Motivos (procesos) — igual que "Motivos de Gestión" en OTS
+    const procSorted=Object.entries(d.procMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    const motivoItems=procSorted.map(([proc,cnt2],pi)=>{
+      const uid3=`tc_${uid}_${pi}`;
+      if(!window._tProcRows) window._tProcRows={};
+      window._tProcRows[uid3]=d.rows.filter(r=>r.proceso===proc);
+      return`<div class="gc-mot-item" id="gcmi-t-${uid3}" onclick="gcToggleTareaProc('${uid3}')">
+        <span class="gc-mot-num" style="color:#FFA700">${cnt2}</span>
+        <span class="gc-mot-txt" title="${esc(proc)}">${esc(proc)}</span>
+        <span class="gc-mot-arrow">▼</span>
+      </div>
+      <div class="gc-mot-detail" id="gcmd-t-${uid3}" style="display:none"></div>`;
+    }).join('') || '<div style="color:var(--muted);font-size:11px">Sin procesos</div>';
+
+    const analisisHTML=`<div class="gc-analisis-grid">
+      <div class="gc-donut-wrap">
+        <div class="gc-donut-title">Distribución Estados · Tareas</div>
+        ${donut}
+        <div class="gc-donut-legend">${estArr.map(([e,c])=>`
+          <div class="gc-donut-legend-item">
+            <div class="gc-donut-legend-dot" style="background:${tcol(e)}"></div>
+            <span>${e}</span>
+            <span class="gc-donut-legend-pct" style="color:${tcol(e)}">${Math.round(c/tot*100)}%</span>
+          </div>`).join('')}
+        </div>
+      </div>
+      <div class="gc-alert-panel">
+        <div class="gc-alert-title">📅 Top 5 · Mayor Antigüedad</div>
+        ${alertRows||'<div style="color:#666;font-size:12px">Sin tareas con fecha</div>'}
+      </div>
+      <div class="gc-motivos-panel">
+        <div class="gc-motivos-title" style="color:#FFA700">⚡ Procesos de Gestión</div>
+        <div class="gc-motivos-sub" style="color:#9BBCD8">${procSorted.length} procesos · ${tot} tareas</div>
+        ${motivoItems}
+      </div>
+    </div>
+    ${otsBlock}`;
+
+    // Tabla detalle
+    const detalleHTML=`<div class="gc-detail"><table><thead><tr>
+      <th>#</th><th>NOMBRE_USR_ULT_PLAN</th><th>CIUDAD</th><th>TIPO_GESTIÓN</th><th>EQUIPO</th>
+      <th>ID_TAREA</th><th>LOGIN</th><th>ESTADO_TAREA</th><th>NOMBRE_PROCESO</th>
+      <th>NOMBRE_TAREA</th><th>JURISDICCION</th><th>AÑO</th><th>MES</th><th>FECHA_ASIGNADA</th>
+    </tr></thead><tbody>${d.rows.map((r,i)=>`<tr>
+      <td class="td-num">${i+1}</td>
+      <td class="td-client" style="font-family:var(--font-cond);color:#FFA700">${esc(r.login)}</td>
+      <td style="font-size:12px;color:var(--text-main)">${r.ciudad}</td>
+      <td><span style="font-size:10px;font-family:var(--font-cond);font-weight:700;color:${r.tipo==='PROYECTOS'?'#6EBEEB':'#34D399'}">${r.tipo}</span></td>
+      <td style="font-size:10px;color:var(--text-main)">${r.equipo}</td>
+      <td class="td-num" style="color:var(--azul-c)">${esc(r.id)}</td>
+      <td style="font-size:10px;color:var(--text-main)">${esc(r.loginTarea)}</td>
+      <td><span style="color:${tcol(r.estado)};font-weight:700;font-family:var(--font-cond);font-size:11px">${r.estado}</span></td>
+      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--text-main)" title="${esc(r.proceso)}">${esc(r.proceso)}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--text-main)" title="${esc(r.tarea)}">${esc(r.tarea)}</td>
+      <td style="font-size:10px;color:var(--text-main)">${esc(r.juris)}</td>
+      <td class="td-num">${r.anno}</td>
+      <td style="font-size:12px;color:var(--text-main)">${r.mes}</td>
+      <td style="font-size:10px;color:var(--text-main)">${esc(r.fechaAsig)}</td>
+    </tr>`).join('')||'<tr><td colspan="14" class="empty">Sin tareas</td></tr>'}</tbody></table></div>`;
+
     return`<div class="gestor-card" style="border-top:3px solid #FFA700">
       <div class="gc-header">
         <div class="gc-name" style="color:#FFA700">
@@ -3659,12 +4097,28 @@ function renderTareasGestores(){
         <div class="gc-badges">
           ${tipoPill}
           <span class="gc-badge" style="background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--muted)">${d.equipo} · ${d.ciudad}</span>
-          <span class="gc-badge" style="background:rgba(255,167,0,.1);border:1px solid rgba(255,167,0,.3);color:#FFA700">${tot} tareas · ${d.juriSet.size} jurisd.</span>
+
         </div>
+      </div>
+      <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#FFA700;margin:10px 0 8px;font-weight:700">
+        🗂 Tareas · ${tot} tareas
       </div>
       <div class="gc-bar">${bar}</div>
       <div class="gc-estados">${pills}</div>
-      ${top3.length?`<div style="margin-top:10px"><div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Mas antiguas</div>${alerts}</div>`:''}
+      <div class="gp-tabs" style="margin-top:10px">
+        <div class="gp-tab active" id="tgpt-${uid}-analisis" onclick="switchTareaGpTab(${uid},'analisis')">📊 Análisis</div>
+        <div class="gp-tab" id="tgpt-${uid}-detalle" onclick="switchTareaGpTab(${uid},'detalle')">📋 Detalle · ${tot}</div>
+        <div style="flex:1"></div>
+        <button onclick="exportarTareasGestorCSV('${encodeURIComponent(g)}')"
+          style="display:flex;align-items:center;gap:5px;padding:4px 12px;border-radius:16px;
+                 border:1.5px solid rgba(255,167,0,.4);background:rgba(255,167,0,.1);
+                 color:#FFA700;font-family:var(--font);font-size:11px;font-weight:600;
+                 cursor:pointer;white-space:nowrap;margin-bottom:2px">
+          ⬇ Excel
+        </button>
+      </div>
+      <div class="gp-panel active" id="tgpp-${uid}-analisis">${analisisHTML}</div>
+      <div class="gp-panel" id="tgpp-${uid}-detalle">${detalleHTML}</div>
     </div>`;
   };
 
@@ -3674,42 +4128,434 @@ function renderTareasGestores(){
   if(gPr) gPr.innerHTML=rowsPr.length?rowsPr.map(card).join(''):'<div class="empty">Sin gestores Proyectos</div>';
 }
 
-function renderTareasAnalisis(){
-  const body=document.getElementById('tareas-analisis-body');
-  if(!body||!_tareas.length) return;
-  const tot=_tareas.length;
-  const cnt=(key)=>{const m={};_tareas.forEach(r=>{m[r[key]]=(m[r[key]]||0)+1;});return Object.entries(m).sort((a,b)=>b[1]-a[1]);};
-  const estArr=cnt('estado'), jurArr=cnt('juris').slice(0,8), procArr=cnt('proceso').slice(0,8);
-  // Donut SVG
-  const circ=2*Math.PI*54,cx=70,cy=70,r2=54,sw=20;
-  let off=0,arcs='';
-  estArr.forEach(([e,c])=>{const col=tcol(e),d=(c/tot)*circ;arcs+=`<circle cx="${cx}" cy="${cy}" r="${r2}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-dasharray="${d} ${circ}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})"/>`;off+=d;});
-  const bars=(arr,col)=>arr.map(([l,v])=>{const mx=arr[0][1]||1;return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
-    <div style="width:130px;font-size:11px;color:#9BBCD8;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0" title="${esc(l)}">${l.length>18?l.slice(0,16)+'...':l}</div>
-    <div style="flex:1;background:rgba(255,255,255,.06);border-radius:3px;height:15px"><div style="width:${Math.round(v/mx*100)}%;background:${col};border-radius:3px;height:100%"></div></div>
-    <div style="width:34px;font-family:var(--font-cond);font-weight:700;font-size:11px;color:${col};text-align:right">${v}</div>
-  </div>`;}).join('');
-  body.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
-    <div class="chart-card"><div class="card-title">Por Estado</div>
-      <div style="display:flex;align-items:center;gap:12px;padding:6px 0">
-        <svg width="140" height="140" style="flex-shrink:0">
-          <circle cx="${cx}" cy="${cy}" r="${r2}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${sw}"/>${arcs}
-          <text x="${cx}" y="${cy-6}" text-anchor="middle" fill="#e8f0ff" font-size="22" font-weight="800" font-family="Barlow Condensed,sans-serif">${tot}</text>
-          <text x="${cx}" y="${cy+12}" text-anchor="middle" fill="#8899aa" font-size="11">tareas</text>
-        </svg>
-        <div>${estArr.map(([e,c])=>`<div style="display:flex;align-items:center;gap:5px;margin-bottom:4px">
-          <div style="width:8px;height:8px;border-radius:2px;background:${tcol(e)};flex-shrink:0"></div>
-          <span style="font-size:11px;color:#9BBCD8;flex:1">${e}</span>
-          <span style="font-family:var(--font-cond);font-weight:700;color:${tcol(e)};font-size:12px">${c}</span>
-        </div>`).join('')}</div>
-      </div>
-    </div>
-    <div class="chart-card"><div class="card-title">Por Jurisdiccion</div><div style="padding:6px 0">${bars(jurArr,'#8B6FE8')}</div></div>
-    <div class="chart-card"><div class="card-title">Por Proceso</div><div style="padding:6px 0">${bars(procArr,'#00B0F0')}</div></div>
-  </div>`;
+function switchTareaGpTab(uid, tab){
+  ['analisis','detalle'].forEach(t=>{
+    document.getElementById('tgpt-'+uid+'-'+t)?.classList.toggle('active', t===tab);
+    document.getElementById('tgpp-'+uid+'-'+t)?.classList.toggle('active', t===tab);
+  });
 }
 
-// ── SIDEBAR ────────────────────────────────────────────────────────────
+function gcToggleTareaProc(uid3){
+  const rows=(window._tProcRows||{})[uid3]||[];
+  const item=document.getElementById('gcmi-t-'+uid3);
+  const detail=document.getElementById('gcmd-t-'+uid3);
+  if(!item||!detail) return;
+  const isOpen=detail.style.display!=='none';
+  item.closest('.gc-motivos-panel').querySelectorAll('.gc-mot-detail').forEach(d=>d.style.display='none');
+  item.closest('.gc-motivos-panel').querySelectorAll('.gc-mot-item').forEach(el=>el.classList.remove('gc-mot-active'));
+  if(isOpen) return;
+  item.classList.add('gc-mot-active');
+  detail.style.display='block';
+  if(!rows.length){detail.innerHTML='<div class="gc-mot-detail-hdr">Sin tareas</div>';return;}
+  detail.innerHTML=`<div class="gc-mot-detail-hdr">${rows.length} tarea${rows.length!==1?'s':''}</div>
+    <div class="gc-mot-scroll"><table class="gc-mot-tbl"><thead><tr>
+      <th>#</th><th>Tarea</th><th>Estado</th><th>Jurisdicción</th><th>Año</th><th>Mes</th>
+    </tr></thead><tbody>${rows.map((r,i)=>`<tr>
+      <td style="color:var(--muted);font-family:var(--font-cond)">${i+1}</td>
+      <td style="font-weight:600;color:#e8f0ff;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.tarea||r.id)}</td>
+      <td><span style="color:${tcol(r.estado)};font-weight:700;font-family:var(--font-cond);font-size:11px">${r.estado}</span></td>
+      <td style="color:var(--muted);font-size:11px">${r.juris}</td>
+      <td style="color:var(--muted);font-size:11px">${r.anno}</td>
+      <td style="color:var(--muted);font-size:11px">${r.mes}</td>
+    </tr>`).join('')}</tbody></table></div>`;
+}
+
+// Exportar TODAS las tareas a CSV
+function exportarTareasExcel(){
+  const source = _tareas.length ? _tareas : [];
+  if(!source.length){ alert('Sin tareas cargadas para exportar.'); return; }
+  const headers=['NOMBRE_USR_ULT_PLAN','CIUDAD','TIPO_GESTIÓN','EQUIPO',
+    'ID_TAREA','LOGIN','ESTADO_TAREA','NOMBRE_PROCESO','NOMBRE_TAREA',
+    'JURISDICCION_LOGIN_TAREA','AÑO','MES','FECHA_ASIGNADA'];
+  const sep=';', e2=v=>'"'+String(v||'').replace(/"/g,'""')+'"';
+  const lines=['sep=;', headers.map(e2).join(sep)];
+  source.forEach(r=>lines.push([
+    r.login, r.ciudad, r.tipo, r.equipo,
+    r.id, r.loginTarea, r.estado, r.proceso, r.tarea,
+    r.juris, r.anno, r.mes, r.fechaAsig
+  ].map(e2).join(sep)));
+  const blob=new Blob(['\uFEFF'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`tareas_pei_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+function exportarOTSGestorCSV(encoded){
+  const g = decodeURIComponent(encoded);
+  const rows = (typeof filtered!=='undefined'?filtered:[])
+    .filter(r=>(r[C.GESTOR]||'').trim().toLowerCase()===g.toLowerCase());
+  if(!rows.length){ alert('Sin órdenes OTS para exportar.'); return; }
+  const headers=['GESTOR','LOGIN','CLIENTE','ESTADO_SERVICIO','TIPO_GESTION','PRODUCTO',
+    'TIPO_ORDEN','FE_PREPLANIFICADA','DIAS_SIN_GESTION','MOTIVO','OBS_ULT_PLAN','CONTRATO'];
+  const keys=[C.GESTOR,C.LOGIN,C.CLIENTE,'EST',C.TIPO_GESTION,C.PRODUCTO,
+    C.TIPO_ORDEN,C.FE_PREPLAN,'DIAS',C.MOTIVO,C.OBS_PLAN,C.CONTRATO];
+  const sep=';', e2=v=>'"'+String(v||'').replace(/"/g,'""')+'"';
+  const lines=['sep=;', headers.map(e2).join(sep)];
+  rows.forEach(r=>lines.push(keys.map(k=>{
+    if(k==='EST') return e2(getEst(r));
+    if(k==='DIAS') return e2(diasDesde(r[C.FE_PLAN])||'');
+    return e2(r[k]||'');
+  }).join(sep)));
+  const blob=new Blob(['\uFEFF'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`ots_${g}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+function exportarTareasGestorCSV(encoded){
+  const g = decodeURIComponent(encoded);
+  const rows = _tareas.filter(r => r.gestor === g);
+  if(!rows.length){ alert('Sin tareas para exportar.'); return; }
+  const headers = [
+    'NOMBRE_USR_ULT_PLAN','CIUDAD','TIPO_GESTIÓN','EQUIPO',
+    'ID_TAREA','LOGIN','ESTADO_TAREA','NOMBRE_PROCESO','NOMBRE_TAREA',
+    'JURISDICCION_LOGIN_TAREA','AÑO','MES','FECHA_ASIGNADA'
+  ];
+  const sep = ';';
+  const e2 = v => '"'+String(v||'').replace(/"/g,'""')+'"';
+  const lines = ['sep=;', headers.map(e2).join(sep)];
+  rows.forEach(r => lines.push([
+    r.login, r.ciudad, r.tipo, r.equipo,
+    r.id, r.loginTarea, r.estado, r.proceso, r.tarea,
+    r.juris, r.anno, r.mes, r.fechaAsig
+  ].map(e2).join(sep)));
+  const blob = new Blob(['\uFEFF'+lines.join('\n')], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `tareas_${g}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+} // 'ots' | 'tareas' | 'ambos'
+
+function switchAnalisisVista(v){
+  _analisisVista = v;
+  ['ots','tareas','ambos'].forEach(id=>{
+    const el=document.getElementById('av-'+id);
+    if(el) el.style.display = id===v?'':'none';
+    const btn=document.getElementById('av-btn-'+id);
+    if(btn){
+      btn.style.background = id===v ? (id==='tareas'?'rgba(255,167,0,.18)':'rgba(0,176,240,.18)') : 'transparent';
+      btn.style.color = id===v ? (id==='tareas'?'#FFA700':'var(--turquesa)') : 'var(--muted)';
+    }
+  });
+  // KPI strip: mostrar ambos en Análisis General según vista
+  const otsStrip = document.getElementById('kpi-strip-ots');
+  const tarStrip = document.getElementById('kpi-strip-tareas');
+  const titulo   = document.getElementById('kpi-section-title');
+  const btnOts   = document.getElementById('btn-export-ots');
+  const btnTareas = document.getElementById('btn-export-tareas');
+  if(v==='ots'){
+    if(otsStrip) otsStrip.style.display=''; if(tarStrip) tarStrip.style.display='none';
+    if(titulo) titulo.innerHTML='<span class="dot-sec"></span>Indicadores Clave · OTS';
+    if(btnOts) btnOts.style.display='';
+    if(btnTareas) btnTareas.style.display='none';
+  } else if(v==='tareas'){
+    if(otsStrip) otsStrip.style.display='none'; if(tarStrip) tarStrip.style.display='';
+    if(titulo) titulo.innerHTML='<span class="dot-sec" style="background:#FFA700"></span>Indicadores Clave · Tareas PEI';
+    if(btnOts) btnOts.style.display='none';
+    if(btnTareas) btnTareas.style.display='';
+    if(!_tareas.length && !_tareasLoading) loadTareas(); else renderKpisTareas();
+  } else { // ambos
+    if(otsStrip) otsStrip.style.display=''; if(tarStrip) tarStrip.style.display='';
+    if(titulo) titulo.innerHTML='<span class="dot-sec"></span>Indicadores Clave · <span style="color:var(--turquesa)">OTS</span> &nbsp;+&nbsp; <span style="color:#FFA700">Tareas PEI</span>';
+    if(btnOts) btnOts.style.display='';
+    if(btnTareas) btnTareas.style.display='';
+    if(!_tareas.length && !_tareasLoading) loadTareas(); else { renderKpisTareas(); _renderAnalisisTareasEnContenedor('av-ambos-tareas'); _renderAnalisisTareasEnContenedor('av-ambos-ots', true); }
+  }
+  // Si es tareas o ambos y ya hay datos, renderizar
+  if((v==='tareas'||v==='ambos') && _tareas.length){
+    _renderAnalisisTareasEnContenedor('tareas-analisis-body');
+    _renderAnalisisTareasEnContenedor('av-ambos-tareas');
+    const b2=document.getElementById('tareas-badge-total-b');
+    if(b2) b2.textContent=`${_tareas.length} tareas`;
+    // Resumen OTS en "Ambos"
+    _renderResumenOTSEnContenedor('av-ambos-ots');
+  }
+}
+
+function _renderResumenOTSEnContenedor(containerId){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  const data = (typeof filtered !== 'undefined' && filtered.length) ? filtered
+             : (typeof allData !== 'undefined' ? allData : []);
+  if(!data.length){
+    el.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:10px">Sin datos OTS</div>';
+    return;
+  }
+  const tot = data.length;
+  // Contar estados reales de OTS
+  const estMap = {};
+  data.forEach(r => {
+    const e = (r[C.EST] || '').trim();
+    if(e) estMap[e] = (estMap[e] || 0) + 1;
+  });
+  const estArr = Object.entries(estMap).sort((a,b) => b[1] - a[1]);
+  const maxVal = Math.max(...estArr.map(([,v]) => v), 1);
+  // Color por estado OTS
+  const colOTS = est => {
+    const n = est.toLowerCase();
+    if(n.indexOf('plan') >= 0 && n.indexOf('replan') < 0) return '#34D399';
+    if(n.indexOf('deten') >= 0) return '#FF44B0';
+    if(n.indexOf('replan') >= 0) return '#FFA700';
+    if(n.indexOf('tarea') >= 0) return '#7ED957';
+    if(n.indexOf('prueba') >= 0) return '#00B0F0';
+    if(n.indexOf('verif') >= 0) return '#FF8C42';
+    if(n.indexOf('preplan') >= 0) return '#8B6FE8';
+    if(n.indexOf('asig') >= 0) return '#6EBEEB';
+    return '#9BBCD8';
+  };
+  let html = '<div style="margin-bottom:10px;font-size:12px;color:var(--muted)">Total: <span style="font-family:var(--font-cond);font-weight:800;color:var(--turquesa);font-size:20px">' + tot + '</span> órdenes</div>';
+  estArr.forEach(function(pair){
+    const e = pair[0], v = pair[1];
+    const col = colOTS(e);
+    const pct = Math.round(v / maxVal * 100);
+    const pctTot = Math.round(v / tot * 100);
+    // Label inside bar if bar is wide enough, outside otherwise
+    const labelInside = pct > 15;
+    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">'
+          + '<div style="width:120px;font-size:11px;color:#9BBCD8;text-align:right;flex-shrink:0;font-weight:600">' + e + '</div>'
+          + '<div style="flex:1;background:rgba(255,255,255,.06);border-radius:4px;height:20px;position:relative;overflow:visible">'
+          + '<div style="width:' + pct + '%;background:' + col + ';border-radius:4px;height:100%;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;box-sizing:border-box;min-width:4px">'
+          + (labelInside ? '<span style="font-size:10px;font-family:var(--font-cond);font-weight:700;color:rgba(0,0,0,.7);white-space:nowrap">' + pctTot + '%</span>' : '')
+          + '</div></div>'
+          + '<div style="width:46px;display:flex;align-items:center;gap:4px;flex-shrink:0">'
+          + '<span style="font-family:var(--font-cond);font-weight:800;font-size:14px;color:' + col + '">' + v + '</span>'
+          + (!labelInside ? '<span style="font-size:10px;color:var(--muted)">(' + pctTot + '%)</span>' : '')
+          + '</div>'
+          + '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function _renderAnalisisTareasEnContenedor(containerId){
+  const el=document.getElementById(containerId);
+  if(!el||!_tareas.length) return;
+  // Aplicar filtros activos
+  const _gF  = typeof sfGetVals==='function' ? sfGetVals('sf-gestor')       : null;
+  const _tgF = typeof sfGetVals==='function' ? sfGetVals('sf-tipo-gestion') : null;
+  const _estF= typeof sfGetVals==='function' ? sfGetVals('sf-estado-tarea') : null;
+  const _idF = typeof sfGetVals==='function' ? sfGetVals('sf-id-tarea')     : null;
+  const _src = _tareas.filter(r=>
+    (!_gF  || _gF.has(r.login))  &&
+    (!_tgF || _tgF.has(r.tipo))  &&
+    (!_estF|| _estF.has(r.estado))&&
+    (!_idF || _idF.has(r.id))
+  );
+  const tot=_src.length;
+  if(!tot){ el.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted)">Sin datos con los filtros aplicados</div>'; return; }
+  const isLight=document.documentElement.classList.contains('light');
+  const textCol=isLight?'#4a5568':'#9BBCD8';
+  const bgBar=isLight?'rgba(0,0,0,.06)':'rgba(255,255,255,.06)';
+  const cardStyle=isLight
+    ?'background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-bottom:12px'
+    :'background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px 14px;margin-bottom:12px';
+  const titleStyle=`font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:${textCol};margin-bottom:10px`;
+
+  const cnt=key=>{const m={};_src.forEach(r=>{m[r[key]]=(m[r[key]]||0)+1;});return Object.entries(m).sort((a,b)=>b[1]-a[1]);};
+  const estArr=cnt('estado'), jurArr=cnt('juris').slice(0,8), procArr=cnt('proceso').slice(0,8);
+
+  // Helper: horizontal bar
+  const bar=(label,val,maxVal,col,pctTot)=>{
+    const pct=Math.round(val/maxVal*100);
+    const labelIn=pct>22;
+    return`<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+      <div style="width:110px;font-size:10px;color:${textCol};text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0" title="${label}">${label.length>15?label.slice(0,13)+'…':label}</div>
+      <div style="flex:1;background:${bgBar};border-radius:3px;height:17px;position:relative">
+        <div style="width:${pct}%;background:${col};border-radius:3px;height:100%;display:flex;align-items:center;justify-content:flex-end;padding-right:4px;box-sizing:border-box;min-width:4px">
+          ${labelIn?`<span style="font-size:9px;font-weight:700;color:rgba(255,255,255,.9)">${val}</span>`:''}
+        </div>
+      </div>
+      <div style="width:50px;display:flex;align-items:center;gap:3px;flex-shrink:0">
+        ${!labelIn?`<span style="font-family:var(--font-cond);font-weight:800;font-size:12px;color:${col}">${val}</span>`:''}
+        <span style="font-size:9px;color:var(--muted)">${pctTot}%</span>
+      </div>
+    </div>`;
+  };
+
+  // ── 1. DONUT ESTADOS ──────────────────────────────────────────────────
+  const circ=2*Math.PI*50,cx=65,cy=65,r2=50,sw=18;
+  let off=0,arcs='';
+  estArr.forEach(([e,c])=>{const col=tcol(e),d=(c/tot)*circ;arcs+=`<circle cx="${cx}" cy="${cy}" r="${r2}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-dasharray="${d} ${circ}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})"/>`;off+=d;});
+
+  const block1=`<div style="${cardStyle}">
+    <div style="${titleStyle}">📊 Distribución por Estado</div>
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <svg width="130" height="130" style="flex-shrink:0">
+        <circle cx="${cx}" cy="${cy}" r="${r2}" fill="none" stroke="${bgBar}" stroke-width="${sw}"/>${arcs}
+        <text x="${cx}" y="${cy-5}" text-anchor="middle" fill="${isLight?'#1B3A70':'#e8f0ff'}" font-size="20" font-weight="800" font-family="Barlow Condensed,sans-serif">${tot}</text>
+        <text x="${cx}" y="${cy+11}" text-anchor="middle" fill="${textCol}" font-size="10">tareas</text>
+      </svg>
+      <div style="flex:1;min-width:120px">${estArr.map(([e,c])=>`
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+          <div style="width:9px;height:9px;border-radius:2px;background:${tcol(e)};flex-shrink:0"></div>
+          <span style="font-size:11px;color:${textCol};flex:1">${e}</span>
+          <span style="font-family:var(--font-cond);font-weight:700;color:${tcol(e)};font-size:13px">${c}</span>
+          <span style="font-size:10px;color:var(--muted)">${Math.round(c/tot*100)}%</span>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+
+  // ── 2. TIMELINE POR FECHA ASIGNADA + ESTADO ────────────────────────────
+  const mesMap={};
+  _src.forEach(r=>{
+    if(!r.fechaAsig||r.fechaAsig==='—') return;
+    // Parse date - try YYYY-MM-DD or DD/MM/YYYY
+    let d=new Date(r.fechaAsig);
+    if(isNaN(d)){
+      const p=r.fechaAsig.split(/[\/-]/);
+      if(p.length>=3) d=new Date(p[2],p[1]-1,p[0]);
+    }
+    if(isNaN(d)) return;
+    const key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    if(!mesMap[key]) mesMap[key]={};
+    const est=r.estado||'Sin estado';
+    mesMap[key][est]=(mesMap[key][est]||0)+1;
+  });
+  const meses=Object.keys(mesMap).sort().slice(-8);
+  const allEsts=[...new Set(_src.map(r=>r.estado))].filter(Boolean);
+  const mesNames={'01':'Ene','02':'Feb','03':'Mar','04':'Abr','05':'May','06':'Jun','07':'Jul','08':'Ago','09':'Sep','10':'Oct','11':'Nov','12':'Dic'};
+  const tlRows=meses.map(m=>{
+    const data=mesMap[m];
+    const mesTotal=Object.values(data).reduce((a,b)=>a+b,0);
+    const segs=allEsts.map(e=>`<div style="flex:${(data[e]||0)/mesTotal*100};background:${tcol(e)};height:100%;min-width:${data[e]?2:0}px" title="${e}: ${data[e]||0}"></div>`).join('');
+    const [yr,mo]=m.split('-');
+    return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+      <div style="width:48px;font-size:10px;color:${textCol};text-align:right;flex-shrink:0;font-weight:600">${mesNames[mo]} ${yr.slice(2)}</div>
+      <div style="flex:1;background:${bgBar};border-radius:3px;height:18px;display:flex;overflow:hidden;border-radius:3px">${segs}</div>
+      <div style="width:30px;font-size:10px;color:var(--muted);text-align:right">${mesTotal}</div>
+    </div>`;
+  }).join('');
+  const legend=allEsts.map(e=>`<div style="display:flex;align-items:center;gap:5px;margin-right:12px"><div style="width:9px;height:9px;border-radius:2px;background:${tcol(e)}"></div><span style="font-size:10px;color:${textCol}">${e}</span></div>`).join('');
+  const block2=meses.length?`<div style="${cardStyle}">
+    <div style="${titleStyle}">📅 Evolución por Fecha Asignada · estados por mes</div>
+    ${tlRows}
+    <div style="display:flex;flex-wrap:wrap;margin-top:8px">${legend}</div>
+  </div>`:'';
+
+  // ── 3. TOP GESTORES ─────────────────────────────────────────────────────
+  const gestMap={};
+  _src.forEach(r=>{gestMap[r.gestor]=(gestMap[r.gestor]||0)+1;});
+  const gestArr=Object.entries(gestMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxG=gestArr[0]?.[1]||1;
+  const block3=`<div style="${cardStyle}">
+    <div style="${titleStyle}">👥 Top Gestores por Carga</div>
+    ${gestArr.map(([g,v])=>bar(g,v,maxG,'#F5A623',Math.round(v/tot*100))).join('')}
+  </div>`;
+
+  // ── 4. ESTADO x TIPO GESTIÓN ─────────────────────────────────────────────
+  const tipoMap={OPERATIVO:{},PROYECTOS:{}};
+  _src.forEach(r=>{
+    const t=r.tipo==='PROYECTOS'?'PROYECTOS':'OPERATIVO';
+    const e=r.estado||'Sin estado';
+    tipoMap[t][e]=(tipoMap[t][e]||0)+1;
+  });
+  const tipoRows=Object.entries(tipoMap).map(([tipo,data])=>{
+    const tipoTot=Object.values(data).reduce((a,b)=>a+b,0);
+    if(!tipoTot) return '';
+    const segs=allEsts.map(e=>`<div style="flex:${(data[e]||0)/tipoTot*100};background:${tcol(e)};height:100%;min-width:${data[e]?2:0}px" title="${e}: ${data[e]||0}"></div>`).join('');
+    const col=tipo==='PROYECTOS'?'#1a73c8':'#1b7a3e';
+    return`<div style="margin-bottom:10px">
+      <div style="font-size:11px;font-weight:700;color:${col};margin-bottom:4px">${tipo} <span style="font-weight:400;color:var(--muted);font-size:10px">${tipoTot} tareas</span></div>
+      <div style="display:flex;background:${bgBar};border-radius:4px;height:22px;overflow:hidden">${segs}</div>
+      <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap">
+        ${allEsts.filter(e=>data[e]).map(e=>`<span style="font-size:10px;color:${tcol(e)}"><b>${data[e]}</b> ${e}</span>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+  const block4=`<div style="${cardStyle}">
+    <div style="${titleStyle}">⚡ Estado por Tipo de Gestión</div>
+    ${tipoRows}
+    <div style="display:flex;flex-wrap:wrap;margin-top:6px">${legend}</div>
+  </div>`;
+
+  // ── 5. BARRAS JURISDICCIÓN Y PROCESO ──────────────────────────────────────
+  const maxJ=jurArr[0]?.[1]||1, maxP=procArr[0]?.[1]||1;
+  const block5=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+    <div style="${cardStyle};margin-bottom:0">
+      <div style="${titleStyle}">🌐 Por Jurisdicción</div>
+      ${jurArr.map(([l,v])=>bar(l,v,maxJ,'#8B6FE8',Math.round(v/tot*100))).join('')}
+    </div>
+    <div style="${cardStyle};margin-bottom:0">
+      <div style="${titleStyle}">📂 Por Proceso</div>
+      ${procArr.map(([l,v])=>bar(l,v,maxP,'#00B0F0',Math.round(v/tot*100))).join('')}
+    </div>
+  </div>`;
+
+  // ── 6. TABLA RESUMEN CON ANTIGÜEDAD ─────────────────────────────────────
+  const gestoresMap={};
+  _src.forEach(r=>{
+    if(!gestoresMap[r.gestor]) gestoresMap[r.gestor]={estados:{},oldest:null,tipo:r.tipo,rows:[]};
+    const e=r.estado||'Sin estado';
+    gestoresMap[r.gestor].estados[e]=(gestoresMap[r.gestor].estados[e]||0)+1;
+    gestoresMap[r.gestor].rows.push(r);
+    // Track oldest by fechaAsig
+    if(r.fechaAsig&&r.fechaAsig!=='—'){
+      if(!gestoresMap[r.gestor].oldest||r.fechaAsig<gestoresMap[r.gestor].oldest)
+        gestoresMap[r.gestor].oldest=r.fechaAsig;
+    }
+  });
+  const gestSorted=Object.entries(gestoresMap).sort((a,b)=>b[1].rows.length-a[1].rows.length).slice(0,12);
+  const thStyle=`padding:6px 8px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);border-bottom:1px solid ${isLight?'#e2e8f0':'rgba(255,255,255,.1)'}`;
+  const tdStyle=`padding:6px 8px;font-size:11px;border-bottom:1px solid ${isLight?'#f0f2f5':'rgba(255,255,255,.04)'}`;
+  const tblRows=gestSorted.map(([g,d],i)=>{
+    const gTot=d.rows.length;
+    const miniBar=allEsts.map(e=>`<div style="flex:${(d.estados[e]||0)/gTot*100};background:${tcol(e)};height:100%;min-width:${d.estados[e]?2:0}px"></div>`).join('');
+    // Oldest badge color
+    let oldBadge='—';
+    if(d.oldest){
+      const yrAgo=new Date().getFullYear()-parseInt((d.oldest||'').slice(0,4));
+      const col=yrAgo>=1?'#fce8e6:#c0392b':'#fff3cd:#856404';
+      const [bg,fc]=col.split(':');
+      oldBadge=`<span style="background:${bg};color:${fc};padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700">${d.oldest.slice(0,7)}</span>`;
+    }
+    const tipoPill=d.tipo==='PROYECTOS'
+      ?`<span style="background:rgba(26,115,200,.1);color:#1a73c8;font-size:9px;padding:2px 6px;border-radius:8px;font-weight:700">PROY</span>`
+      :`<span style="background:rgba(27,122,62,.1);color:#1b7a3e;font-size:9px;padding:2px 6px;border-radius:8px;font-weight:700">OP</span>`;
+    return`<tr style="${i%2===0&&isLight?'background:#f9fafb':''}">
+      <td style="${tdStyle};font-weight:700;color:${isLight?'#1B3A70':'#e8f0ff'}">${g}</td>
+      <td style="${tdStyle}">${tipoPill}</td>
+      <td style="${tdStyle};font-weight:800;color:#F5A623;font-family:var(--font-cond)">${gTot}</td>
+      ${allEsts.map(e=>`<td style="${tdStyle};text-align:center;color:${tcol(e)};font-weight:700;font-family:var(--font-cond)">${d.estados[e]||0}</td>`).join('')}
+      <td style="${tdStyle}">${oldBadge}</td>
+      <td style="${tdStyle}"><div style="display:flex;height:8px;border-radius:2px;overflow:hidden;width:80px">${miniBar}</div></td>
+    </tr>`;
+  }).join('');
+  const block6=`<div style="${cardStyle}">
+    <div style="${titleStyle}">📋 Resumen por Gestor · con antigüedad</div>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:11px;min-width:600px">
+        <thead><tr style="background:${isLight?'#f8f9fc':'rgba(255,255,255,.04)'}">
+          <th style="${thStyle}">Gestor</th>
+          <th style="${thStyle}">Tipo</th>
+          <th style="${thStyle}">Total</th>
+          ${allEsts.map(e=>`<th style="${thStyle};color:${tcol(e)}">${e}</th>`).join('')}
+          <th style="${thStyle}">Más antigua</th>
+          <th style="${thStyle}">Distribución</th>
+        </tr></thead>
+        <tbody>${tblRows}</tbody>
+      </table>
+    </div>
+  </div>`;
+
+  el.innerHTML = block1 + block2 + `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px"><div>${block3}</div><div>${block4}</div></div>` + block5 + block6;
+}
+
+function renderTareasAnalisis(){
+  const badge=document.getElementById('tareas-badge-total');
+  if(badge) badge.textContent=`${_tareas.length} tareas`;
+  const b2=document.getElementById('tareas-badge-total-b');
+  if(b2) b2.textContent=`${_tareas.length} tareas`;
+  _renderAnalisisTareasEnContenedor('tareas-analisis-body');
+  _renderAnalisisTareasEnContenedor('av-ambos-tareas');
+  _renderResumenOTSEnContenedor('av-ambos-ots');
+  renderKpisTareas();
+  // Si la vista actual es tareas o ambos, mostrar KPIs de tareas
+  if(_analisisVista==='tareas'||_analisisVista==='ambos') renderKpisTareas();
+}
+
+// ── SIDEBAR NAVIGATION ─────────────────────────────────────────────────
 function toggleSidebar(){
   const collapsed=document.body.classList.toggle('sb-collapsed');
   const sb=document.getElementById('app-sidebar');
@@ -3721,24 +4567,41 @@ function toggleSidebar(){
 
 function sbNav(tab,subTab){
   switchTab(tab);
-  if(tab==='carga'&&subTab){
-    if(subTab==='operativo')switchCargaSubTab('operativo');
-    else if(subTab==='proyectos')switchCargaSubTab('proyectos');
+  if(subTab){
+    if(tab==='carga')switchCargaSubTab(subTab, true);
+    if(tab==='analisis'&&typeof switchAnalisisVista==='function')setTimeout(()=>switchAnalisisVista(subTab),0);
   }
   document.querySelectorAll('.sb-item').forEach(el=>el.classList.remove('active'));
-  const map={'ots':'snav-t-ots','tareas':'snav-t-tareas','ambos':'snav-t-ambos','operativo':'snav-op','proyectos':'snav-pr'};
-  if(map[subTab||tab]) document.getElementById(map[subTab||tab])?.classList.add('active');
+  const activeId={'analisis':'snav-analisis','carga':'snav-carga','tareas-op':'snav-op','tareas-pr':'snav-pr','ots':'snav-t-ots','tareas':'snav-t-tareas','ambos':'snav-t-ambos'}[subTab||tab];
+  if(activeId)document.getElementById(activeId)?.classList.add('active');
+  // Update breadcrumb
+  const labels={'analisis':'Análisis General','carga':'Carga por Gestor','tareas-op':'Carga Operativo','tareas-pr':'Carga Proyectos','ots':'Vista OTS','tareas':'Vista Tareas','ambos':'Vista Ambos'};
+  const bc=document.getElementById('page-breadcrumb');
+  if(bc)bc.textContent=labels[subTab||tab]||'Dashboard';
 }
 
 function updateSidebarBadges(){
-  const bOts=document.getElementById('snav-badge-ots');
-  if(bOts) bOts.textContent=filtered.length||'—';
-  const bOp=document.getElementById('snav-badge-op');
-  const elOp=document.getElementById('cst-badge-operativo');
-  if(bOp&&elOp) bOp.textContent=elOp.textContent||'—';
-  const bPr=document.getElementById('snav-badge-pr');
-  const elPr=document.getElementById('cst-badge-proyectos');
-  if(bPr&&elPr) bPr.textContent=elPr.textContent||'—';
+  // Badge Vista OTS: se actualiza desde renderKPIs con el conteo real de órdenes activas
+
+  // Badge Vista Tareas: tareas con filtros aplicados
+  const bT=document.getElementById('snav-badge-tareas');
+  if(bT && typeof _tareas!=='undefined' && _tareas.length){
+    const _gF  = typeof sfGetVals==='function' ? sfGetVals('sf-gestor')       : null;
+    const _tgF = typeof sfGetVals==='function' ? sfGetVals('sf-tipo-gestion') : null;
+    const _estF= typeof sfGetVals==='function' ? sfGetVals('sf-estado-tarea') : null;
+    const _idF = typeof sfGetVals==='function' ? sfGetVals('sf-id-tarea')     : null;
+    const cnt = _tareas.filter(r=>
+      (!_gF  || _gF.has(r.login))   &&
+      (!_tgF || _tgF.has(r.tipo))   &&
+      (!_estF|| _estF.has(r.estado)) &&
+      (!_idF || _idF.has(r.id))
+    ).length;
+    bT.textContent = cnt || '—';
+  }
+
+  const uname=document.getElementById('sb-user-name');
+  const saved=localStorage.getItem('ia_user')||'';
+  if(uname&&saved)uname.textContent=saved.split('@')[0];
 }
 
 (function initSidebar(){
@@ -3750,6 +4613,8 @@ function updateSidebarBadges(){
     if(sb)sb.classList.add('collapsed');
     if(btn)btn.textContent='❯';
   }
+  // Start on Análisis General
+  switchTab('analisis');
 })();
 
 </script>

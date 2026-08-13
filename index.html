@@ -1648,7 +1648,8 @@ function initFilters(){
   sfCreate('sf-estado','Todos');
   sfCreate('sf-login','Buscar login...');
   sfCreate('sf-fecha','Todas');
-  sfCreate('sf-preplan-mes','Todos'); // mantenido internamente para compatibilidad
+  // sf-preplan-mes es un filtro interno (sin elemento DOM visible) — crear directamente
+  if(!SF['sf-preplan-mes']) SF['sf-preplan-mes']={selected:new Set(),all:[]};
   sfCreate('sf-id-tarea','Buscar ID Tarea...');
   sfCreate('sf-estado-tarea','Todos');
 }

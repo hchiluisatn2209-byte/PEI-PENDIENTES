@@ -1601,7 +1601,6 @@ function sfToggleVal(id,val){
   sfRenderList(id,document.getElementById(id+'-search')?.value||'');
   sfRenderChips(id);
   applyFilters();
-  renderAll();
 }
 
 function sfToggleAll(id){
@@ -1615,7 +1614,6 @@ function sfToggleAll(id){
   sfRenderList(id,q);
   sfRenderChips(id);
   applyFilters();
-  renderAll();
 }
 
 function sfRenderChips(id){
@@ -2451,7 +2449,6 @@ function filterByClick(sfId,value,multi=false){
   sfRenderChips(sfId);
   sfRenderList(sfId,'');
   applyFilters();
-  renderAll();
 }
 
 function mostrarDetalleCliente(cliente){
@@ -2936,10 +2933,7 @@ function exportKpiExcel(){
 }
 
 // ── RENDER ALL ──────────────────────────────────────────────────────────
-let _renderAllRunning=false;
 function renderAll(){
-  if(_renderAllRunning) return;
-  _renderAllRunning=true;
   try{renderKPIs();}catch(e){console.error('[renderKPIs]',e);}
   try{renderGestores();}catch(e){console.error('[renderGestores]',e);}
   // Si hay un gestor seleccionado, mantener y refrescar su detalle con los nuevos filtros
@@ -2964,7 +2958,6 @@ function renderAll(){
   }catch(e){console.error('[doughnut-empresa]',e);}
   try{renderTendPrePlan();}catch(e){console.error('[renderTendPrePlan]',e);}
   try{renderResumen();}catch(e){console.error('[renderResumen]',e);}
-  _renderAllRunning=false;
 }
 
 // ── CARGA DE DATOS ─────────────────────────────────────────────────────
@@ -3355,8 +3348,7 @@ function selectGestor(idx){
     sfRenderChips('sf-gestor');
     sfRenderList('sf-gestor','');
     applyFilters();
-    renderAll();
-    // renderAll → renderGestores reconstruye el nav y activa el gestor correcto
+    // applyFilters → renderAll → renderGestores reconstruye el nav y activa el gestor correcto
     return;
   }
   // Fallback si no hay SF
@@ -3514,7 +3506,6 @@ function selectGestorByName(nombre){
   sfRenderChips('sf-gestor');
   sfRenderList('sf-gestor','');
   applyFilters();
-  renderAll();
 }
 
 function switchGpTab(tab){

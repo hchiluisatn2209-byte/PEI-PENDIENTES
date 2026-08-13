@@ -1074,6 +1074,32 @@ body.sb-collapsed .sidebar{width:56px}
         <tbody id="tbl-resumen"></tbody>
       </table>
     </div>
+
+    <!-- Panel de detalle inline — se despliega al hacer clic en un gestor -->
+    <div id="resumen-detalle-wrap" style="display:none;margin-top:16px">
+      <div class="tbl-card" style="border:1.5px solid rgba(0,176,240,.25)">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="dot-sec"></span>
+            <span style="font-family:var(--font-cond);font-weight:700;font-size:13px;color:var(--turquesa);letter-spacing:1px" id="resumen-detalle-nombre"></span>
+            <span id="resumen-detalle-count" style="font-size:10px;color:var(--muted);font-family:var(--font-cond)"></span>
+          </div>
+          <button onclick="cerrarResumenDetalle()" style="background:rgba(255,68,68,.1);border:1px solid rgba(255,68,68,.3);color:#ff6b6b;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:11px;font-family:var(--font-cond)">✕ Cerrar</button>
+        </div>
+        <div id="resumen-detalle-estados" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr>
+              <th>#</th><th>Fe.Preplan</th><th>Empresa</th><th>Técnico</th><th>Login</th>
+              <th>Cliente</th><th>Estado</th><th>Producto</th><th>Tipo Orden</th>
+              <th>Sucursal</th><th>Últ.Plan</th><th>Días</th><th>Obs.Plan</th>
+              <th>Motivo</th><th>Obs.Replan</th>
+            </tr></thead>
+            <tbody id="resumen-detalle-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
     </div><!-- /padding-top -->
     </div><!-- /av-ots -->
 
@@ -2785,24 +2811,114 @@ function renderGcRows(rows){
 // Sin deduplicación: el gráfico refleja exactamente los registros de filtered
 
 
+function cerrarResumenDetalle(){
+  const wrap=document.getElementById('resumen-detalle-wrap');
+  if(wrap) wrap.style.display='none';
+  document.querySelectorAll('#tbl-resumen tr').forEach(tr=>{
+    tr.style.background='';
+    tr.style.borderLeft='3px solid transparent';
+  });
+  _gestorSeleccionado=null;
+}
+
+let _resumenDetalleEstado='all';
+
 function cargarDetalleGestor(nombre, fromResumen=false){
+  try{
+    _gestorSeleccionado=nombre;
+    _resumenDetalleEstado='all';
+
+    // Resaltar fila activa en tabla resumen
+    document.querySelectorAll('#tbl-resumen tr').forEach(tr=>{
+      const activo=tr.getAttribute('data-gestor')===nombre;
+      tr.style.background=activo?'rgba(0,176,240,.08)':'';
+      tr.style.borderLeft=activo?'3px solid var(--turquesa)':'3px solid transparent';
+    });
+
+    const wrap=document.getElementById('resumen-detalle-wrap');
+    if(!wrap){console.error('resumen-detalle-wrap no encontrado');return;}
+    wrap.style.display='';
+
+    _renderResumenDetalle(nombre);
+
+    setTimeout(()=>wrap.scrollIntoView({behavior:'smooth',block:'start'}),80);
+  }catch(e){console.error('[cargarDetalleGestor]',e);}
+}
+
+function _renderResumenDetalle(nombre){
+  // Construir directamente desde filtered — sin depender de _gestorMapCache
+  const rows = filtered.filter(r => (r[C.GESTOR]||'Sin gestor') === nombre && tieneCarga(r));
+  _renderResumenDetalleRows(nombre, rows);
+}
+
+function _renderResumenDetalleRows(nombre, allRows){
+  document.getElementById('resumen-detalle-nombre').textContent=nombre.toUpperCase();
+
+  const estados=['all','Planificada','Detenido','Replanificada','AsignadoTarea'];
+  const counts={
+    all: allRows.length,
+    Planificada:  allRows.filter(esPlan).length,
+    Detenido:     allRows.filter(esDet).length,
+    Replanificada:allRows.filter(esRep).length,
+    AsignadoTarea:allRows.filter(esAsig).length
+  };
+  const estCols={Planificada:'#34D399',Detenido:'#FF44B0',Replanificada:'#FFA700',AsignadoTarea:'#7ED957'};
+
+  document.getElementById('resumen-detalle-estados').innerHTML=estados.map(e=>{
+    const isAll=e==='all';
+    const cls=e===_resumenDetalleEstado?'active':'';
+    const col=isAll?'':`color:${estCols[e]};border-color:${estCols[e]}40;background:${estCols[e]}18`;
+    return`<span class="estado-fil ${isAll?'ef-all':''} ${cls}" style="${col};cursor:pointer"
+      onclick="_setResumenDetalleEstado('${e}','${nombre.replace(/'/,"\\'")}')">${isAll?'Todos':e} <b>${counts[e]||0}</b></span>`;
+  }).join('');
+
+  let rows=allRows;
+  if(_resumenDetalleEstado!=='all') rows=rows.filter(r=>getEst(r)===_resumenDetalleEstado);
+
+  document.getElementById('resumen-detalle-count').textContent=`${rows.length} ÓRDENES`;
+
+  document.getElementById('resumen-detalle-body').innerHTML=rows.length?rows.map((r,i)=>{
+    const dG=diasDesde(r[C.FE_PLAN]);
+    const obs1=(r[C.OBS_PLAN]||'—').slice(0,80)+(r[C.OBS_PLAN]&&r[C.OBS_PLAN].length>80?'…':'');
+    const motivo=(r[C.MOTIVO]||'').trim()||(r[C.OBS_REPLAN]||'').trim()||(r[C.MOTIVO_HIST]||'').trim()||'—';
+    const obs2=(r[C.OBS_REPLAN]||'—').slice(0,80)+(r[C.OBS_REPLAN]&&r[C.OBS_REPLAN].length>80?'…':'');
+    return`<tr>
+      <td style="color:var(--muted);font-family:var(--font-cond)">${i+1}</td>
+      <td class="td-num">${fmtDate(r[C.FE_PREPLANIFICADA_DMA])}</td>
+      <td class="td-muted" data-tip="${esc(r[C.EMPRESA])}">${r[C.EMPRESA]||'—'}</td>
+      <td style="font-size:12px;color:var(--azul-c);font-family:'Barlow Condensed',sans-serif;font-weight:600">${r._user||'—'}</td>
+      <td class="td-login" data-tip="${esc(r[C.LOGIN])}">${r[C.LOGIN]||'—'}</td>
+      <td class="td-client" data-tip="${esc(r[C.CLIENTE])}">${r[C.CLIENTE]||'—'}</td>
+      <td>${pill(getEst(r))}</td>
+      <td class="td-muted" data-tip="${esc(r[C.PRODUCTO])}">${r[C.PRODUCTO]||'—'}</td>
+      <td class="td-muted" data-tip="${esc(r[C.TIPO_ORDEN])}">${r[C.TIPO_ORDEN]||'—'}</td>
+      <td class="td-muted" data-tip="${esc(r[C.SUCURSAL])}">${r[C.SUCURSAL]||'—'}</td>
+      <td class="td-num">${fmtDate(r[C.FE_PLAN])}</td>
+      <td>${abDias(dG)}</td>
+      <td class="td-obs" data-tip="${esc(r[C.OBS_PLAN]||'')}">${obs1}</td>
+      <td style="font-size:14px;color:var(--amarillo)" data-tip="${esc(motivo)}">${motivo}</td>
+      <td class="td-obs" data-tip="${esc(r[C.OBS_REPLAN]||'')}">${obs2}</td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="15" class="empty">Sin órdenes para este filtro</td></tr>';
+}
+
+function _setResumenDetalleEstado(e, nombre){
+  _resumenDetalleEstado=e;
+  _renderResumenDetalle(nombre);
+}
+
+function cargarDetalleGestorLegacy(nombre){
+  // mantener compatibilidad con el panel del tab Carga
   _gestorSeleccionado=nombre;
   _detalleEstadoFil='all';
   _detalleSortCol=null;
   _detalleSortDir='asc';
   const wrap=document.getElementById('detalle-gestor-wrap');
-  wrap.style.display='';
-  document.getElementById('detalle-gestor-nombre').textContent=nombre;
-
-  // Resaltar fila activa en la tabla de resumen
-  document.querySelectorAll('#tbl-resumen tr').forEach(tr=>{
-    const isActive=tr.getAttribute('data-gestor')===nombre;
-    tr.style.background=isActive?'rgba(0,176,240,.08)':'';
-    tr.style.borderLeft=isActive?'3px solid var(--turquesa)':'3px solid transparent';
-  });
-
+  if(wrap){ wrap.style.display=''; }
+  const el=document.getElementById('detalle-gestor-nombre');
+  if(el) el.textContent=nombre;
+  setTimeout(()=>wrap?.scrollIntoView({behavior:'smooth',block:'start'}),80);
   renderDetalleTabla();
-  setTimeout(()=>wrap.scrollIntoView({behavior:'smooth',block:'start'}),80);
 }
 
 // Sin deduplicación: el detalle muestra TODAS las filas del gestor en filtered
